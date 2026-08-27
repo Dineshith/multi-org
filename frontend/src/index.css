@@ -19,47 +19,56 @@
   box-sizing: border-box;
 }
 
-html {
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
-}
-
-body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-dark);
-  background-color: #f3f4f6;
+  background-color: #ffffff;
   line-height: 1.5;
 }
 
-/* Container wrapper for central page presentation */
+/* Full Width App Container */
 .app-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
   background-color: #ffffff;
   min-height: 100vh;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ==========================================================================
-   1. NAVBAR
+   1. NAVBAR - 100% Full Width
    ========================================================================== */
 .navbar-wrapper {
   background-color: var(--navy-blue);
   width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 .navbar {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 2rem;
+  padding: 0.65rem clamp(1.25rem, 3.5vw, 3.5rem);
   background-color: var(--navy-blue);
-  min-height: 60px;
+  min-height: 64px;
 }
 
 /* Brand / Devanagari Logo */
 .navbar-brand {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .logo-container {
@@ -68,21 +77,23 @@ body {
   align-items: center;
   justify-content: center;
   color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .logo-icon {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   stroke: #ffffff;
   fill: none;
 }
 
 .logo-devanagari {
   font-family: 'Mukta', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  margin-top: -2px;
+  margin-top: -3px;
   color: #ffffff;
 }
 
@@ -90,45 +101,59 @@ body {
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 2.2rem;
+  gap: clamp(1.2rem, 2.5vw, 2.5rem);
 }
 
 .nav-link {
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 500;
   text-decoration: none;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
   position: relative;
+  padding: 0.25rem 0;
 }
 
 .nav-link:hover {
   opacity: 0.85;
 }
 
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
 /* Action Buttons */
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  flex-wrap: nowrap;
 }
 
 .nav-pill-btn {
   background-color: var(--accent-red);
   color: #ffffff;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  padding: 0.35rem 0.85rem;
+  padding: 0.45rem 0.95rem;
   border-radius: 4px;
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .nav-pill-btn:hover {
   background-color: var(--accent-red-hover);
   transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .nav-pill-btn:active {
@@ -138,56 +163,58 @@ body {
 .navbar-toggle {
   display: none;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
 }
 
 .navbar-toggle span {
-  width: 22px;
-  height: 2px;
+  width: 24px;
+  height: 2.5px;
   background: #ffffff;
   border-radius: 2px;
+  transition: all 0.3s ease;
 }
 
 /* ==========================================================================
-   2. HERO
+   2. HERO - 100% Edge-to-Edge Width
    ========================================================================== */
 .hero {
   width: 100%;
   position: relative;
   overflow: hidden;
-  background-color: #e5e7eb;
+  background-color: #0b1329;
 }
 
 .hero-image-wrapper {
   width: 100%;
-  height: auto;
-  max-height: 480px;
+  height: clamp(340px, 46vw, 680px);
   overflow: hidden;
+  position: relative;
 }
 
 .hero-image-wrapper img {
   width: 100%;
   height: 100%;
-  max-height: 480px;
   object-fit: cover;
+  object-position: center center;
   display: block;
 }
 
 /* ==========================================================================
-   3. STATS SECTION
+   3. STATS SECTION - 100% Full Width
    ========================================================================== */
 .stats-section {
+  width: 100%;
   background-color: #ffffff;
-  padding: 2.2rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 3rem clamp(1.25rem, 4vw, 4rem);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .stats-wrapper {
-  max-width: 1050px;
+  max-width: 1350px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -197,7 +224,7 @@ body {
 .stat-card {
   text-align: center;
   position: relative;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
 }
 
 .stat-card:not(:last-child)::after {
@@ -211,74 +238,75 @@ body {
 }
 
 .stat-number {
-  font-size: 2.4rem;
+  font-size: clamp(2.2rem, 3.2vw, 3.2rem);
   font-weight: 800;
   color: var(--text-dark);
   line-height: 1.1;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.4rem;
   font-feature-settings: 'tnum';
 }
 
 .stat-title {
-  font-size: 0.8rem;
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
   font-weight: 800;
   color: var(--text-dark);
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.2rem;
 }
 
 .stat-subtitle {
-  font-size: 0.75rem;
+  font-size: clamp(0.75rem, 0.9vw, 0.85rem);
   color: var(--text-muted);
   font-weight: 400;
 }
 
 /* ==========================================================================
-   4. GALLERY SECTION
+   4. GALLERY SECTION - Spacious & Responsive Full Layout
    ========================================================================== */
 .gallery-section {
+  width: 100%;
   background-color: #ffffff;
-  padding: 2.5rem 2rem 3.5rem;
+  padding: 3.5rem clamp(1.25rem, 4vw, 4rem) 4.5rem;
 }
 
 .gallery-container {
-  max-width: 1100px;
+  max-width: 1350px;
   margin: 0 auto;
 }
 
 .gallery-heading {
-  font-size: 1.25rem;
+  font-size: clamp(1.3rem, 1.8vw, 1.6rem);
   font-weight: 800;
   color: var(--text-dark);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
   font-family: 'Inter', sans-serif;
 }
 
 .gallery-layout {
   display: grid;
   grid-template-columns: 1fr 1.15fr 1fr;
-  gap: 1.25rem;
+  gap: 1.5rem;
   align-items: stretch;
 }
 
 .gallery-col-stacked {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .gallery-card {
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  height: 180px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  height: 220px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .gallery-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .gallery-card img {
@@ -289,31 +317,33 @@ body {
 }
 
 .gallery-card-tall {
-  height: calc(180px * 2 + 1.25rem); /* Exactly matches two stacked cards + gap */
+  height: calc(220px * 2 + 1.5rem); /* Matches the two stacked cards + gap */
 }
 
 /* ==========================================================================
-   5. FOOTER
+   5. FOOTER - 100% Full Width with Yellow Border Frame
    ========================================================================== */
 .footer-outer-frame {
-  margin: 0 auto;
-  border: 4px solid var(--border-yellow-frame);
-  border-radius: 2px;
-  overflow: hidden;
-  position: relative;
+  width: 100%;
+  margin: 0;
+  border-top: 4px solid var(--border-yellow-frame);
+  border-bottom: 4px solid var(--border-yellow-frame);
+  background-color: var(--navy-blue);
 }
 
 .footer {
+  width: 100%;
   background-color: var(--navy-blue);
   color: #ffffff;
-  padding: 2.5rem 3rem 2.5rem;
-  position: relative;
+  padding: 3rem clamp(1.25rem, 4vw, 4rem);
 }
 
 .footer-content {
+  max-width: 1350px;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 0.8fr;
-  gap: 2rem;
+  grid-template-columns: 1.5fr 1fr 1fr 0.8fr;
+  gap: 2.5rem;
   align-items: flex-start;
 }
 
@@ -321,7 +351,7 @@ body {
 .footer-brand-sec {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1.25rem;
 }
 
 .footer-brand-logo {
@@ -333,18 +363,18 @@ body {
 }
 
 .footer-logo-icon {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   stroke: #ffffff;
   fill: none;
 }
 
 .footer-logo-devanagari {
   font-family: 'Mukta', sans-serif;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #ffffff;
-  margin-top: -2px;
+  margin-top: -3px;
 }
 
 .footer-brand-details {
@@ -353,16 +383,16 @@ body {
 }
 
 .footer-title {
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   font-weight: 700;
   color: #ffffff;
   line-height: 1.2;
 }
 
 .footer-subtitle {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.75);
-  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.25rem;
 }
 
 /* Nav links column */
@@ -370,13 +400,13 @@ body {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.75rem;
 }
 
 .footer-links li a {
   color: #ffffff;
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
   transition: opacity 0.2s ease;
 }
@@ -388,16 +418,16 @@ body {
 
 /* Contact column */
 .footer-col-heading {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.75rem;
 }
 
 .footer-contact-item {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.9);
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* Location column */
@@ -406,36 +436,25 @@ body {
 }
 
 /* ==========================================================================
-   6. RESPONSIVE
+   6. RESPONSIVE BREAKPOINTS
    ========================================================================== */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .stats-wrapper {
     grid-template-columns: repeat(2, 1fr);
+    gap: 2rem 1.5rem;
   }
 
   .stat-card:nth-child(2)::after {
     display: none;
   }
 
-  .gallery-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .gallery-card-tall {
-    height: 220px;
-  }
-
-  .gallery-card {
-    height: 200px;
-  }
-
   .footer-content {
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
   }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 820px) {
   .navbar-links,
   .navbar-actions {
     display: none;
@@ -450,24 +469,46 @@ body {
     display: flex;
     flex-direction: column;
     position: absolute;
-    top: 60px;
+    top: 64px;
     left: 0;
     right: 0;
     background-color: var(--navy-blue);
-    padding: 1rem 1.5rem;
-    gap: 0.8rem;
+    padding: 1.25rem 2rem;
+    gap: 1rem;
     z-index: 50;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   }
 
   .navbar.mobile-open .navbar-actions {
     top: auto;
     flex-direction: row;
     flex-wrap: wrap;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
   }
 
+  .gallery-layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .gallery-col-stacked {
+    gap: 1.25rem;
+  }
+
+  .gallery-card-tall {
+    height: 260px;
+  }
+
+  .gallery-card {
+    height: 240px;
+  }
+}
+
+@media (max-width: 580px) {
   .stats-wrapper {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
   .stat-card::after {
@@ -476,5 +517,6 @@ body {
 
   .footer-content {
     grid-template-columns: 1fr;
+    gap: 1.75rem;
   }
 }
