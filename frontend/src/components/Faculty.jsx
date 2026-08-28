@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Mail } from 'lucide-react';
+import { Search, Mail, Phone } from 'lucide-react';
 
 // Mock Data for Faculty
 const facultyData = [
@@ -9,6 +9,7 @@ const facultyData = [
     role: "Head of Department",
     department: "Science",
     email: "ananya.s@akshar.edu.np",
+    phone: "+977 9841234561",
     image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",
     bio: "Ph.D. in Physics with 15 years of teaching experience. Leads advanced research in quantum mechanics."
   },
@@ -18,6 +19,7 @@ const facultyData = [
     role: "Senior Lecturer",
     department: "Management",
     email: "rajesh.t@akshar.edu.np",
+    phone: "+977 9841234562",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80",
     bio: "Expert in Business Strategy and Marketing. Former consultant for top multinational companies."
   },
@@ -27,6 +29,7 @@ const facultyData = [
     role: "Lecturer",
     department: "Humanities",
     email: "sunita.s@akshar.edu.np",
+    phone: "+977 9841234563",
     image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&q=80",
     bio: "Passionate about literature and modern history. Published author of three critically acclaimed books."
   },
@@ -36,6 +39,7 @@ const facultyData = [
     role: "Assistant Professor",
     department: "Computer Science",
     email: "bikash.m@akshar.edu.np",
+    phone: "+977 9841234564",
     image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&q=80",
     bio: "Specializes in Artificial Intelligence and Web Technologies. Mentors the college robotics club."
   },
@@ -45,7 +49,8 @@ const facultyData = [
     role: "Lecturer",
     department: "Science",
     email: "puja.k@akshar.edu.np",
-    image: "https://images.unsplash.com/photo-1598550874175-4d0ef43ee90d?w=600&q=80",
+    phone: "+977 9841234565",
+    image: "https://thumbs.dreamstime.com/b/confident-female-teacher-hands-chin-sitting-desk-portrait-classroom-31236404.jpg",
     bio: "M.Sc. in Chemistry, focuses on organic chemistry research and sustainable lab practices."
   },
   {
@@ -54,6 +59,7 @@ const facultyData = [
     role: "Head of Department",
     department: "Computer Science",
     email: "sandip.g@akshar.edu.np",
+    phone: "+977 9841234566",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&q=80",
     bio: "Leading research in cybersecurity and networks. Has over 20 peer-reviewed journal publications."
   },
@@ -63,6 +69,7 @@ const facultyData = [
     role: "Lecturer",
     department: "Management",
     email: "rita.p@akshar.edu.np",
+    phone: "+977 9841234567",
     image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80",
     bio: "Specializes in accounting and finance. Dedicated to helping students build strong financial literacy."
   },
@@ -72,6 +79,7 @@ const facultyData = [
     role: "Lecturer",
     department: "Humanities",
     email: "kiran.j@akshar.edu.np",
+    phone: "+977 9841234568",
     image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80",
     bio: "Teaches Sociology and Political Science. Organizes community outreach programs."
   }
@@ -170,17 +178,18 @@ const Faculty = () => {
                   </p>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between pt-4 border-t border-[#f3f4f6] gap-2">
+                  <div className="flex flex-col pt-4 border-t border-[#f3f4f6] gap-3">
                     <a href={`mailto:${member.email}`} className="group/email flex items-center gap-2 no-underline text-[#6b7280] text-[0.8rem] font-medium transition-colors duration-200 min-w-0 flex-1 hover:text-[#051087]">
                       <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#f9fafb] shrink-0 transition-colors duration-200 group-hover/email:bg-[#eef2ff]">
                         <Mail className="w-[15px] h-[15px]" />
                       </span>
                       <span className="overflow-hidden text-ellipsis whitespace-nowrap">{member.email}</span>
                     </a>
-                    <a href="#" className="flex items-center justify-center w-8 h-8 rounded-lg bg-transparent border-none text-[#9ca3af] cursor-pointer shrink-0 transition-all duration-200 no-underline hover:bg-[#eef2ff] hover:text-[#0a66c2]" title="LinkedIn Profile">
-                      <svg fill="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
-                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                      </svg>
+                    <a href={`tel:${member.phone}`} className="group/phone flex items-center gap-2 no-underline text-[#16a34a] text-[0.8rem] font-medium transition-colors duration-200 min-w-0 flex-1 hover:text-[#15803d]">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#f0fdf4] shrink-0 transition-colors duration-200 group-hover/phone:bg-[#dcfce7]">
+                        <Phone className="w-[15px] h-[15px]" />
+                      </span>
+                      <span className="overflow-hidden text-ellipsis whitespace-nowrap">{member.phone}</span>
                     </a>
                   </div>
                 </div>
