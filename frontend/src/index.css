@@ -1,32 +1,3 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Mukta:wght@600;700;800&display=swap');
 @import "tailwindcss";
 
-/* ===== Base Variables ===== */
-/* :root {
-  --navy-blue: #051087;
-  --dark-navy: #040c6c;
-  --accent-red: #d32f2f;
-  --accent-red-hover: #b71c1c;
-  --tag-yellow: #facc15;
-  --text-dark: #111827;
-  --text-muted: #6b7280;
-  --border-yellow-frame: #eab308;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: var(--text-dark);
-  background-color: #ffffff;
-  line-height: 1.5;
-} */
