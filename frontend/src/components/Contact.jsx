@@ -215,24 +215,18 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* Dummy Map Section */}
-        <div className="w-full h-[450px] bg-[#e2e8f0] rounded-[24px] overflow-hidden mb-[5rem] border border-[#f1f5f9] shadow-inner relative flex items-center justify-center group cursor-not-allowed">
-          {/* Subtle grid pattern background to simulate a map surface */}
-          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-          
-          <div className="relative z-10 flex flex-col items-center gap-4 bg-white/95 backdrop-blur-md px-10 py-8 rounded-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-white/50 text-center transform transition-transform duration-300 group-hover:scale-105">
-            <div className="w-16 h-16 bg-[#d32f2f]/10 rounded-full flex items-center justify-center mb-1">
-              <MapPin className="w-8 h-8 text-[#d32f2f]" />
-            </div>
-            <div>
-              <h3 className="text-[#051087] font-extrabold text-[1.4rem] mb-1">Akshar Academy</h3>
-              <p className="text-slate-500 text-[0.95rem] font-medium">Akshara Marg, Butwal</p>
-            </div>
-            <div className="mt-2 py-2 px-4 bg-slate-100 rounded-lg border border-slate-200">
-              <span className="text-slate-600 text-[0.85rem] font-bold uppercase tracking-wider">Map Placeholder</span>
-            </div>
-          </div>
-        </div>
+        {/* Real Map Section */}
+<div className="w-full h-[450px] rounded-[24px] overflow-hidden mb-[5rem] border border-[#f1f5f9] shadow-inner relative">
+  <iframe
+    title="Akshar Academy Map"
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3565.6223425417024!2d87.2742654752152!3d26.660571676798227!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ef6d8b1d73da1d%3A0xd4d57514869ca946!2sLunar%20IT%20Solution%20Pvt.%20Ltd.!5e0!3m2!1sen!2sno!4v1788074468924!5m2!1sen!2sno"
+    className="w-full h-full"
+    style={{ border: 0 }}
+    allowFullScreen={true}
+    loading="lazy"
+    referrerPolicy="no-referrer-when-downgrade"
+  ></iframe>
+</div>
 
         {/* FAQ Section */}
         <div className="max-w-[800px] mx-auto">
