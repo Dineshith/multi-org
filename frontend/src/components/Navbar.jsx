@@ -28,48 +28,58 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Navigation Links */}
-        <div className={`items-center gap-[clamp(1.2rem,2.5vw,2.5rem)] ${mobileOpen ? 'flex flex-col absolute top-[64px] left-0 right-0 bg-[#051087] py-5 px-8 gap-4 z-50 shadow-[0_10px_20px_rgba(0,0,0,0.3)]' : 'hidden md-nav:flex'}`}>
-          <Link to="/home" className={`text-white text-[0.95rem] font-medium no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/home' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Home</Link>
-          <Link to="/faculty" className={`text-white text-[0.95rem] font-medium no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/faculty' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Faculty</Link>
-          <Link to="/about" className={`text-white text-[0.95rem] font-medium no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/about' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>About Us</Link>
-        </div>
+        {/* Mobile Overlay */}
+        {mobileOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 min-[821px]:hidden top-[64px]"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
 
-        {/* Action Buttons */}
-        <div className={`items-center gap-[0.6rem] flex-nowrap ${mobileOpen ? 'flex flex-row flex-wrap pt-2 border-t border-white/15' : 'hidden md-nav:flex'}`}>
-          <button className="bg-[#d32f2f] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#b71c1c] hover:-translate-y-px hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)] active:translate-y-0" id="btn-admission">
-            Primary Wing (+2)
-          </button>
-          <button className="bg-[#d32f2f] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#b71c1c] hover:-translate-y-px hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)] active:translate-y-0" id="btn-results">
-            Results
-          </button>
-          <button className="bg-[#d32f2f] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#b71c1c] hover:-translate-y-px hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)] active:translate-y-0" id="btn-notice">
-            Notice
-          </button>
-          <Link to="/contact" className="bg-[#d32f2f] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#b71c1c] hover:-translate-y-px hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)] active:translate-y-0 no-underline inline-block text-center" id="btn-contact">
-            Contact
-          </Link>
+        {/* Mobile Dropdown & Desktop Nav Container */}
+        <div className={`
+          fixed top-0 right-0 h-[100dvh] h-screen w-[260px] bg-[#051087] flex flex-col p-6 pt-[88px] shadow-[-5px_0_15px_rgba(0,0,0,0.3)] z-[90] transition-transform duration-300 ease-in-out overflow-y-auto
+          ${mobileOpen ? 'translate-x-0' : 'translate-x-full'}
+          min-[821px]:transform-none min-[821px]:transition-none min-[821px]:w-auto min-[821px]:h-auto min-[821px]:flex min-[821px]:static min-[821px]:flex-row min-[821px]:flex-1 min-[821px]:items-center min-[821px]:justify-between min-[821px]:p-0 min-[821px]:shadow-none min-[821px]:bg-transparent min-[821px]:ml-8
+        `}>
+          {/* Navigation Links */}
+          <div className="flex flex-col min-[821px]:flex-row min-[821px]:items-center gap-4 min-[821px]:gap-[clamp(1.2rem,2.5vw,2.5rem)] min-[821px]:mx-auto">
+            <Link to="/home" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/home' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Home</Link>
+            <Link to="/faculty" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/faculty' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Faculty</Link>
+            <Link to="/about" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/about' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>About Us</Link>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col min-[821px]:flex-row min-[821px]:flex-nowrap items-stretch min-[821px]:items-center gap-[0.6rem] border-t border-white/15 min-[821px]:border-none pt-4 min-[821px]:pt-0 mt-4 min-[821px]:mt-0 w-full min-[821px]:w-auto">
+            <button className="bg-[#d32f2f] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#b71c1c] hover:-translate-y-px hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)] active:translate-y-0" id="btn-admission">
+              Primary Wing (+2)
+            </button>
+            <button className="bg-[#d32f2f] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#b71c1c] hover:-translate-y-px hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)] active:translate-y-0" id="btn-results">
+              Results
+            </button>
+            <button className="bg-[#d32f2f] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#b71c1c] hover:-translate-y-px hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)] active:translate-y-0" id="btn-notice">
+              Notice
+            </button>
+            <Link to="/contact" className="bg-[#d32f2f] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#b71c1c] hover:-translate-y-px hover:shadow-[0_2px_6px_rgba(0,0,0,0.2)] active:translate-y-0 no-underline inline-block text-center" id="btn-contact">
+              Contact
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Toggle */}
         <button
-          className="flex-col gap-[5px] bg-transparent border-none cursor-pointer p-1.5 hidden max-[820px]:flex"
+          className="flex-col gap-[5px] bg-transparent border-none cursor-pointer p-1.5 flex min-[821px]:hidden relative z-[100]"
           id="navbar-toggle"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle navigation menu"
         >
-          <span className="w-6 h-[2.5px] bg-white rounded-sm transition-all duration-300"></span>
-          <span className="w-6 h-[2.5px] bg-white rounded-sm transition-all duration-300"></span>
-          <span className="w-6 h-[2.5px] bg-white rounded-sm transition-all duration-300"></span>
+          <span className={`w-6 h-[2.5px] bg-white rounded-sm transition-all duration-300 origin-center ${mobileOpen ? 'rotate-45 translate-y-[7.5px]' : ''}`}></span>
+          <span className={`w-6 h-[2.5px] bg-white rounded-sm transition-all duration-300 ${mobileOpen ? 'opacity-0' : ''}`}></span>
+          <span className={`w-6 h-[2.5px] bg-white rounded-sm transition-all duration-300 origin-center ${mobileOpen ? '-rotate-45 -translate-y-[7.5px]' : ''}`}></span>
         </button>
       </nav>
 
-      {/* Custom breakpoint style for nav visibility */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @media (min-width: 821px) {
-          .md-nav\\:flex { display: flex !important; }
-        }
-      `}} />
+
     </header>
   );
 }
