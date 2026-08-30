@@ -99,21 +99,21 @@ const Faculty = () => {
   });
 
   return (
-    <main className="grow bg-[#f8fafc] min-h-screen font-sans">
+    <main className="grow bg-[var(--color-surface)] min-h-screen font-sans">
       {/* Header Banner */}
-      <section className="relative w-full bg-[#051087] text-white pt-[5.5rem] pb-[5rem] px-6 text-center overflow-hidden">
+      <section className="relative w-full bg-[var(--color-primary)] text-white pt-[5.5rem] pb-[5rem] px-6 text-center overflow-hidden">
         {/* Decorative blur blobs */}
-        <div className="absolute -top-[80px] -right-[80px] w-[320px] h-[320px] rounded-full bg-white/[0.06] blur-[60px] pointer-events-none" />
-        <div className="absolute -bottom-[40px] -left-[60px] w-[240px] h-[240px] rounded-full bg-[#d32f2f]/[0.12] blur-[60px] pointer-events-none" />
+        <div className="absolute -top-[5rem] -right-[5rem] w-[20rem] h-[20rem] rounded-full bg-white/[0.06] blur-[3.75rem] pointer-events-none" />
+        <div className="absolute -bottom-[2.5rem] -left-[3.75rem] w-[15rem] h-[15rem] rounded-full bg-[var(--color-accent)]/[0.12] blur-[3.75rem] pointer-events-none" />
 
-        <div className="relative z-[2] max-w-[800px] mx-auto">
-          <span className="inline-block py-[0.3rem] px-4 rounded-full bg-white/10 border border-white/20 text-[0.78rem] font-bold tracking-[1.5px] uppercase text-white/85 mb-5">
+        <div className="relative z-[2] max-w-[50rem] mx-auto">
+          <span className="inline-block py-[0.3rem] px-4 rounded-full bg-white/10 border border-white/20 text-[0.78rem] font-bold tracking-[0.09375rem] uppercase text-white/85 mb-5">
             Academic Leadership
           </span>
-          <h1 className="text-[clamp(2rem,4.5vw,3.25rem)] font-extrabold leading-[1.15] mb-4 tracking-[-0.5px]">
+          <h1 className="text-[clamp(2rem,4.5vw,3.25rem)] font-extrabold leading-[1.15] mb-4 tracking-[-0.03125rem]">
             Meet Our Exceptional Faculty
           </h1>
-          <p className="text-[clamp(1rem,1.3vw,1.15rem)] text-white/75 max-w-[640px] mx-auto leading-[1.7] font-normal">
+          <p className="text-[clamp(1rem,1.3vw,1.15rem)] text-white/75 max-w-[40rem] mx-auto leading-[1.7] font-normal">
             Discover the dedicated educators and industry experts committed to
             guiding you towards academic and professional excellence.
           </p>
@@ -121,26 +121,26 @@ const Faculty = () => {
       </section>
 
       {/* Search & Filter Toolbar */}
-      <div className="max-w-[1280px] mx-auto -mt-8 mb-10 px-[clamp(1rem,3vw,2.5rem)] relative z-10">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 bg-white p-4 rounded-2xl shadow-[0_8px_32px_rgba(5,16,135,0.1),0_2px_8px_rgba(0,0,0,0.04)] border border-[#e5e7eb]">
+      <div className="max-w-[var(--container-max-width-narrow)] mx-auto -mt-8 mb-10 px-[clamp(1rem,3vw,2.5rem)] relative z-10">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 bg-white p-4 rounded-2xl shadow-[var(--shadow-toolbar)] border border-[var(--color-border)]">
           <div className="relative flex-shrink-0 md:flex-[0_1_380px] min-w-0">
-            <Search className="absolute left-[14px] top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#9ca3af] pointer-events-none" />
+            <Search className="absolute left-[0.875rem] top-1/2 -translate-y-1/2 w-[1.125rem] h-[1.125rem] text-[var(--color-text-placeholder)] pointer-events-none" />
             <input
               type="text"
               placeholder="Search by name or role..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full py-[0.7rem] pr-4 pl-[2.75rem] border-[1.5px] border-[#e5e7eb] rounded-xl text-[0.9rem] font-medium text-[#111827] bg-[#f9fafb] outline-none transition-all duration-200 placeholder:text-[#9ca3af] placeholder:font-normal focus:border-[#051087] focus:bg-white focus:shadow-[0_0_0_3px_rgba(5,16,135,0.08)] font-[inherit]"
+              className="w-full py-[0.7rem] pr-4 pl-[2.75rem] border-[0.09375rem] border-[var(--color-border)] rounded-xl text-[0.9rem] font-medium text-[var(--color-text-heading)] bg-[var(--color-surface-alt)] outline-none transition-all duration-[var(--transition-fast)] placeholder:text-[var(--color-text-placeholder)] placeholder:font-normal focus:border-[var(--color-primary)] focus:bg-white focus:shadow-[0_0_0_0.1875rem_rgba(5,16,135,0.08)] font-[inherit]"
             />
           </div>
           <div className="flex items-center gap-2 overflow-x-auto flex-1 no-scrollbar">
             {departments.map(dept => (
               <button
                 key={dept}
-                className={`py-[0.55rem] px-[1.15rem] rounded-[10px] border-[1.5px] text-[0.85rem] font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer font-[inherit] ${
+                className={`py-[0.55rem] px-[1.15rem] rounded-[var(--radius-sm)] border-[0.09375rem] text-[0.85rem] font-semibold whitespace-nowrap transition-all duration-[var(--transition-fast)] cursor-pointer font-[inherit] ${
                   selectedDept === dept
-                    ? 'bg-[#051087] text-white border-[#051087] shadow-[0_4px_12px_rgba(5,16,135,0.25)]'
-                    : 'bg-transparent text-[#6b7280] border-[#e5e7eb] hover:bg-[#f3f4f6] hover:text-[#111827] hover:border-[#d1d5db]'
+                    ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-[var(--shadow-primary-btn)]'
+                    : 'bg-transparent text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text-heading)] hover:border-[var(--color-border-hover)]'
                 }`}
                 onClick={() => setSelectedDept(dept)}
               >
@@ -152,42 +152,42 @@ const Faculty = () => {
       </div>
 
       {/* Faculty Grid */}
-      <div className="max-w-[1280px] mx-auto px-[clamp(1rem,3vw,2.5rem)] pb-20">
+      <div className="max-w-[var(--container-max-width-narrow)] mx-auto px-[clamp(1rem,3vw,2.5rem)] pb-20">
         {filteredFaculty.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
             {filteredFaculty.map((member) => (
-              <div key={member.id} className="group bg-white rounded-2xl overflow-hidden border border-[#e5e7eb] shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:-translate-y-[6px] hover:shadow-[0_16px_40px_rgba(5,16,135,0.12),0_4px_12px_rgba(0,0,0,0.06)] transition-all duration-300 flex flex-col">
+              <div key={member.id} className="group bg-white rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-[var(--shadow-xs)] hover:-translate-y-[0.375rem] hover:shadow-[var(--shadow-faculty-hover)] transition-all duration-[var(--transition-base)] flex flex-col">
                 {/* Image */}
-                <div className="w-full h-[260px] max-[820px]:h-[220px] max-[580px]:h-[240px] relative overflow-hidden bg-[#f3f4f6]">
-                  <img src={member.image} alt={member.name} loading="lazy" className="w-full h-full object-cover object-top block transition-transform duration-500 group-hover:scale-[1.06]" />
-                  <span className="absolute top-3 right-3 bg-white/[0.92] backdrop-blur-[8px] text-[#051087] text-[0.72rem] font-bold py-[0.3rem] px-3 rounded-lg tracking-[0.3px] shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+                <div className="w-full h-[16.25rem] max-[820px]:h-[13.75rem] max-[580px]:h-[15rem] relative overflow-hidden bg-[var(--color-surface-muted)]">
+                  <img src={member.image} alt={member.name} loading="lazy" className="w-full h-full object-cover object-top block transition-transform duration-[var(--transition-slow)] group-hover:scale-[1.06]" />
+                  <span className="absolute top-3 right-3 bg-white/[0.92] backdrop-blur-[0.5rem] text-[var(--color-primary)] text-[0.72rem] font-bold py-[0.3rem] px-3 rounded-lg tracking-[0.01875rem] shadow-[var(--shadow-badge)]">
                     {member.department}
                   </span>
                 </div>
 
                 {/* Body */}
                 <div className="p-6 flex flex-col flex-1">
-                  <h3 className="text-[1.1rem] font-bold text-[#111827] mb-1 leading-[1.3] transition-colors duration-200 group-hover:text-[#051087]">
+                  <h3 className="text-[1.1rem] font-bold text-[var(--color-text-heading)] mb-1 leading-[1.3] transition-colors duration-[var(--transition-fast)] group-hover:text-[var(--color-primary)]">
                     {member.name}
                   </h3>
-                  <p className="text-[0.82rem] font-semibold text-[#d32f2f] mb-[0.85rem]">
+                  <p className="text-[0.82rem] font-semibold text-[var(--color-accent)] mb-[0.85rem]">
                     {member.role}
                   </p>
-                  <p className="text-[0.85rem] text-[#6b7280] leading-[1.65] flex-1 mb-5 line-clamp-3">
+                  <p className="text-[0.85rem] text-[var(--color-text-secondary)] leading-[1.65] flex-1 mb-5 line-clamp-3">
                     {member.bio}
                   </p>
 
                   {/* Footer */}
-                  <div className="flex flex-col pt-4 border-t border-[#f3f4f6] gap-3">
-                    <a href={`mailto:${member.email}`} className="group/email flex items-center gap-2 no-underline text-[#6b7280] text-[0.8rem] font-medium transition-colors duration-200 min-w-0 flex-1 hover:text-[#051087]">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#f9fafb] shrink-0 transition-colors duration-200 group-hover/email:bg-[#eef2ff]">
-                        <Mail className="w-[15px] h-[15px]" />
+                  <div className="flex flex-col pt-4 border-t border-[var(--color-surface-muted)] gap-3">
+                    <a href={`mailto:${member.email}`} className="group/email flex items-center gap-2 no-underline text-[var(--color-text-secondary)] text-[0.8rem] font-medium transition-colors duration-[var(--transition-fast)] min-w-0 flex-1 hover:text-[var(--color-primary)]">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--color-surface-alt)] shrink-0 transition-colors duration-[var(--transition-fast)] group-hover/email:bg-[var(--color-primary-tint-bg)]">
+                        <Mail className="w-[0.9375rem] h-[0.9375rem]" />
                       </span>
                       <span className="overflow-hidden text-ellipsis whitespace-nowrap">{member.email}</span>
                     </a>
-                    <a href={`tel:${member.phone}`} className="group/phone flex items-center gap-2 no-underline text-[#16a34a] text-[0.8rem] font-medium transition-colors duration-200 min-w-0 flex-1 hover:text-[#15803d]">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#f0fdf4] shrink-0 transition-colors duration-200 group-hover/phone:bg-[#dcfce7]">
-                        <Phone className="w-[15px] h-[15px]" />
+                    <a href={`tel:${member.phone}`} className="group/phone flex items-center gap-2 no-underline text-[var(--color-success)] text-[0.8rem] font-medium transition-colors duration-[var(--transition-fast)] min-w-0 flex-1 hover:text-[var(--color-success-dark)]">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--color-success-tint)] shrink-0 transition-colors duration-[var(--transition-fast)] group-hover/phone:bg-[var(--color-success-tint-hover)]">
+                        <Phone className="w-[0.9375rem] h-[0.9375rem]" />
                       </span>
                       <span className="overflow-hidden text-ellipsis whitespace-nowrap">{member.phone}</span>
                     </a>
@@ -197,14 +197,14 @@ const Faculty = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 px-8 bg-white rounded-[20px] border border-[#e5e7eb]">
-            <div className="inline-flex items-center justify-center w-[72px] h-[72px] rounded-full bg-[#f3f4f6] mb-5">
-              <Search className="w-8 h-8 text-[#9ca3af]" />
+          <div className="text-center py-16 px-8 bg-white rounded-[var(--radius-lg)] border border-[var(--color-border)]">
+            <div className="inline-flex items-center justify-center w-[4.5rem] h-[4.5rem] rounded-full bg-[var(--color-surface-muted)] mb-5">
+              <Search className="w-8 h-8 text-[var(--color-text-placeholder)]" />
             </div>
-            <h3 className="text-[1.35rem] font-bold text-[#111827] mb-2">No faculty found</h3>
-            <p className="text-[#6b7280] text-[0.95rem] max-w-[420px] mx-auto">We couldn't find anyone matching "{searchTerm}" in the {selectedDept} department.</p>
+            <h3 className="text-[1.35rem] font-bold text-[var(--color-text-heading)] mb-2">No faculty found</h3>
+            <p className="text-[var(--color-text-secondary)] text-[0.95rem] max-w-[26.25rem] mx-auto">We couldn't find anyone matching "{searchTerm}" in the {selectedDept} department.</p>
             <button
-              className="mt-6 inline-block py-[0.65rem] px-6 bg-[#051087] text-white border-none rounded-[10px] text-[0.9rem] font-semibold cursor-pointer transition-all duration-200 font-[inherit] hover:bg-[#040c6c] hover:-translate-y-px"
+              className="mt-6 inline-block py-[0.65rem] px-6 bg-[var(--color-primary)] text-white border-none rounded-[var(--radius-sm)] text-[0.9rem] font-semibold cursor-pointer transition-all duration-[var(--transition-fast)] font-[inherit] hover:bg-[var(--color-primary-dark)] hover:-translate-y-px"
               onClick={() => { setSearchTerm(""); setSelectedDept("All"); }}
             >
               Clear all filters
