@@ -30,7 +30,7 @@ export default function Navbar() {
 
         {/* Navigation Links */}
         <div className={`items-center gap-[clamp(1.2rem,2.5vw,2.5rem)] ${mobileOpen ? 'flex flex-col absolute top-[64px] left-0 right-0 bg-[#051087] py-5 px-8 gap-4 z-50 shadow-[0_10px_20px_rgba(0,0,0,0.3)]' : 'hidden md-nav:flex'}`}>
-          <Link to="/" className={`text-white text-[0.95rem] font-medium no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Home</Link>
+          <Link to="/home" className={`text-white text-[0.95rem] font-medium no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/home' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Home</Link>
           <Link to="/faculty" className={`text-white text-[0.95rem] font-medium no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/faculty' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Faculty</Link>
           <Link to="/about" className={`text-white text-[0.95rem] font-medium no-underline transition-all duration-200 relative py-1 hover:opacity-85 ${location.pathname === '/about' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>About Us</Link>
         </div>
