@@ -1,53 +1,58 @@
 export default function Gallery() {
   return (
-    <section className="gallery-section" id="gallery">
-      <div className="gallery-container">
-        <h2 className="gallery-heading">Gallery</h2>
+    <section className="w-full bg-white pt-14 pb-[4.5rem] px-[clamp(1.25rem,4vw,4rem)]" id="gallery">
+      <div className="max-w-[1350px] mx-auto">
+        <h2 className="text-[clamp(1.3rem,1.8vw,1.6rem)] font-extrabold text-[#111827] mb-7 font-['Inter',sans-serif]">Gallery</h2>
 
-        <div className="gallery-layout">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.15fr_1fr] gap-6 items-stretch">
           {/* Column 1: Two stacked images */}
-          <div className="gallery-col gallery-col-stacked">
-            <div className="gallery-card">
+          <div className="flex flex-col gap-6">
+            <div className="rounded-md overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.07)] h-[220px] md:h-[220px] transition-all duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
               <img
                 src="/images/gallery-classroom.jpg"
                 alt="Students collaborating and studying"
                 loading="lazy"
+                className="w-full h-full object-cover block"
               />
             </div>
-            <div className="gallery-card">
+            <div className="rounded-md overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.07)] h-[220px] md:h-[220px] transition-all duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
               <img
                 src="/images/gallery-library.jpg"
                 alt="Students in academic hall"
                 loading="lazy"
+                className="w-full h-full object-cover block"
               />
             </div>
           </div>
 
           {/* Column 2: One tall portrait image */}
-          <div className="gallery-col gallery-col-tall">
-            <div className="gallery-card gallery-card-tall">
+          <div>
+            <div className="rounded-md overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.07)] h-[260px] md:h-[calc(220px*2+1.5rem)] transition-all duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
               <img
                 src="/images/gallery-lab.jpg"
                 alt="Classroom learning environment"
                 loading="lazy"
+                className="w-full h-full object-cover block"
               />
             </div>
           </div>
 
           {/* Column 3: Two stacked images */}
-          <div className="gallery-col gallery-col-stacked">
-            <div className="gallery-card">
+          <div className="flex flex-col gap-6">
+            <div className="rounded-md overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.07)] h-[220px] md:h-[220px] transition-all duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
               <img
                 src="/images/gallery-student.jpg"
                 alt="Student actively participating in class"
                 loading="lazy"
+                className="w-full h-full object-cover block"
               />
             </div>
-            <div className="gallery-card">
+            <div className="rounded-md overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.07)] h-[220px] md:h-[220px] transition-all duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
               <img
                 src="/images/gallery-group.jpg"
                 alt="Group of smiling university students"
                 loading="lazy"
+                className="w-full h-full object-cover block"
               />
             </div>
           </div>
