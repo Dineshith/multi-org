@@ -24,38 +24,38 @@ const Contact = () => {
   };
 
   return (
-    <main className="font-sans bg-[#f8fafc] min-h-screen">
+    <main className="font-sans bg-[var(--color-surface)] min-h-screen">
       {/* Hero Section */}
       <section 
         className="relative w-full text-white py-24 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/images/tuimg.png')" }}
       >
-        <div className="absolute inset-0 bg-[#051087]/60" />
-        <div className="absolute -top-[100px] -right-[100px] w-[400px] h-[400px] rounded-full bg-white/10 blur-[80px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[var(--color-primary)]/60" />
+        <div className="absolute -top-[6.25rem] -right-[6.25rem] w-[25rem] h-[25rem] rounded-full bg-white/10 blur-[5rem] pointer-events-none" />
         
         
           <h1 className="text-[2.2rem] sm:text-[clamp(2.5rem,5vw,4rem)] font-black leading-[1.1] mb-4 drop-shadow-lg">
             Contact Akshar Academy
           </h1>
-          <p className="text-[clamp(1.05rem,1.5vw,1.2rem)] text-white/90 max-w-[600px] mx-auto leading-[1.7] font-medium drop-shadow-md">
+          <p className="text-[clamp(1.05rem,1.5vw,1.2rem)] text-white/90 max-w-[37.5rem] mx-auto leading-[1.7] font-medium drop-shadow-md">
             We'd love to hear from you. Reach out for admissions, inquiries, or any other assistance you might need.
           </p>
       </section>
 
       {/* Main Content Area */}
-      <section className="py-[4rem] px-[clamp(1.5rem,4vw,3rem)] max-w-[1300px] mx-auto">
+      <section className="py-[4rem] px-[clamp(1.5rem,4vw,3rem)] max-w-[81.25rem] mx-auto">
         
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-[3rem] lg:gap-[5rem] items-start mb-[5rem]">
           
           {/* Left Side: Information */}
           <div className="flex flex-col gap-10">
             {/* Contact Details */}
-            <div className="bg-white p-8 rounded-[20px] shadow-[0_10px_30px_rgba(5,16,135,0.06)] border border-[#f1f5f9]">
-              <h2 className="text-[1.8rem] text-[#051087] font-extrabold mb-6">Contact Information</h2>
+            <div className="bg-white p-8 rounded-[var(--radius-lg)] shadow-[var(--shadow-card-elevated)] border border-[var(--color-border-light)]">
+              <h2 className="text-[1.8rem] text-[var(--color-primary)] font-extrabold mb-6">Contact Information</h2>
               
               <div className="flex flex-col gap-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-[#051087]/5 rounded-[12px] flex items-center justify-center shrink-0 text-[#051087]">
+                  <div className="w-[var(--icon-container-sm)] h-[var(--icon-container-sm)] bg-[var(--color-primary-tint)] rounded-[var(--radius-base)] flex items-center justify-center shrink-0 text-[var(--color-primary)]">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
@@ -66,7 +66,7 @@ const Contact = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-[#051087]/5 rounded-[12px] flex items-center justify-center shrink-0 text-[#051087]">
+                  <div className="w-[var(--icon-container-sm)] h-[var(--icon-container-sm)] bg-[var(--color-primary-tint)] rounded-[var(--radius-base)] flex items-center justify-center shrink-0 text-[var(--color-primary)]">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
@@ -77,7 +77,7 @@ const Contact = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-[#051087]/5 rounded-[12px] flex items-center justify-center shrink-0 text-[#051087]">
+                  <div className="w-[var(--icon-container-sm)] h-[var(--icon-container-sm)] bg-[var(--color-primary-tint)] rounded-[var(--radius-base)] flex items-center justify-center shrink-0 text-[var(--color-primary)]">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
@@ -89,47 +89,47 @@ const Contact = () => {
             </div>
 
             {/* Operating Hours & Socials */}
-            <div className="bg-[#051087] p-8 rounded-[20px] shadow-[0_10px_30px_rgba(5,16,135,0.1)] text-white relative overflow-hidden">
+            <div className="bg-[var(--color-primary)] p-8 rounded-[var(--radius-lg)] shadow-[var(--shadow-hours)] text-white relative overflow-hidden">
               <div className="absolute -top-[50%] -right-[10%] w-[150%] h-[150%] bg-[radial-gradient(circle,rgba(255,255,255,0.08)_0%,transparent_60%)] pointer-events-none" />
               
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <Clock className="w-6 h-6 text-[#ffb300]" />
+                  <Clock className="w-6 h-6 text-[var(--color-highlight)]" />
                   <h2 className="text-[1.5rem] font-extrabold">Operating Hours</h2>
                 </div>
                 
                 <div className="flex justify-between items-center py-3 border-b border-white/10">
                   <span className="font-semibold text-white/90">Monday - Friday</span>
-                  <span className="font-bold text-[#ffb300]">6:00 AM - 5:00 PM</span>
+                  <span className="font-bold text-[var(--color-highlight)]">6:00 AM - 5:00 PM</span>
                 </div>
                 <div className="flex justify-between items-center py-3">
                   <span className="font-semibold text-white/90">Saturday & Sunday</span>
-                  <span className="font-bold text-[#ffcccc]">Closed</span>
+                  <span className="font-bold text-[var(--color-negative-light)]">Closed</span>
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-white/10">
                   <h4 className="text-[1rem] font-bold mb-4">Follow Us</h4>
                   <div className="flex gap-3">
-                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-[#051087] transition-all duration-300">
+                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-[var(--color-primary)] transition-all duration-[var(--transition-base)]">
                       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className="w-5 h-5">
                         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                       </svg>
                     </a>
-                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-[#051087] transition-all duration-300">
+                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-[var(--color-primary)] transition-all duration-[var(--transition-base)]">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                         <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                         <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                         <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                       </svg>
                     </a>
-                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-[#051087] transition-all duration-300">
+                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-[var(--color-primary)] transition-all duration-[var(--transition-base)]">
                       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className="w-5 h-5">
                         <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
                         <rect x="2" y="9" width="4" height="12"></rect>
                         <circle cx="4" cy="4" r="2"></circle>
                       </svg>
                     </a>
-                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-[#051087] transition-all duration-300">
+                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-[var(--color-primary)] transition-all duration-[var(--transition-base)]">
                       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className="w-5 h-5">
                         <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
                       </svg>
@@ -141,49 +141,49 @@ const Contact = () => {
           </div>
 
           {/* Right Side: Contact Form */}
-          <div className="bg-white p-8 lg:p-10 rounded-[24px] shadow-[0_15px_40px_rgba(5,16,135,0.08)] border border-[#f1f5f9]">
-            <h2 className="text-[2rem] text-[#051087] font-extrabold mb-2">Send us a message</h2>
+          <div className="bg-white p-8 lg:p-10 rounded-[var(--radius-xl)] shadow-[var(--shadow-form)] border border-[var(--color-border-light)]">
+            <h2 className="text-[2rem] text-[var(--color-primary)] font-extrabold mb-2">Send us a message</h2>
             <p className="text-slate-500 mb-8">Fill out the form below and our team will get back to you shortly.</p>
             
             <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
               <div>
-                <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Full Name <span className="text-[#d32f2f]">*</span></label>
+                <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Full Name <span className="text-[var(--color-accent)]">*</span></label>
                 <input 
                   type="text" 
                   placeholder="Enter your full name" 
                   required
-                  className="w-full py-3 px-4 border-[1.5px] border-slate-200 rounded-[12px] text-[0.95rem] outline-none transition-all duration-200 focus:border-[#051087] focus:ring-4 focus:ring-[#051087]/10"
+                  className="w-full py-3 px-4 border-[0.09375rem] border-slate-200 rounded-[var(--radius-base)] text-[0.95rem] outline-none transition-all duration-[var(--transition-fast)] focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Email Address <span className="text-[#d32f2f]">*</span></label>
+                  <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Email Address <span className="text-[var(--color-accent)]">*</span></label>
                   <input 
                     type="email" 
                     placeholder="example@mail.com" 
                     required
-                    className="w-full py-3 px-4 border-[1.5px] border-slate-200 rounded-[12px] text-[0.95rem] outline-none transition-all duration-200 focus:border-[#051087] focus:ring-4 focus:ring-[#051087]/10"
+                    className="w-full py-3 px-4 border-[0.09375rem] border-slate-200 rounded-[var(--radius-base)] text-[0.95rem] outline-none transition-all duration-[var(--transition-fast)] focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Phone Number <span className="text-[#d32f2f]">*</span></label>
+                  <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Phone Number <span className="text-[var(--color-accent)]">*</span></label>
                   <input 
                     type="number" 
                     placeholder="98xxxxxxxx" 
                     required
                     onKeyDown={(e) => ["e", "E", "+", "-", "."].includes(e.key) && e.preventDefault()}
-                    className="w-full py-3 px-4 border-[1.5px] border-slate-200 rounded-[12px] text-[0.95rem] outline-none transition-all duration-200 focus:border-[#051087] focus:ring-4 focus:ring-[#051087]/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full py-3 px-4 border-[0.09375rem] border-slate-200 rounded-[var(--radius-base)] text-[0.95rem] outline-none transition-all duration-[var(--transition-fast)] focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Department / Subject <span className="text-[#d32f2f]">*</span></label>
+                <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Department / Subject <span className="text-[var(--color-accent)]">*</span></label>
                 <div className="relative">
                   <select 
                     required
-                    className="w-full py-3 px-4 pr-10 border-[1.5px] border-slate-200 rounded-[12px] text-[0.95rem] text-slate-700 outline-none transition-all duration-200 focus:border-[#051087] focus:ring-4 focus:ring-[#051087]/10 appearance-none bg-white cursor-pointer"
+                    className="w-full py-3 px-4 pr-10 border-[0.09375rem] border-slate-200 rounded-[var(--radius-base)] text-[0.95rem] text-slate-700 outline-none transition-all duration-[var(--transition-fast)] focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10 appearance-none bg-white cursor-pointer"
                   >
                     <option value="" disabled selected>Select an option</option>
                     <option value="admission">Admissions</option>
@@ -196,18 +196,18 @@ const Contact = () => {
               </div>
 
               <div>
-                <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Your Message <span className="text-[#d32f2f]">*</span></label>
+                <label className="block text-[0.9rem] font-bold text-slate-700 mb-2">Your Message <span className="text-[var(--color-accent)]">*</span></label>
                 <textarea 
                   rows="4" 
                   placeholder="How can we help you?"
                   required
-                  className="w-full py-3 px-4 border-[1.5px] border-slate-200 rounded-[12px] text-[0.95rem] outline-none transition-all duration-200 focus:border-[#051087] focus:ring-4 focus:ring-[#051087]/10 resize-y min-h-[120px]"
+                  className="w-full py-3 px-4 border-[0.09375rem] border-slate-200 rounded-[var(--radius-base)] text-[0.95rem] outline-none transition-all duration-[var(--transition-fast)] focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10 resize-y min-h-[7.5rem]"
                 ></textarea>
               </div>
 
               <button 
                 type="submit"
-                className="w-full bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold text-[1rem] py-4 rounded-[12px] transition-all duration-300 shadow-[0_4px_15px_rgba(211,47,47,0.25)] hover:shadow-[0_6px_20px_rgba(211,47,47,0.35)] hover:-translate-y-1"
+                className="w-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-white font-bold text-[1rem] py-4 rounded-[var(--radius-base)] transition-all duration-[var(--transition-base)] shadow-[var(--shadow-accent-btn)] hover:shadow-[var(--shadow-accent-btn-hover)] hover:-translate-y-1"
               >
                 Send Message
               </button>
@@ -216,16 +216,16 @@ const Contact = () => {
         </div>
 
         {/* Dummy Map Section */}
-        <div className="w-full h-[450px] bg-[#e2e8f0] rounded-[24px] overflow-hidden mb-[5rem] border border-[#f1f5f9] shadow-inner relative flex items-center justify-center group cursor-not-allowed">
+        <div className="w-full h-[28.125rem] bg-[var(--color-map-bg)] rounded-[var(--radius-xl)] overflow-hidden mb-[5rem] border border-[var(--color-border-light)] shadow-inner relative flex items-center justify-center group cursor-not-allowed">
           {/* Subtle grid pattern background to simulate a map surface */}
-          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: `linear-gradient(var(--color-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px)`, backgroundSize: '1.25rem 1.25rem' }}></div>
           
-          <div className="relative z-10 flex flex-col items-center gap-4 bg-white/95 backdrop-blur-md px-10 py-8 rounded-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-white/50 text-center transform transition-transform duration-300 group-hover:scale-105">
-            <div className="w-16 h-16 bg-[#d32f2f]/10 rounded-full flex items-center justify-center mb-1">
-              <MapPin className="w-8 h-8 text-[#d32f2f]" />
+          <div className="relative z-10 flex flex-col items-center gap-4 bg-white/95 backdrop-blur-md px-10 py-8 rounded-[var(--radius-lg)] shadow-[var(--shadow-overlay)] border border-white/50 text-center transform transition-transform duration-[var(--transition-base)] group-hover:scale-105">
+            <div className="w-16 h-16 bg-[var(--color-accent)]/10 rounded-full flex items-center justify-center mb-1">
+              <MapPin className="w-8 h-8 text-[var(--color-accent)]" />
             </div>
             <div>
-              <h3 className="text-[#051087] font-extrabold text-[1.4rem] mb-1">Akshar Academy</h3>
+              <h3 className="text-[var(--color-primary)] font-extrabold text-[1.4rem] mb-1">Akshar Academy</h3>
               <p className="text-slate-500 text-[0.95rem] font-medium">Akshara Marg, Butwal</p>
             </div>
             <div className="mt-2 py-2 px-4 bg-slate-100 rounded-lg border border-slate-200">
@@ -235,9 +235,9 @@ const Contact = () => {
         </div>
 
         {/* FAQ Section */}
-        <div className="max-w-[800px] mx-auto">
+        <div className="max-w-[50rem] mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-[2.2rem] text-[#051087] font-extrabold mb-3">Frequently Asked Questions</h2>
+            <h2 className="text-[2.2rem] text-[var(--color-primary)] font-extrabold mb-3">Frequently Asked Questions</h2>
             <p className="text-slate-500 text-[1.05rem]">Find quick answers to common queries.</p>
           </div>
 
@@ -245,22 +245,22 @@ const Contact = () => {
             {faqs.map((faq, index) => (
               <div 
                 key={index} 
-                className={`bg-white rounded-[16px] border ${openFaq === index ? 'border-[#051087] shadow-[0_5px_20px_rgba(5,16,135,0.08)]' : 'border-[#f1f5f9] shadow-sm'} overflow-hidden transition-all duration-300`}
+                className={`bg-white rounded-[var(--radius-md)] border ${openFaq === index ? 'border-[var(--color-primary)] shadow-[var(--shadow-faq-active)]' : 'border-[var(--color-border-light)] shadow-sm'} overflow-hidden transition-all duration-[var(--transition-base)]`}
               >
                 <button 
                   className="w-full text-left py-5 px-6 flex justify-between items-center gap-4 cursor-pointer focus:outline-none"
                   onClick={() => toggleFaq(index)}
                 >
-                  <h4 className={`text-[1.05rem] font-bold ${openFaq === index ? 'text-[#051087]' : 'text-slate-800'}`}>
+                  <h4 className={`text-[1.05rem] font-bold ${openFaq === index ? 'text-[var(--color-primary)]' : 'text-slate-800'}`}>
                     {faq.question}
                   </h4>
-                  <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${openFaq === index ? 'bg-[#051087]/10 text-[#051087]' : 'bg-slate-100 text-slate-400'}`}>
+                  <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-[var(--transition-base)] ${openFaq === index ? 'bg-[var(--color-primary-tint-strong)] text-[var(--color-primary)]' : 'bg-slate-100 text-slate-400'}`}>
                     {openFaq === index ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                   </div>
                 </button>
                 
                 <div 
-                  className={`px-6 overflow-hidden transition-all duration-300 ease-in-out ${openFaq === index ? 'max-h-[200px] pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}
+                  className={`px-6 overflow-hidden transition-all duration-[var(--transition-base)] ease-in-out ${openFaq === index ? 'max-h-[12.5rem] pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'}`}
                 >
                   <p className="text-slate-500 leading-relaxed text-[0.95rem]">
                     {faq.answer}

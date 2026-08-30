@@ -1,7 +1,7 @@
 export default function Hero() {
   return (
-    <section className="w-full relative overflow-hidden bg-[#0b1329]" id="home">
-      <div className="w-full h-[clamp(340px,46vw,680px)] overflow-hidden relative">
+    <section className="w-full relative overflow-hidden bg-[var(--color-hero-bg)]" id="home">
+      <div className="w-full h-[clamp(21.25rem,46vw,42.5rem)] overflow-hidden relative">
         <img
           src="/images/tuimg.png"
           alt="Akshar Academy main campus building"

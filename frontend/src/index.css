@@ -1,3 +1,91 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Mukta:wght@600;700;800&display=swap');
 @import "tailwindcss";
 
+:root {
+  /* ==========================================
+     DESIGN TOKENS — Single Source of Truth
+     ========================================== */
+
+  /* ---- Colors — Brand ---- */
+  --color-primary: #051087;
+  --color-primary-dark: #040c6c;
+  --color-primary-tint: rgba(5, 16, 135, 0.05);
+  --color-primary-tint-strong: rgba(5, 16, 135, 0.1);
+  --color-accent: #d32f2f;
+  --color-accent-dark: #b71c1c;
+  --color-highlight: #ffb300;
+  --color-hero-bg: #0b1329;
+
+  /* ---- Colors — Text ---- */
+  --color-text-heading: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-placeholder: #9ca3af;
+
+  /* ---- Colors — Surfaces & Backgrounds ---- */
+  --color-surface: #f8fafc;
+  --color-surface-alt: #f9fafb;
+  --color-surface-muted: #f3f4f6;
+
+  /* ---- Colors — Borders ---- */
+  --color-border-light: #f1f5f9;
+  --color-border: #e5e7eb;
+  --color-border-slate: #e2e8f0;
+  --color-border-hover: #d1d5db;
+  --color-grid-line: #cbd5e1;
+
+  /* ---- Colors — Semantic ---- */
+  --color-success: #16a34a;
+  --color-success-dark: #15803d;
+  --color-success-tint: #f0fdf4;
+  --color-success-tint-hover: #dcfce7;
+  --color-primary-tint-bg: #eef2ff;
+  --color-negative-light: #ffcccc;
+  --color-map-bg: #e2e8f0;
+
+  /* ---- Typography ---- */
+  --font-primary: 'Inter', sans-serif;
+  --font-brand: 'Mukta', sans-serif;
+
+  /* ---- Shadows ---- */
+  --shadow-nav: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.15);
+  --shadow-xs: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.03);
+  --shadow-card-elevated: 0 0.625rem 1.875rem rgba(5, 16, 135, 0.06);
+  --shadow-card-hover: 0 0.9375rem 1.875rem rgba(5, 16, 135, 0.08);
+  --shadow-section: 0 0.625rem 2.5rem rgba(5, 16, 135, 0.06);
+  --shadow-form: 0 0.9375rem 2.5rem rgba(5, 16, 135, 0.08);
+  --shadow-image: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.1);
+  --shadow-gallery: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.07);
+  --shadow-gallery-hover: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12);
+  --shadow-toolbar: 0 0.5rem 2rem rgba(5, 16, 135, 0.1), 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
+  --shadow-faculty-hover: 0 1rem 2.5rem rgba(5, 16, 135, 0.12), 0 0.25rem 0.75rem rgba(0, 0, 0, 0.06);
+  --shadow-accent-btn: 0 0.25rem 0.9375rem rgba(211, 47, 47, 0.25);
+  --shadow-accent-btn-hover: 0 0.375rem 1.25rem rgba(211, 47, 47, 0.35);
+  --shadow-primary-btn: 0 0.25rem 0.75rem rgba(5, 16, 135, 0.25);
+  --shadow-badge: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+  --shadow-overlay: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.08);
+  --shadow-hours: 0 0.625rem 1.875rem rgba(5, 16, 135, 0.1);
+  --shadow-faq-active: 0 0.3125rem 1.25rem rgba(5, 16, 135, 0.08);
+  --shadow-mobile-drawer: -0.3125rem 0 0.9375rem rgba(0, 0, 0, 0.3);
+
+  /* ---- Border Radius ---- */
+  --radius-sm: 0.625rem;
+  --radius-base: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+
+  /* ---- Spacing & Layout ---- */
+  --container-max-width: 84.375rem;
+  --container-max-width-narrow: 80rem;
+  --container-max-width-content: 75rem;
+  --icon-container-size: 4rem;
+  --icon-container-sm: 3rem;
+  --icon-size: 1.75rem;
+
+  /* ---- Transitions ---- */
+  --transition-fast: 200ms;
+  --transition-base: 300ms;
+  --transition-slow: 500ms;
+}
