@@ -73,7 +73,7 @@ function AnimatedNumber({ target, suffix, padZero, isDecimal }) {
   const displayNumber = padZero && count < 10 ? `0${count}` : count;
 
   return (
-    <div ref={ref} className="text-[clamp(2.2rem,3.2vw,3.2rem)] font-extrabold text-[#111827] leading-[1.1] mb-[0.4rem] tabular-nums">
+    <div ref={ref} className="text-[clamp(2.2rem,3.2vw,3.2rem)] font-extrabold text-[var(--color-text-heading)] leading-[1.1] mb-[0.4rem] tabular-nums">
       {displayNumber}{suffix}
     </div>
   );
@@ -81,18 +81,18 @@ function AnimatedNumber({ target, suffix, padZero, isDecimal }) {
 
 export default function Stats() {
   return (
-    <section className="w-full bg-white py-12 px-[clamp(1.25rem,4vw,4rem)] border-b border-[#e2e8f0]" id="stats">
-      <div className="max-w-[1350px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
+    <section className="w-full bg-white py-12 px-[clamp(1.25rem,4vw,4rem)] border-b border-[var(--color-border-slate)]" id="stats">
+      <div className="max-w-[var(--container-max-width)] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
         {statsData.map((stat, index) => (
-          <div className={`text-center relative py-3 px-4 ${index < statsData.length - 1 ? 'lg:border-r lg:border-[#e2e8f0]' : ''}`} key={index}>
+          <div className={`text-center relative py-3 px-4 ${index < statsData.length - 1 ? 'lg:border-r lg:border-[var(--color-border-slate)]' : ''}`} key={index}>
             <AnimatedNumber
               target={stat.number}
               suffix={stat.suffix}
               padZero={stat.padZero}
               isDecimal={stat.isDecimal}
             />
-            <div className="text-[clamp(0.8rem,1vw,0.95rem)] font-extrabold text-[#111827] tracking-[0.8px] uppercase mb-[0.2rem]">{stat.title}</div>
-            <div className="text-[clamp(0.75rem,0.9vw,0.85rem)] text-[#6b7280] font-normal">{stat.subtitle}</div>
+            <div className="text-[clamp(0.8rem,1vw,0.95rem)] font-extrabold text-[var(--color-text-heading)] tracking-[0.8px] uppercase mb-[0.2rem]">{stat.title}</div>
+            <div className="text-[clamp(0.75rem,0.9vw,0.85rem)] text-[var(--color-text-secondary)] font-normal">{stat.subtitle}</div>
           </div>
         ))}
       </div>
