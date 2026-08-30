@@ -40,7 +40,7 @@ export default function Navbar() {
         <div className={`
           fixed top-0 right-0 h-[100dvh] h-screen w-[260px] bg-[#051087] flex flex-col p-6 pt-[88px] shadow-[-5px_0_15px_rgba(0,0,0,0.3)] z-[90] transition-transform duration-300 ease-in-out overflow-y-auto
           ${mobileOpen ? 'translate-x-0' : 'translate-x-full'}
-          min-[821px]:transform-none min-[821px]:transition-none min-[821px]:w-auto min-[821px]:h-auto min-[821px]:flex min-[821px]:static min-[821px]:flex-row min-[821px]:flex-1 min-[821px]:items-center min-[821px]:justify-between min-[821px]:p-0 min-[821px]:shadow-none min-[821px]:bg-transparent min-[821px]:ml-8
+          min-[821px]:translate-x-0 min-[821px]:transition-none min-[821px]:w-auto min-[821px]:h-auto min-[821px]:flex min-[821px]:static min-[821px]:flex-row min-[821px]:flex-1 min-[821px]:items-center min-[821px]:justify-between min-[821px]:p-0 min-[821px]:shadow-none min-[821px]:bg-transparent min-[821px]:ml-8 min-[821px]:overflow-visible
         `}>
           {/* Navigation Links */}
           <div className="flex flex-col min-[821px]:flex-row min-[821px]:items-center gap-4 min-[821px]:gap-[clamp(1.2rem,2.5vw,2.5rem)] min-[821px]:mx-auto">
