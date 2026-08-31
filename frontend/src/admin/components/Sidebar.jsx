@@ -14,15 +14,15 @@ import {
 } from 'lucide-react';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: Building2, label: 'Organizations', path: '/organizations' },
-  { icon: Users, label: 'User Management', path: '/users' },
-  { icon: GraduationCap, label: 'Academics', path: '/academics' },
-  { icon: BookOpen, label: 'Students', path: '/students' },
-  { icon: CreditCard, label: 'Finance', path: '/finance' },
-  { icon: ClipboardCheck, label: 'Results', path: '/results' },
-  { icon: Bell, label: 'Notice', path: '/notice' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+  { icon: Building2, label: 'Organizations', path: '/admin/organizations' },
+  { icon: Users, label: 'User Management', path: '/admin/users' },
+  { icon: GraduationCap, label: 'Academics', path: '/admin/academics' },
+  { icon: BookOpen, label: 'Students', path: '/admin/students' },
+  { icon: CreditCard, label: 'Finance', path: '/admin/finance' },
+  { icon: ClipboardCheck, label: 'Results', path: '/admin/results' },
+  { icon: Bell, label: 'Notice', path: '/admin/notice' },
+  { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 
 export default function Sidebar() {
@@ -48,6 +48,7 @@ export default function Sidebar() {
             <NavLink 
               key={item.label}
               to={item.path}
+              end={item.path === '/admin'}
               className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
                 isActive 
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20' 

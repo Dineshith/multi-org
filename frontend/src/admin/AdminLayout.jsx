@@ -1,14 +1,9 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import { Bell, Search } from 'lucide-react';
-import Dashboard from './pages/Dashboard';
-import NoticeManagement from './pages/NoticeManagement';
-import OrganizationManagement from './pages/OrganizationManagement';
-import ResultManagement from './pages/ResultManagement';
-import StudentManagement from './pages/StudentManagement';
 
-function App() {
+export default function AdminLayout() {
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans">
       <Sidebar />
@@ -40,18 +35,9 @@ function App() {
 
         {/* Page Content */}
         <div className="p-8 flex-1">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/organizations" element={<OrganizationManagement />} />
-            <Route path="/students" element={<StudentManagement />} />
-            <Route path="/notice" element={<NoticeManagement />} />
-            <Route path="/results" element={<ResultManagement />} />
-            <Route path="*" element={<Dashboard />} /> {/* Fallback route */}
-          </Routes>
+          <Outlet />
         </div>
       </main>
     </div>
-  )
+  );
 }
-
-export default App;
