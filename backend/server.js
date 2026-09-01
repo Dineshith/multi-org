@@ -1,49 +1,31 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import mysql from 'mysql2/promise';
-
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
+import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 6000;
 
-// Middleware
+const adapter = new PrismaPg();
+const prisma = new PrismaClient({ adapter });
 app.use(cors());
 app.use(express.json());
-
-// MySQL Connection Pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'multi_org_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
-
-// Test DB connection on startup
-(async () => {
+async function connectDatabase() {
   try {
-    const connection = await pool.getConnection();
-    console.log('MySQL Connected');
-    connection.release();
+    await prisma.$connect();
+    console.log("PostgreSQL Connected");
   } catch (err) {
-    console.log('MySQL connection failed:', err.message);
+    console.log("PostgreSQL connection failed:", err.message);
   }
-})();
+}
 
-// Make pool accessible to routes
-app.locals.db = pool;
-
-// Basic Route
-app.get('/', (req, res) => {
-  res.send('Multi-Org Backend is running');
+connectDatabase();
+app.locals.db = prisma;
+app.get("/", (req, res) => {
+  res.send("Multi-Org Backend is running");
 });
-
-// Start Server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

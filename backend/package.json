@@ -1,24 +1,31 @@
 {
   "name": "multi-org-backend",
   "version": "1.0.0",
-  "description": "Multi-Org Backend API with Express and MySQL",
+  "description": "Multi-Org Backend API with Express and PostgreSQL",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["express", "mysql", "multi-org"],
+  "keywords": [
+    "express",
+    "postgresql",
+    "prisma",
+    "multi-org"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "morgan": "^1.10.0",
-    "mysql2": "^3.11.0"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "prisma": "^7.10.0"
   }
 }
