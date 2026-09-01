@@ -2,9 +2,11 @@ generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
 }
+
 datasource db {
   provider = "postgresql"
 }
+
 model Organization {
   id                   String  @id @default(cuid())
   name                 String
@@ -13,12 +15,13 @@ model Organization {
 
   parent   Organization?  @relation("OrganizationHierarchy", fields: [parentOrganizationId], references: [id])
   children Organization[] @relation("OrganizationHierarchy")
+  faculties Faculty?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Faculty {
+model FacultyMembers{
   id          String  @id @default(cuid())
   name        String
   description String?
@@ -30,12 +33,14 @@ model Faculty {
   updatedAt DateTime @updatedAt
 }
 
-model Discipline {
+model Faculty {
   id          String  @id @default(cuid())
   name        String
   description String?
 
   programs Program[]
+  organizationId String? @unique
+  organization   Organization? @relation(fields: [organizationId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -47,11 +52,11 @@ model Program {
   code        String? @unique
   description String?
 
-  facultyId String?
-  faculty   Faculty? @relation(fields: [facultyId], references: [id])
+  facultyMembersId String?
+  facultyMembers   FacultyMembers? @relation(fields: [facultyMembersId], references: [id])
 
-  disciplineId String?
-  discipline   Discipline? @relation(fields: [disciplineId], references: [id])
+ facultyId String?
+ faculty   Faculty? @relation(fields:  [facultyId], references: [id])
 
   resultRecords ResultRecord[]
 

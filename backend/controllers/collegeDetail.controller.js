@@ -1,8 +1,10 @@
+import { prisma } from "../prisma.js";
+
 export const createCollegeDetail = async (req, res) => {
   try {
     const { name, logo, address, phone, email } = req.body;
 
-    const college = await req.app.locals.db.collegeDetail.create({
+    const college = await prisma.collegeDetail.create({
       data: {
         name,
         logo,
