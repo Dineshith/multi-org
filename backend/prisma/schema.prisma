@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Organization {
+  id                   String  @id @default(cuid())
+  name                 String
+  description          String?
+  parentOrganizationId String?
+
+  parent   Organization?  @relation("OrganizationHierarchy", fields: [parentOrganizationId], references: [id])
+  children Organization[] @relation("OrganizationHierarchy")
+  faculties Faculty?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FacultyMembers{
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  image       String?
+
+  programs Program[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Faculty {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  programs Program[]
+  organizationId String? @unique
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Program {
+  id          String  @id @default(cuid())
+  name        String
+  code        String? @unique
+  description String?
+
+  facultyMembersId String?
+  facultyMembers   FacultyMembers? @relation(fields: [facultyMembersId], references: [id])
+
+ facultyId String?
+ faculty   Faculty? @relation(fields:  [facultyId], references: [id])
+
+  resultRecords ResultRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CollegeDetail {
+  id      String @id @default(cuid())
+  logo    String
+  name    String
+  address String
+
+  contact Contact?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id    String @id @default(cuid())
+  phone String @unique
+  email String @unique
+
+  collegeDetailId String        @unique
+  collegeDetail   CollegeDetail @relation(fields: [collegeDetailId], references: [id])
+}
+
+model Banner {
+  id   String @id @default(cuid())
+  name String
+  img  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Partnership {
+  id          String @id @default(cuid())
+  name        String
+  description String
+
+  details PartnershipDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PartnershipDetail {
+  id         String @id @default(cuid())
+  firstName  String
+  lastName   String
+  schoolName String
+  schoolRole String
+  country    String
+  contact    String
+
+  partnershipId String
+  partnership   Partnership @relation(fields: [partnershipId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Notice {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  fileUrl     String?
+  publishedAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  image       String?
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Research {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  author      String?
+  fileUrl     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EJournal {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?
+  fileUrl     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Gallery {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+
+  images GalleryImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryImage {
+  id       String @id @default(cuid())
+  imageUrl String
+
+  galleryId String
+  gallery   Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  password String
+
+  role Role @default(STUDENT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+model ResultPublication {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  fileUrl     String?
+  publishedAt DateTime?
+  isPublished Boolean   @default(false)
+
+  records ResultRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ResultRecord {
+  id           String  @id @default(cuid())
+  symbolNumber String
+  studentName  String
+  result       String?
+
+  programId String
+  program   Program @relation(fields: [programId], references: [id])
+
+  resultPublicationId String
+  publication         ResultPublication @relation(fields: [resultPublicationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([resultPublicationId, symbolNumber])
+}
