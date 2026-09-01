@@ -1,17 +1,17 @@
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import { prisma } from "./prisma.js";
+import collegeDetailRoute from "./routes/collegeDetail.route.js";
+
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 6000;
 
-const adapter = new PrismaPg();
-const prisma = new PrismaClient({ adapter });
 app.use(cors());
 app.use(express.json());
+
 async function connectDatabase() {
   try {
     await prisma.$connect();
@@ -22,10 +22,15 @@ async function connectDatabase() {
 }
 
 connectDatabase();
+
 app.locals.db = prisma;
+
 app.get("/", (req, res) => {
   res.send("Multi-Org Backend is running");
 });
+
+app.use("/", collegeDetailRoute);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
