@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
-  CreditCard, 
-  Settings,
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  GraduationCap,
+  BookOpen,
+  CreditCard,
+  Images,
   LogOut,
   Bell,
   ClipboardCheck
@@ -22,7 +22,8 @@ const menuItems = [
   { icon: CreditCard, label: 'Finance', path: '/admin/finance' },
   { icon: ClipboardCheck, label: 'Results', path: '/admin/results' },
   { icon: Bell, label: 'Notice', path: '/admin/notice' },
-  { icon: Settings, label: 'Settings', path: '/admin/settings' },
+  { icon: Images, label: 'Gallery', path: '/admin/gallery' },
+
 ];
 
 export default function Sidebar() {
@@ -43,17 +44,16 @@ export default function Sidebar() {
         <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-3">Platform Control</div>
         {menuItems.map((item, index) => {
           const Icon = item.icon;
-          
+
           return (
-            <NavLink 
+            <NavLink
               key={item.label}
               to={item.path}
               end={item.path === '/admin'}
-              className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
-                isActive 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20' 
+              className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20'
                   : 'text-slate-300 hover:bg-white/10 hover:text-white'
-              }`}
+                }`}
             >
               {({ isActive }) => (
                 <>

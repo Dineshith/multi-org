@@ -12,6 +12,7 @@ import OrganizationManagement from './admin/pages/OrganizationManagement';
 import StudentManagement from './admin/pages/StudentManagement';
 import NoticeManagement from './admin/pages/NoticeManagement';
 import ResultManagement from './admin/pages/ResultManagement';
+import Gallery from './admin/pages/Gallery';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="students" element={<StudentManagement />} />
           <Route path="notice" element={<NoticeManagement />} />
           <Route path="results" element={<ResultManagement />} />
+          <Route path="gallery" element={<Gallery />} />
           <Route path="*" element={<Dashboard />} />
         </Route>
       </Routes>
