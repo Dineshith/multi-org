@@ -45,24 +45,24 @@ export default function Navbar() {
           {/* Navigation Links */}
           <div className="flex flex-col min-[821px]:flex-row min-[821px]:items-center gap-4 min-[821px]:gap-[clamp(1.2rem,2.5vw,2.5rem)] min-[821px]:mx-auto">
             <Link to="/home" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/home' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Home</Link>
+            <Link to="/research" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/research' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Research</Link>
             <Link to="/faculty" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/faculty' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Faculty</Link>
             <Link to="/about" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/about' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>About Us</Link>
+            <Link to="/contact" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/contact' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Contact</Link>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col min-[821px]:flex-row min-[821px]:flex-nowrap items-stretch min-[821px]:items-center gap-[0.6rem] border-t border-white/15 min-[821px]:border-none pt-4 min-[821px]:pt-0 mt-4 min-[821px]:mt-0 w-full min-[821px]:w-auto">
             <button className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0" id="btn-admission">
-              Primary Wing (+2)
+              School
             </button>
             <button className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0" id="btn-results">
-              Results
+              PlusTwo
             </button>
             <button className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0" id="btn-notice">
-              Notice
+              Bachelors
             </button>
-            <Link to="/contact" className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 no-underline inline-block text-center" id="btn-contact">
-              Contact
-            </Link>
+           
           </div>
         </div>
 

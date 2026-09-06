@@ -15,7 +15,6 @@ import {
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-  { icon: Building2, label: 'Organizations', path: '/admin/organizations' },
   { icon: Users, label: 'User Management', path: '/admin/users' },
   { icon: GraduationCap, label: 'Academics', path: '/admin/academics' },
   { icon: BookOpen, label: 'Students', path: '/admin/students' },

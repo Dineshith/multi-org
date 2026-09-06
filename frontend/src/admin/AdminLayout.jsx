@@ -1,9 +1,16 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import { Bell, Search } from 'lucide-react';
 
 export default function AdminLayout() {
+  const token = localStorage.getItem('adminToken');
+
+  // TEMPORARILY DISABLED ADMIN LOGIN FOR NOW
+  // if (!token) {
+  //   return <Navigate to="/admin/login" replace />;
+  // }
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans">
       <Sidebar />
