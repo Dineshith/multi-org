@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <div className="w-full m-0 ">
-      <footer className="w-full bg-[var(--color-primary)] text-white py-12 px-[clamp(1.25rem,4vw,4rem)]" id="contact">
+      <footer className="w-full bg-[#051087] bg-[var(--color-primary,#051087)] text-white py-12 px-[clamp(1.25rem,4vw,4rem)]" id="contact">
         <div className="max-w-[var(--container-max-width)] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_0.8fr] gap-10 items-start">
           {/* Brand info */}
           <div className="flex items-center gap-5">
