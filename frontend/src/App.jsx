@@ -3,7 +3,6 @@ import './index.css';
 import Home from './pages/Home';
 import FacultyPage from './pages/FacultyPage';
 import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
 import ResearchPage from './pages/ResearchPage';
 
 // Admin imports
@@ -24,7 +23,6 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/faculty" element={<FacultyPage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
         <Route path="/research" element={<ResearchPage />} />
 
         {/* Admin Login Route */}

@@ -50,8 +50,8 @@ export default function Sidebar() {
               to={item.path}
               end={item.path === '/admin'}
               className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20'
-                  : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20'
+                : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 }`}
             >
               {({ isActive }) => (
