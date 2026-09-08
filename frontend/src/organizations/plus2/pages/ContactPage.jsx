@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Clock, ChevronDown, ChevronUp } from 'lucide-react';
-import Plus2Navbar from '../../components/plus2/Navbar';
-import Plus2Footer from '../../components/plus2/Plus2Footer';
+import Plus2Navbar from '../components/Navbar';
+import Plus2Footer from '../components/Plus2Footer';
 
 const faqs = [
   {

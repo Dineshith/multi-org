@@ -5,7 +5,7 @@ import {
   Calendar, CreditCard, CheckCircle2, AlertTriangle, Download,
   Users, GraduationCap, School, Building2, Camera, Mail, Droplets
 } from 'lucide-react';
-import { WINGS, PROGRAMS, LEVELS, BLOOD_GROUPS, GENDERS, STUDENT_STATUSES, ORG_INFO } from '../config/orgConfig';
+import { WINGS, PROGRAMS, LEVELS, BLOOD_GROUPS, GENDERS, STUDENT_STATUSES, ORG_INFO } from '../../config/orgConfig';
 
 // =============================================
 // STUDENT DATA SERVICE (localStorage — swap with API later)

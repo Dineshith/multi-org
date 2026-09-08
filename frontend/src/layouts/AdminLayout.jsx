@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import Sidebar from '../admin/components/Sidebar';
 import { Bell, Search } from 'lucide-react';
 
 export default function AdminLayout() {

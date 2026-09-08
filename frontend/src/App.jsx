@@ -1,20 +1,20 @@
 import { Navigate, Routes, Route } from 'react-router-dom';
 import './index.css';
 
-// Main website pages
-import Home from './pages/Home';
-import FacultyPage from './pages/FacultyPage';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
-import ResearchPage from './pages/ResearchPage';
+// ---- Main Org ----
+import Home from './organizations/main/pages/Home';
+import FacultyPage from './organizations/main/pages/FacultyPage';
+import AboutPage from './organizations/main/pages/AboutPage';
+import ContactPage from './organizations/main/pages/ContactPage';
+import ResearchPage from './organizations/main/pages/ResearchPage';
 
-// +2 pages
-import PlusTwoHome from './pages/plus2page/HomePage';
-import PlusTwoAbout from './pages/plus2page/AboutPage';
-import PlusTwoContact from './pages/plus2page/Contact';
+// ---- Plus2 Org ----
+import PlusTwoHome from './organizations/plus2/pages/HomePage';
+import PlusTwoAbout from './organizations/plus2/pages/AboutPage';
+import PlusTwoContact from './organizations/plus2/pages/ContactPage';
 
-// Admin imports
-import AdminLayout from './admin/AdminLayout';
+// ---- Admin (Super-Admin) ----
+import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
 import StudentManagement from './admin/pages/StudentManagement';
 import NoticeManagement from './admin/pages/NoticeManagement';
