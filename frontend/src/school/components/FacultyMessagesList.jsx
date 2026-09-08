@@ -33,7 +33,6 @@ const FacultyMessagesList = () => {
       {messagesData.map((item, index) => (
         <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center group">
           
-          {/* Text Content - Index जोर/बिजोर हेरेर अगाडि पछाडि गर्ने */}
           <div className={`flex flex-col justify-center ${index % 2 !== 0 ? 'md:order-2' : 'md:order-1'}`}>
             <h2 className="text-3xl font-bold text-[#0c1a30] mb-1">{item.name}</h2>
             <h4 className="text-[#da251c] font-bold text-[13px] tracking-wider uppercase mb-6">{item.designation}</h4>
