@@ -16,10 +16,10 @@ const GalleryGrid = () => {
               <img 
                 src={item.src} 
                 alt={item.caption} 
-                /* सुरुमा grayscale, hover गर्दा colorful */
+                /* hover */
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 ease-in-out group-hover:scale-110"
               />
-              {/* तस्बिर माथि देखिने क्याप्सन */}
+              {/* caption above image*/}
               <div className="absolute top-4 left-4 bg-white/90 text-[#0c1a30] font-bold px-3 py-1 rounded-md text-[13px] tracking-wide shadow-sm">
                 {item.caption}
               </div>

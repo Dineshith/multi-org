@@ -9,7 +9,6 @@ const Hero = () => {
       >
         <div className="absolute inset-0 bg-black/50"></div>
         
-        {/* Inline style प्रयोग गरेर फन्ट फोर्स गरिएको छ */}
         <div 
           className="relative z-10 px-4 flex flex-col items-center"
           style={{ fontFamily: "'Jost', 'Century Gothic', sans-serif" }}
