@@ -7,6 +7,7 @@ import bannerRoutes from "./src/routes/bannerRoutes.js";
 import contactRoutes from "./src/routes/contactRoutes.js";
 import galleryRoutes from "./src/routes/galleryRoutes.js";
 import galleryImageRoutes from "./src/routes/galleryImageRoutes.js";
+import noticeRoutes from "./src/routes/noticeRoutes.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use("/api/banner", bannerRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/gallery-images", galleryImageRoutes);
+app.use("/api/notices", noticeRoutes);
 
 // Test route
 app.get("/", (req, res) => {
