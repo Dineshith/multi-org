@@ -53,9 +53,14 @@ export default function Navbar() {
 
           {/* Action Buttons */}
           <div className="flex flex-col min-[821px]:flex-row min-[821px]:flex-nowrap items-stretch min-[821px]:items-center gap-[0.6rem] border-t border-white/15 min-[821px]:border-none pt-4 min-[821px]:pt-0 mt-4 min-[821px]:mt-0 w-full min-[821px]:w-auto">
-            <button className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0" id="btn-admission">
+            <Link
+              to="/school"
+              onClick={() => setMobileOpen(false)}
+              className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
+              id="btn-admission"
+            >
               School
-            </button>
+            </Link>
             <button className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0" id="btn-results">
               PlusTwo
             </button>
