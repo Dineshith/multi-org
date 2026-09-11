@@ -1,9 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
+import Papa from 'papaparse';
 import {
   BookOpen, Search, Filter, Plus, Edit, Trash2, Eye, Printer,
   ChevronLeft, ChevronRight, X, Save, User, Phone, MapPin,
   Calendar, CreditCard, CheckCircle2, AlertTriangle, Download,
-  Users, GraduationCap, School, Building2, Camera, Mail, Droplets
+  Users, GraduationCap, School, Building2, Camera, Mail, Droplets,
+  Upload, FileSpreadsheet, Check, AlertCircle, ArrowLeft, ArrowRight, Info
 } from 'lucide-react';
 import { WINGS, PROGRAMS, LEVELS, BLOOD_GROUPS, GENDERS, STUDENT_STATUSES, ORG_INFO } from '../config/orgConfig';
 
@@ -61,6 +63,7 @@ export default function StudentManagement() {
 
   // UI state
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -186,12 +189,20 @@ export default function StudentManagement() {
           <h3 className="text-2xl font-bold text-slate-800">Student Management</h3>
           <p className="text-slate-500 mt-1">Manage student records across all wings and programs.</p>
         </div>
-        <button
-          onClick={() => { setEditingStudent(null); setShowAddModal(true); }}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-xl transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 active:scale-95"
-        >
-          <Plus className="w-4 h-4" /> Add Student
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-5 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 active:scale-95"
+          >
+            <Upload className="w-4 h-4" /> Import CSV
+          </button>
+          <button
+            onClick={() => { setEditingStudent(null); setShowAddModal(true); }}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-xl transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 active:scale-95"
+          >
+            <Plus className="w-4 h-4" /> Add Student
+          </button>
+        </div>
       </div>
 
       {/* Wing Selector Cards */}
@@ -532,6 +543,18 @@ export default function StudentManagement() {
           students={students.filter(s => selectedStudents.includes(s.id))}
           getProgramName={getProgramName}
           onClose={() => { setShowPrintPreview(false); setSelectedStudents([]); }}
+        />
+      )}
+
+      {showImportModal && (
+        <ImportCSVModal
+          existingStudents={students}
+          onClose={() => setShowImportModal(false)}
+          onImport={(newStudents) => {
+            const withIds = newStudents.map(s => ({ ...s, id: generateStudentId(s.wing) }));
+            updateAndSave(prev => [...prev, ...withIds]);
+            setShowImportModal(false);
+          }}
         />
       )}
     </div>
@@ -1017,6 +1040,567 @@ function IDCardBack({ student }) {
         fontSize: '8px', color: '#64748b', borderTop: '1px solid #e2e8f0'
       }}>
         If found, please return to: {ORG_INFO.name}, {ORG_INFO.address} | Ph: {ORG_INFO.phone}
+      </div>
+    </div>
+  );
+}
+
+// =============================================
+// IMPORT CSV MODAL (Multi-Step Wizard)
+// =============================================
+function ImportCSVModal({ onClose, onImport, existingStudents = [] }) {
+  const [step, setStep] = useState(1); // 1 = download/upload, 2 = preview & validate
+  const [parsedData, setParsedData] = useState([]);
+  const [errors, setErrors] = useState([]);
+  const [fileName, setFileName] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+
+  // ---- Pre-selected class context (teacher's class) ----
+  const [templateWing, setTemplateWing] = useState('');
+  const [templateProgram, setTemplateProgram] = useState('');
+  const [templateLevel, setTemplateLevel] = useState('');
+
+  const tAvailablePrograms = templateWing ? (PROGRAMS[templateWing] || []) : [];
+  const tAvailableLevels = templateProgram ? (LEVELS[templateProgram] || []) : [];
+  const isClassSelected = templateWing && templateProgram && templateLevel;
+
+  const handleTemplateWingChange = (wing) => {
+    setTemplateWing(wing);
+    setTemplateProgram('');
+    setTemplateLevel('');
+  };
+  const handleTemplateProgramChange = (prog) => {
+    setTemplateProgram(prog);
+    setTemplateLevel('');
+  };
+
+  // ---- CSV Column Mapping (excludes Wing/Program/Level — those are pre-selected) ----
+  const CSV_COLUMNS = [
+    { csv: 'Full Name', key: 'name', required: true },
+    { csv: 'Roll Number', key: 'roll', required: false },
+    { csv: 'Date of Birth', key: 'dob', required: false },
+    { csv: 'Gender', key: 'gender', required: false },
+    { csv: 'Guardian Name', key: 'guardian', required: false },
+    { csv: 'Guardian Phone', key: 'guardianPhone', required: false },
+    { csv: 'Address', key: 'address', required: false },
+    { csv: 'Blood Group', key: 'bloodGroup', required: false },
+    { csv: 'Email', key: 'email', required: false },
+    { csv: 'Admission Date', key: 'admissionDate', required: false },
+    { csv: 'Status', key: 'status', required: false },
+  ];
+
+  // ---- Download Template ----
+  const downloadTemplate = () => {
+    if (!isClassSelected) return;
+    const headers = CSV_COLUMNS.map(c => c.csv);
+    // One example row for reference
+    const exampleRow = [
+      'Ram Bahadur', '1',
+      '2063-05-12', 'Male', 'Hari Bahadur', '9841234567',
+      'Kathmandu', 'B+', 'ram@email.com', '2080-01-15', 'Active',
+    ];
+    const programName = tAvailablePrograms.find(p => p.id === templateProgram)?.name || templateProgram;
+    const csvContent = [
+      `# Template for: ${templateWing} > ${programName} > ${templateLevel}`,
+      headers.join(','),
+      exampleRow.join(','),
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `students_${templateWing}_${templateLevel.replace(/\s+/g, '_')}_template.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // ---- Validate a single row (Wing/Program/Level are auto-injected, no need to validate) ----
+  const validateRow = (row, index) => {
+    const rowErrors = [];
+    // Required field
+    if (!row.name || !row.name.trim()) rowErrors.push(`Row ${index + 1}: Full Name is required.`);
+    // Enum validations
+    if (row.gender && !GENDERS.includes(row.gender)) rowErrors.push(`Row ${index + 1}: Gender must be one of: ${GENDERS.join(', ')}.`);
+    if (row.status && !STUDENT_STATUSES.includes(row.status)) rowErrors.push(`Row ${index + 1}: Status must be one of: ${STUDENT_STATUSES.join(', ')}.`);
+    if (row.bloodGroup && !BLOOD_GROUPS.includes(row.bloodGroup)) rowErrors.push(`Row ${index + 1}: Blood Group must be one of: ${BLOOD_GROUPS.join(', ')}.`);
+    // Phone number validation
+    if (row.guardianPhone && !/^\d{7,15}$/.test(row.guardianPhone)) {
+      rowErrors.push(`Row ${index + 1}: Guardian Phone "${row.guardianPhone}" is not a valid phone number.`);
+    }
+    // Email validation
+    if (row.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
+      rowErrors.push(`Row ${index + 1}: Email "${row.email}" is not a valid email address.`);
+    }
+    return rowErrors;
+  };
+
+  // ---- Parse uploaded file ----
+  const handleFile = (file) => {
+    if (!file) return;
+    if (!file.name.endsWith('.csv')) {
+      setErrors(['Please upload a .csv file.']);
+      return;
+    }
+    setFileName(file.name);
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      comments: '#',
+      complete: (results) => {
+        const mapped = results.data.map(row => {
+          const student = {
+            // Auto-inject the pre-selected class context
+            wing: templateWing,
+            programId: templateProgram,
+            level: templateLevel,
+          };
+          CSV_COLUMNS.forEach(col => {
+            student[col.key] = (row[col.csv] || '').trim();
+          });
+          // Default status to Active if empty
+          if (!student.status) student.status = 'Active';
+          // Parse roll to number
+          if (student.roll) student.roll = parseInt(student.roll) || '';
+          return student;
+        });
+
+        // ---- Per-row field validation ----
+        const allErrors = [];
+        mapped.forEach((row, i) => {
+          const rowErrs = validateRow(row, i);
+          allErrors.push(...rowErrs);
+        });
+
+        // ---- Duplicate detection within the CSV itself ----
+        const csvRollsSeen = new Map(); // roll -> first row index
+        const csvNamesSeen = new Map(); // lowercase name -> first row index
+        mapped.forEach((row, i) => {
+          // Duplicate roll within CSV (only if roll is provided)
+          if (row.roll) {
+            const rollKey = String(row.roll);
+            if (csvRollsSeen.has(rollKey)) {
+              allErrors.push(`Row ${i + 1}: Duplicate Roll Number "${row.roll}" — same as Row ${csvRollsSeen.get(rollKey) + 1} in this file.`);
+            } else {
+              csvRollsSeen.set(rollKey, i);
+            }
+          }
+          // Duplicate name within CSV
+          if (row.name) {
+            const nameKey = row.name.toLowerCase().trim();
+            if (csvNamesSeen.has(nameKey)) {
+              allErrors.push(`Row ${i + 1}: Duplicate Name "${row.name}" — same as Row ${csvNamesSeen.get(nameKey) + 1} in this file.`);
+            } else {
+              csvNamesSeen.set(nameKey, i);
+            }
+          }
+        });
+
+        // ---- Duplicate detection against existing students in the same class ----
+        const existingInClass = existingStudents.filter(
+          s => s.wing === templateWing && s.programId === templateProgram && s.level === templateLevel
+        );
+        const existingRolls = new Set(existingInClass.map(s => String(s.roll)).filter(Boolean));
+        const existingNames = new Set(existingInClass.map(s => s.name?.toLowerCase().trim()).filter(Boolean));
+
+        mapped.forEach((row, i) => {
+          // Roll already exists in database
+          if (row.roll && existingRolls.has(String(row.roll))) {
+            allErrors.push(`Row ${i + 1}: Roll Number "${row.roll}" already exists in ${templateWing} > ${templateLevel}.`);
+          }
+          // Name already exists in database
+          if (row.name && existingNames.has(row.name.toLowerCase().trim())) {
+            allErrors.push(`Row ${i + 1}: Student "${row.name}" already exists in ${templateWing} > ${templateLevel}.`);
+          }
+        });
+
+        setParsedData(mapped);
+        setErrors(allErrors);
+        setStep(2);
+      },
+      error: (err) => {
+        setErrors([`Failed to parse CSV: ${err.message}`]);
+      },
+    });
+  };
+
+  // ---- Drag & Drop ----
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = () => setIsDragging(false);
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    handleFile(file);
+  };
+
+  // ---- Get rows categorized (derive from the errors state which includes both field + duplicate errors) ----
+  const invalidRowIndices = useMemo(() => {
+    const indices = new Set();
+    errors.forEach(err => {
+      const match = err.match(/^Row (\d+):/);
+      if (match) indices.add(parseInt(match[1]) - 1); // convert to 0-indexed
+    });
+    return indices;
+  }, [errors]);
+  const validRows = parsedData.filter((_, i) => !invalidRowIndices.has(i));
+
+  const getProgramName = (programId) => {
+    for (const wing of WINGS) {
+      const found = PROGRAMS[wing]?.find(p => p.id === programId);
+      if (found) return found.name;
+    }
+    return programId;
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800">Import Students from CSV</h3>
+              <p className="text-sm text-slate-500 mt-0.5">
+                {step === 1 && 'Download the template, fill it out, and upload it here.'}
+                {step === 2 && `Preview — ${parsedData.length} row${parsedData.length !== 1 ? 's' : ''} found in ${fileName}`}
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+            <X className="w-5 h-5 text-slate-500" />
+          </button>
+        </div>
+
+        {/* Step Indicator */}
+        <div className="px-6 pt-4 pb-2 flex items-center gap-3 shrink-0">
+          {[{ n: 1, label: 'Upload' }, { n: 2, label: 'Preview & Validate' }].map(({ n, label }) => (
+            <div key={n} className="flex items-center gap-2">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                step >= n ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-500'
+              }`}>
+                {step > n ? <Check className="w-3.5 h-3.5" /> : n}
+              </div>
+              <span className={`text-sm font-semibold ${step >= n ? 'text-slate-800' : 'text-slate-400'}`}>{label}</span>
+              {n < 2 && <div className={`w-12 h-0.5 rounded ${step > n ? 'bg-emerald-400' : 'bg-slate-200'}`} />}
+            </div>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+
+          {/* ===== STEP 1: Select Class + Download & Upload ===== */}
+          {step === 1 && (
+            <div className="space-y-6">
+              {/* Instructions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                  <div className="text-sm text-blue-800 space-y-1">
+                    <p className="font-bold">How to use:</p>
+                    <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                      <li>Select the <strong>Wing, Program, and Class/Level</strong> below.</li>
+                      <li>Download the CSV template for that class.</li>
+                      <li>Open it in Excel or Google Sheets and fill in the student data.</li>
+                      <li><strong>Do not change the column headers.</strong></li>
+                      <li>Save/Export as <code className="bg-blue-100 px-1 py-0.5 rounded text-xs font-mono">.csv</code> format and upload it here.</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
+              {/* Class Selector */}
+              <div className="bg-gradient-to-r from-slate-50 to-slate-100/50 border border-slate-200 rounded-xl p-5">
+                <h4 className="font-bold text-slate-800 mb-1">Select Class</h4>
+                <p className="text-sm text-slate-500 mb-4">Choose the Wing, Program, and Level. All imported students will be assigned to this class.</p>
+
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Wing */}
+                  <div>
+                    <label className={labelCls}>Wing *</label>
+                    <select
+                      value={templateWing}
+                      onChange={e => handleTemplateWingChange(e.target.value)}
+                      className={selectCls}
+                    >
+                      <option value="">Select Wing</option>
+                      {WINGS.map(w => <option key={w} value={w}>{w}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Program */}
+                  <div>
+                    <label className={labelCls}>Program *</label>
+                    <select
+                      value={templateProgram}
+                      onChange={e => handleTemplateProgramChange(e.target.value)}
+                      className={selectCls}
+                      disabled={!templateWing}
+                    >
+                      <option value="">Select Program</option>
+                      {tAvailablePrograms.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Level */}
+                  <div>
+                    <label className={labelCls}>Level / Class *</label>
+                    <select
+                      value={templateLevel}
+                      onChange={e => setTemplateLevel(e.target.value)}
+                      className={selectCls}
+                      disabled={!templateProgram}
+                    >
+                      <option value="">Select Level</option>
+                      {tAvailableLevels.map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Selected class badge */}
+                {isClassSelected && (
+                  <div className="mt-4 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span className="text-sm font-semibold text-emerald-700">Class selected:</span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${wingConfig[templateWing]?.badge || 'bg-slate-100 text-slate-600'}`}>{templateWing}</span>
+                    <span className="text-slate-400">›</span>
+                    <span className="text-sm font-semibold text-slate-700">{tAvailablePrograms.find(p => p.id === templateProgram)?.name}</span>
+                    <span className="text-slate-400">›</span>
+                    <span className="text-sm font-semibold text-slate-700">{templateLevel}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Template Download */}
+              <div className={`bg-slate-50 border border-slate-200 rounded-xl p-5 transition-opacity ${isClassSelected ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-slate-800">Download Template</h4>
+                    <p className="text-sm text-slate-500 mt-0.5">
+                      {isClassSelected
+                        ? `Template for ${templateWing} › ${tAvailablePrograms.find(p => p.id === templateProgram)?.name} › ${templateLevel}`
+                        : 'Select a class above to download the template.'
+                      }
+                    </p>
+                  </div>
+                  <button
+                    onClick={downloadTemplate}
+                    disabled={!isClassSelected}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl transition-all active:scale-95 shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Download className="w-4 h-4" /> Download .csv
+                  </button>
+                </div>
+
+                {/* Column Reference Table */}
+                <div className="mt-4 border border-slate-200 rounded-lg overflow-hidden">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-100">
+                      <tr>
+                        <th className="p-2.5 font-bold text-slate-600 uppercase tracking-wider">Column Name</th>
+                        <th className="p-2.5 font-bold text-slate-600 uppercase tracking-wider">Required</th>
+                        <th className="p-2.5 font-bold text-slate-600 uppercase tracking-wider">Accepted Values</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {[
+                        { col: 'Full Name', req: true, vals: 'Any text' },
+                        { col: 'Roll Number', req: false, vals: 'Number' },
+                        { col: 'Gender', req: false, vals: GENDERS.join(', ') },
+                        { col: 'Guardian Name', req: false, vals: 'Any text' },
+                        { col: 'Guardian Phone', req: false, vals: 'Phone number' },
+                        { col: 'Status', req: false, vals: STUDENT_STATUSES.join(', ') + ' (default: Active)' },
+                        { col: 'Blood Group', req: false, vals: BLOOD_GROUPS.join(', ') },
+                      ].map(({ col, req, vals }) => (
+                        <tr key={col} className="hover:bg-slate-50">
+                          <td className="p-2.5 font-semibold text-slate-700">{col}</td>
+                          <td className="p-2.5">
+                            {req
+                              ? <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-[10px] font-bold">Required</span>
+                              : <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-bold">Optional</span>
+                            }
+                          </td>
+                          <td className="p-2.5 text-slate-500 font-medium">{vals}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Drop Zone */}
+              <div
+                onDragOver={isClassSelected ? handleDragOver : undefined}
+                onDragLeave={isClassSelected ? handleDragLeave : undefined}
+                onDrop={isClassSelected ? handleDrop : undefined}
+                onClick={isClassSelected ? () => fileInputRef.current?.click() : undefined}
+                className={`relative border-2 border-dashed rounded-xl p-10 text-center transition-all ${
+                  !isClassSelected
+                    ? 'border-slate-200 bg-slate-50/50 opacity-40 cursor-not-allowed'
+                    : isDragging
+                      ? 'border-emerald-400 bg-emerald-50 scale-[1.01] cursor-pointer'
+                      : 'border-slate-300 bg-white hover:border-emerald-400 hover:bg-emerald-50/50 cursor-pointer'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  onChange={e => handleFile(e.target.files?.[0])}
+                />
+                <div className={`w-14 h-14 mx-auto rounded-xl flex items-center justify-center mb-3 transition-colors ${
+                  isDragging ? 'bg-emerald-200' : 'bg-slate-100'
+                }`}>
+                  <Upload className={`w-7 h-7 ${isDragging ? 'text-emerald-600' : 'text-slate-400'}`} />
+                </div>
+                <p className="text-slate-700 font-bold text-lg">
+                  {isClassSelected ? 'Drag & drop your CSV file here' : 'Select a class first to upload'}
+                </p>
+                {isClassSelected && (
+                  <p className="text-slate-400 text-sm mt-1">or <span className="text-emerald-600 font-semibold underline">click to browse</span></p>
+                )}
+
+                {errors.length > 0 && step === 1 && (
+                  <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 text-left">
+                    {errors.map((e, i) => (
+                      <p key={i} className="text-red-600 text-sm flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {e}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ===== STEP 2: Preview & Validate ===== */}
+          {step === 2 && (
+            <div className="space-y-4">
+              {/* Pre-selected class badge */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Importing to:</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold ${wingConfig[templateWing]?.badge || 'bg-slate-100 text-slate-600'}`}>{templateWing}</span>
+                <span className="text-slate-400">›</span>
+                <span className="text-sm font-semibold text-slate-700">{getProgramName(templateProgram)}</span>
+                <span className="text-slate-400">›</span>
+                <span className="text-sm font-semibold text-slate-700">{templateLevel}</span>
+              </div>
+
+              {/* Summary Bar */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  <span className="text-sm font-bold text-emerald-700">{validRows.length} valid</span>
+                </div>
+                {invalidRowIndices.size > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
+                    <AlertCircle className="w-4 h-4 text-red-600" />
+                    <span className="text-sm font-bold text-red-700">{invalidRowIndices.size} with errors</span>
+                  </div>
+                )}
+                <span className="text-xs text-slate-500 ml-auto">Rows with errors will be <strong>skipped</strong> during import.</span>
+              </div>
+
+              {/* Error details */}
+              {errors.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 max-h-40 overflow-y-auto">
+                  <p className="text-sm font-bold text-red-700 mb-2 flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4" /> Validation Errors
+                  </p>
+                  <div className="space-y-1">
+                    {errors.map((e, i) => (
+                      <p key={i} className="text-xs text-red-600 font-medium">• {e}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Preview Table */}
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 border-b border-slate-200">
+                      <tr className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                        <th className="p-3 w-8">#</th>
+                        <th className="p-3">Status</th>
+                        <th className="p-3">Full Name</th>
+                        <th className="p-3">Roll</th>
+                        <th className="p-3">Gender</th>
+                        <th className="p-3">DOB</th>
+                        <th className="p-3">Guardian</th>
+                        <th className="p-3">Phone</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {parsedData.map((row, i) => {
+                        const isInvalid = invalidRowIndices.has(i);
+                        return (
+                          <tr key={i} className={isInvalid ? 'bg-red-50/60' : 'hover:bg-slate-50'}>
+                            <td className="p-3 font-mono text-slate-400">{i + 1}</td>
+                            <td className="p-3">
+                              {isInvalid
+                                ? <span className="flex items-center gap-1 text-red-600 font-bold"><AlertCircle className="w-3 h-3" /> Error</span>
+                                : <span className="flex items-center gap-1 text-emerald-600 font-bold"><Check className="w-3 h-3" /> OK</span>
+                              }
+                            </td>
+                            <td className="p-3 font-semibold text-slate-800">{row.name || '—'}</td>
+                            <td className="p-3 text-slate-600 font-medium">{row.roll || '—'}</td>
+                            <td className="p-3 text-slate-600 font-medium">{row.gender || '—'}</td>
+                            <td className="p-3 text-slate-600 font-medium">{row.dob || '—'}</td>
+                            <td className="p-3 text-slate-600 font-medium">{row.guardian || '—'}</td>
+                            <td className="p-3 text-slate-600 font-medium">{row.guardianPhone || '—'}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/50 shrink-0">
+          {step === 2 ? (
+            <>
+              <button
+                onClick={() => { setStep(1); setParsedData([]); setErrors([]); setFileName(''); }}
+                className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" /> Back
+              </button>
+              <div className="flex items-center gap-3">
+                <button onClick={onClose} className="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                  Cancel
+                </button>
+                <button
+                  onClick={() => onImport(validRows)}
+                  disabled={validRows.length === 0}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Check className="w-4 h-4" /> Import {validRows.length} Student{validRows.length !== 1 ? 's' : ''}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div />
+              <button onClick={onClose} className="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

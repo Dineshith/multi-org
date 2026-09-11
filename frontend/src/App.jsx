@@ -13,7 +13,10 @@ import NoticeManagement from './admin/pages/NoticeManagement';
 import ResultManagement from './admin/pages/ResultManagement';
 import Gallery from './admin/pages/Gallery';
 import AdminLogin from './admin/pages/AdminLogin';
-
+import SubjectSetup from './admin/pages/results/SubjectSetup';
+import MarksEntry from './admin/pages/results/MarksEntry';
+import ViewLedger from './admin/pages/results/ViewLedger';
+import PublishResult from './admin/pages/results/PublishResult';
 function App() {
   return (
     <div className="w-full max-w-full m-0 p-0 bg-white min-h-screen flex flex-col">
@@ -33,7 +36,13 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="students" element={<StudentManagement />} />
           <Route path="notice" element={<NoticeManagement />} />
-          <Route path="results" element={<ResultManagement />} />
+          <Route path="results" element={<ResultManagement />}>
+            <Route index element={<Navigate to="entry" replace />} />
+            <Route path="entry" element={<MarksEntry />} />
+            <Route path="ledger" element={<ViewLedger />} />
+            <Route path="setup" element={<SubjectSetup />} />
+            <Route path="publish" element={<PublishResult />} />
+          </Route>
           <Route path="gallery" element={<Gallery />} />
           <Route path="*" element={<Dashboard />} />
         </Route>
