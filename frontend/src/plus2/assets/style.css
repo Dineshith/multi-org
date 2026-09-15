@@ -1,0 +1,207 @@
+/* --- Global Styles --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #f8f9fa; /* पेजको हल्का खैरो/सेतो ब्याकग्राउन्ड */
+}
+
+/* --- Header --- */
+.site-header {
+  background-color: #0b1c47; /* गाढा नीलो */
+  color: white;
+  padding: 15px 0;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
+}
+
+.nav-menu a {
+  color: white;
+  text-decoration: none;
+  margin-left: 25px;
+  font-size: 14px;
+}
+
+.nav-menu a.active {
+  color: #ff3b30; /* Home को रातो रङ */
+}
+
+/* --- Hero Section --- */
+.hero-section {
+  /* यहाँ तपाईंको assets भित्र भएको hero-bg.jpg को बाटो (path) राख्नुस् */
+  background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2000&auto=format&fit=crop'); 
+  background-size: cover;
+  background-position: center;
+  height: 300px;
+  position: relative;
+}
+
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.3); /* फोटोमाथि हल्का कालो छाँया */
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.red-line {
+  width: 50px;
+  height: 4px;
+  background-color: #ff3b30; /* Events माथिको रातो धर्सो */
+  margin-bottom: 10px;
+}
+
+.hero-content h1 {
+  color: white;
+  font-size: 40px;
+  letter-spacing: 1px;
+}
+
+/* --- Event List & Grid --- */
+.event-list-section {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 0 20px;
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* दुईवटा स्तम्भ (Columns) */
+  gap: 20px; /* कार्डहरु बीचको दुरी */
+}
+
+/* --- Event Card --- */
+.event-card-simple {
+  background: white;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #e0e0e0; /* बाहिरको हल्का बोर्डर */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* हल्का छाँया */
+}
+
+.event-date-box {
+  border: 2px solid #000; /* मिति बाहिरको कालो बोर्डर */
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px;
+  min-width: 70px;
+}
+
+.event-date-box strong {
+  font-size: 18px;
+}
+
+.event-date-box span {
+  font-size: 14px;
+}
+
+.event-text h3 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.event-text p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* --- Footer --- */
+.site-footer {
+  background-color: #041065; /* तल्लो गाढा नीलो */
+  color: white;
+  padding: 50px 0;
+  margin-top: 50px;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.footer-brand {
+  flex: 1;
+}
+
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 50px;
+  flex: 2;
+  justify-content: center;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-column h4 {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.footer-column a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.footer-location {
+  flex: 1;
+  text-align: right;
+}
+
+.footer-location h4 {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.map-placeholder {
+  width: 100px;
+  height: 60px;
+  background-color: #eee;
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border-radius: 4px;
+}
