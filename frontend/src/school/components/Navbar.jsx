@@ -167,7 +167,26 @@ const Navbar = () => {
         </ul>
       </div>
       
-      <div className="hidden xl:block w-24 shrink-0"></div>
+      <div className="hidden xl:flex items-center gap-2 shrink-0">
+        <Link
+          to="/school"
+          className="bg-[#da251c] text-white text-[0.78rem] font-bold py-1 px-3 rounded shadow"
+        >
+          School
+        </Link>
+        <Link
+          to="/home"
+          className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.78rem] font-semibold py-1 px-2.5 rounded transition"
+        >
+          PlusTwo
+        </Link>
+        <Link
+          to="/bachelor"
+          className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.78rem] font-semibold py-1 px-2.5 rounded transition"
+        >
+          Bachelors
+        </Link>
+      </div>
     </nav>
   );
 };
