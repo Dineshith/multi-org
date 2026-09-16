@@ -8,6 +8,9 @@ import AboutPage from './pages/AboutPage';
 import ResearchPage from './pages/ResearchPage';
 import ResultCheck from './pages/ResultCheck';
 
+// Bachelor Project Imports
+import BachelorHome from './bachelor/pages/Home';
+
 // Admin imports
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
@@ -55,6 +58,13 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/research" element={<ResearchPage />} />
         <Route path="/results" element={<ResultCheck />} />
+
+        {/* Bachelor (College) Routes */}
+        <Route path="/bachelor" element={<BachelorHome />} />
+        <Route path="/bachelor/*" element={<BachelorHome />} />
+        <Route path="/bachelors" element={<Navigate to="/bachelor" replace />} />
+        <Route path="/bachelors/*" element={<Navigate to="/bachelor" replace />} />
+        <Route path="/college" element={<Navigate to="/bachelor" replace />} />
 
         {/* School Project Routes */}
         <Route
