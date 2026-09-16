@@ -49,6 +49,7 @@ export default function Navbar() {
             <Link to="/research" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/research' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Research</Link>
             <Link to="/faculty" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/faculty' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Faculty</Link>
             <Link to="/about" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/about' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>About Us</Link>
+            <Link to="/results" onClick={() => setMobileOpen(false)} className={`text-amber-300 text-[0.95rem] font-bold w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/results' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-amber-300 after:rounded-sm' : ''}`}>Check Results</Link>
           </div>
 
           {/* Action Buttons */}
@@ -56,12 +57,12 @@ export default function Navbar() {
             <Link
               to="/school"
               onClick={() => setMobileOpen(false)}
-              className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
+              className="bg-[var(--color-accent)] text-white text-[0.9rem] font-bold py-[0.65rem] px-[2rem] min-w-[120px] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
               id="btn-admission"
             >
               School
             </Link>
-            <button className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0" id="btn-results">
+            <button className="bg-[var(--color-accent)] text-white text-[0.9rem] font-bold py-[0.65rem] px-[2rem] min-w-[120px] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0" id="btn-results">
               PlusTwo
             </button>
             <button className="bg-[var(--color-accent)] text-white text-[0.9rem] font-bold py-[0.65rem] px-[2rem] min-w-[120px] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0" id="btn-notice">

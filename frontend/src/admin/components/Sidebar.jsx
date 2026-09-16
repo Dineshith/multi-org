@@ -10,7 +10,8 @@ import {
   Images,
   LogOut,
   Bell,
-  ClipboardCheck
+  ClipboardCheck,
+  FileText
 } from 'lucide-react';
 
 const menuItems = [
@@ -21,8 +22,7 @@ const menuItems = [
   { icon: CreditCard, label: 'Finance', path: '/admin/finance' },
   { icon: ClipboardCheck, label: 'Results', path: '/admin/results' },
   { icon: Bell, label: 'Notice', path: '/admin/notice' },
-  { icon: Images, label: 'Gallery', path: '/admin/gallery' },
-
+  { icon: FileText, label: 'Content (CMS)', path: '/admin/cms' },
 ];
 
 export default function Sidebar() {

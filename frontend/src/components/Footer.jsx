@@ -1,4 +1,36 @@
+import { useState, useEffect } from 'react';
+
 export default function Footer() {
+  const [footerData, setFooterData] = useState({
+    brandName: 'Akshar',
+    address: 'Akshara marg, Butwal',
+    email: 'akshar@gmail.com',
+    phone: '984xxxxxxx',
+    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3565.6223425417024!2d87.2742654752152!3d26.660571676798227!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ef6d8b1d73da1d%3A0xd4d57514869ca946!2sLunar%20IT%20Solution%20Pvt.%20Ltd.!5e0!3m2!1sen!2sno!4v1788074468924!5m2!1sen!2sno'
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const data = localStorage.getItem('cms_main_footer');
+      if (data) {
+        setFooterData(JSON.parse(data));
+      }
+    };
+    
+    // Initial load
+    handleStorageChange();
+    
+    // Listen for cross-tab changes
+    window.addEventListener('storage', handleStorageChange);
+    // Listen for custom event triggered in the same window (optional, if we fire it from CMS)
+    window.addEventListener('local-storage-update', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('local-storage-update', handleStorageChange);
+    };
+  }, []);
+
   return (
     <div className="w-full m-0 ">
       <footer className="w-full bg-[var(--color-primary)] text-white py-12 px-[clamp(1.25rem,4vw,4rem)]" id="contact">
@@ -21,8 +53,8 @@ export default function Footer() {
               <span className="font-[var(--font-brand)] text-[1.1rem] font-bold text-white -mt-[0.1875rem]">अक्षर</span>
             </div>
             <div className="flex flex-col">
-              <h3 className="text-[1.45rem] font-bold text-white leading-[1.2]">Akshar</h3>
-              <p className="text-[0.85rem] text-white/80 mt-1">Akshara marg, Butwal</p>
+              <h3 className="text-[1.45rem] font-bold text-white leading-[1.2]">{footerData.brandName}</h3>
+              <p className="text-[0.85rem] text-white/80 mt-1">{footerData.address}</p>
             </div>
           </div>
 
@@ -38,23 +70,27 @@ export default function Footer() {
           {/* Column 3: Contact Us */}
           <div>
             <h4 className="text-base font-bold text-white mb-3">Contact Us</h4>
-            <p className="text-[0.9rem] text-white/90 leading-[1.7]">akshar@gmail.com</p>
-            <p className="text-[0.9rem] text-white/90 leading-[1.7]">984xxxxxxx</p>
+            <p className="text-[0.9rem] text-white/90 leading-[1.7]">{footerData.email}</p>
+            <p className="text-[0.9rem] text-white/90 leading-[1.7]">{footerData.phone}</p>
           </div>
 
           {/* Column 4: Location */}
           <div className="flex flex-col items-center">
             <h4 className="text-base font-bold text-white mb-3 text-center">Location</h4>
             <div className="w-full h-[150px] rounded-xl overflow-hidden border border-white/20 shadow-inner relative mt-2">
-              <iframe
-                title="Akshar Academy Map"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3565.6223425417024!2d87.2742654752152!3d26.660571676798227!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ef6d8b1d73da1d%3A0xd4d57514869ca946!2sLunar%20IT%20Solution%20Pvt.%20Ltd.!5e0!3m2!1sen!2sno!4v1788074468924!5m2!1sen!2sno"
-                className="w-full h-full"
-                style={{ border: 0 }}
-                allowFullScreen={true}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
+              {footerData.mapUrl ? (
+                <iframe
+                  title="Akshar Academy Map"
+                  src={footerData.mapUrl}
+                  className="w-full h-full"
+                  style={{ border: 0 }}
+                  allowFullScreen={true}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-black/20 text-white/50 text-xs text-center p-2">Map Not Configured</div>
+              )}
             </div>
           </div>
         </div>

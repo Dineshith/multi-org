@@ -6,15 +6,28 @@ import Home from './pages/Home';
 import FacultyPage from './pages/FacultyPage';
 import AboutPage from './pages/AboutPage';
 import ResearchPage from './pages/ResearchPage';
+import ResultCheck from './pages/ResultCheck';
 
 // Admin imports
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/pages/Dashboard';
 import StudentManagement from './admin/pages/StudentManagement';
 import NoticeManagement from './admin/pages/NoticeManagement';
+import UserManagement from './admin/pages/UserManagement';
 import ResultManagement from './admin/pages/ResultManagement';
-import AdminGallery from './admin/pages/Gallery';
+import MarksEntry from './admin/pages/results/MarksEntry';
+import ViewLedger from './admin/pages/results/ViewLedger';
+import SubjectSetup from './admin/pages/results/SubjectSetup';
+import PublishResult from './admin/pages/results/PublishResult';
 import AdminLogin from './admin/pages/AdminLogin';
+import CMSManagement from './admin/pages/cms/CMSManagement';
+
+// CMS Imports
+import MainPortalHomeHero from './admin/pages/cms/mainportal/home/Hero';
+import MainPortalHomeGallery from './admin/pages/cms/mainportal/home/Gallery';
+import MainPortalResearchHero from './admin/pages/cms/mainportal/research/Hero';
+import MainPortalAcademicLeadership from './admin/pages/cms/mainportal/faculty/AcademicLeadership';
+import MainPortalFooter from './admin/pages/cms/mainportal/Footer';
 
 // School imports
 import SchoolNavbar from './school/components/Navbar';
@@ -41,6 +54,7 @@ function App() {
         <Route path="/faculty" element={<FacultyPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/research" element={<ResearchPage />} />
+        <Route path="/results" element={<ResultCheck />} />
 
         {/* School Project Routes */}
         <Route
@@ -74,8 +88,22 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="students" element={<StudentManagement />} />
           <Route path="notice" element={<NoticeManagement />} />
-          <Route path="results" element={<ResultManagement />} />
-          <Route path="gallery" element={<AdminGallery />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="results" element={<ResultManagement />}>
+            <Route index element={<Navigate to="entry" replace />} />
+            <Route path="entry" element={<MarksEntry />} />
+            <Route path="ledger" element={<ViewLedger />} />
+            <Route path="setup" element={<SubjectSetup />} />
+            <Route path="publish" element={<PublishResult />} />
+          </Route>
+          <Route path="cms" element={<CMSManagement />}>
+            <Route index element={<Navigate to="main-hero" replace />} />
+            <Route path="main-hero" element={<MainPortalHomeHero />} />
+            <Route path="main-gallery" element={<MainPortalHomeGallery />} />
+            <Route path="research-hero" element={<MainPortalResearchHero />} />
+            <Route path="faculty-leadership" element={<MainPortalAcademicLeadership />} />
+            <Route path="footer" element={<MainPortalFooter />} />
+          </Route>
           <Route path="*" element={<Dashboard />} />
         </Route>
       </Routes>
