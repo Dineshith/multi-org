@@ -1,1 +1,407 @@
-test
+CREATE DATABASE IF NOT EXISTS multiorg
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE multiorg;
+
+CREATE TABLE organizations (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    parent_id INT UNSIGNED NULL,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(180) NOT NULL UNIQUE,
+    type VARCHAR(50) NOT NULL,
+    description TEXT NULL,
+    email VARCHAR(150) NULL,
+    phone VARCHAR(30) NULL,
+    address VARCHAR(300) NULL,
+    map_link VARCHAR(1000) NULL,
+    logo_url VARCHAR(1000) NULL,
+    website VARCHAR(1000) NULL,
+    why_us JSON NULL,
+    status ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id)
+        REFERENCES organizations(id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    phone VARCHAR(30) NULL,
+    password_hash VARCHAR(255) NULL,
+    role ENUM(
+        'ADMIN',
+        'CONTENT_ADMIN',
+        'USER'
+    ) NOT NULL DEFAULT 'USER',
+    image_url VARCHAR(1000) NULL,
+    status ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (email),
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE faculties (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    subtitle VARCHAR(255) NULL,
+    description1 TEXT NULL,
+    description2 TEXT NULL,
+    description3 TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE programs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    faculty_id INT UNSIGNED NULL,
+    name VARCHAR(150) NOT NULL,
+    code VARCHAR(50) NULL,
+    level VARCHAR(50) NULL,
+    duration VARCHAR(50) NULL,
+    description TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (faculty_id)
+        REFERENCES faculties(id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE subjects (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    faculty_id INT UNSIGNED NOT NULL,
+    program_id INT UNSIGNED NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    code VARCHAR(50) NULL,
+    class_name VARCHAR(100) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (faculty_id)
+        REFERENCES faculties(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (program_id)
+        REFERENCES programs(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE faculty_members (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    faculty_id INT UNSIGNED NOT NULL,
+    designation VARCHAR(100) NULL,
+    qualification VARCHAR(255) NULL,
+    bio TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (user_id),
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (faculty_id)
+        REFERENCES faculties(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE students (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    organization_id INT UNSIGNED NOT NULL,
+    program_id INT UNSIGNED NOT NULL,
+    roll_no VARCHAR(50) NULL,
+    class_name VARCHAR(100) NULL,
+    date_of_birth DATE NULL,
+    gender VARCHAR(30) NULL,
+    guardian_name VARCHAR(150) NULL,
+    guardian_phone VARCHAR(30) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (user_id),
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (program_id)
+        REFERENCES programs(id)
+        ON DELETE RESTRICT
+);
+
+CREATE TABLE results (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    student_id INT UNSIGNED NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    academic_year VARCHAR(30) NULL,
+    semester VARCHAR(30) NULL,
+    published_date DATE NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id)
+        REFERENCES students(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE result_records (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    result_id INT UNSIGNED NOT NULL,
+    subject_id INT UNSIGNED NOT NULL,
+    marks DECIMAL(6,2) NULL,
+    grade VARCHAR(10) NULL,
+    grade_point DECIMAL(4,2) NULL,
+    FOREIGN KEY (result_id)
+        REFERENCES results(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (subject_id)
+        REFERENCES subjects(id)
+        ON DELETE RESTRICT
+);
+
+CREATE TABLE banners (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NULL,
+    banner_text TEXT NULL,
+    image_url VARCHAR(1000) NULL,
+    link_url VARCHAR(1000) NULL,
+    sort_order INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE notices (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    notice_date DATE NOT NULL,
+    file_url VARCHAR(1000) NULL,
+    created_by INT UNSIGNED NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (created_by)
+        REFERENCES users(id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE events (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    event_date DATE NOT NULL,
+    image_url VARCHAR(1000) NULL,
+    created_by INT UNSIGNED NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (created_by)
+        REFERENCES users(id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE services (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    description TEXT NULL,
+    icon VARCHAR(255) NULL,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE news_categories (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    image_url VARCHAR(1000) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (organization_id, name),
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE news (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    category_id INT UNSIGNED NULL,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
+    content TEXT NULL,
+    image_url VARCHAR(1000) NULL,
+    published_date DATE NULL,
+    created_by INT UNSIGNED NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (organization_id, slug),
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (category_id)
+        REFERENCES news_categories(id)
+        ON DELETE SET NULL,
+    FOREIGN KEY (created_by)
+        REFERENCES users(id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE leader_messages (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NULL,
+    saying TEXT NOT NULL,
+    image_url VARCHAR(1000) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE research (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    topic VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NULL,
+    research_year YEAR NULL,
+    level VARCHAR(50) NULL,
+    research_type VARCHAR(100) NULL,
+    writer VARCHAR(255) NULL,
+    description TEXT NULL,
+    file_url VARCHAR(1000) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE e_journals (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    publication_date DATE NULL,
+    cover_image_url VARCHAR(1000) NULL,
+    file_url VARCHAR(1000) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE scholarships (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    program_id INT UNSIGNED NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    eligibility TEXT NULL,
+    amount DECIMAL(12,2) NULL,
+    deadline DATE NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (program_id)
+        REFERENCES programs(id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE fee_structures (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    program_id INT UNSIGNED NOT NULL,
+    admission_fee DECIMAL(12,2) DEFAULT 0,
+    annual_fee DECIMAL(12,2) DEFAULT 0,
+    monthly_fee DECIMAL(12,2) DEFAULT 0,
+    other_fee DECIMAL(12,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (program_id)
+        REFERENCES programs(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE admission_criteria (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    program_id INT UNSIGNED NOT NULL,
+    criteria TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (program_id)
+        REFERENCES programs(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE galleries (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    name VARCHAR(200) NOT NULL,
+    description TEXT NULL,
+    cover_image_url VARCHAR(1000) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE gallery_images (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    gallery_id INT UNSIGNED NOT NULL,
+    title VARCHAR(200) NULL,
+    image_url VARCHAR(1000) NOT NULL,
+    description TEXT NULL,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (gallery_id)
+        REFERENCES galleries(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE contact_messages (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    organization_id INT UNSIGNED NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    phone VARCHAR(30) NULL,
+    subject VARCHAR(255) NULL,
+    message TEXT NOT NULL,
+    status ENUM(
+        'NEW',
+        'READ',
+        'REPLIED'
+    ) DEFAULT 'NEW',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE
+);
