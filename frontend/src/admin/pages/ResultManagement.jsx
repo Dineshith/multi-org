@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { CheckCircle2, Settings, Edit3, TableProperties } from 'lucide-react';
+import { CheckCircle2, Settings, Edit3, TableProperties, Building2 } from 'lucide-react';
 import { WINGS, PROGRAMS, LEVELS, TERMINALS } from '../config/orgConfig';
 
 import { ImportMarksCSVModal, MarkSheetModal } from './results/Modals';
@@ -75,14 +75,17 @@ export default function ResultManagement() {
       </div>
 
       <div className="flex flex-wrap gap-2 bg-slate-100 p-1 rounded-xl w-fit">
+        <NavLink to="institute-details" className={({isActive}) => `flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${isActive ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+          <Building2 className="w-4 h-4" /> Institute Details
+        </NavLink>
+        <NavLink to="setup" className={({isActive}) => `flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${isActive ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+          <Settings className="w-4 h-4" /> Subject Setup
+        </NavLink>
         <NavLink to="entry" className={({isActive}) => `flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${isActive ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
           <Edit3 className="w-4 h-4" /> Marks Entry
         </NavLink>
         <NavLink to="ledger" className={({isActive}) => `flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${isActive ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
           <TableProperties className="w-4 h-4" /> View Ledger
-        </NavLink>
-        <NavLink to="setup" className={({isActive}) => `flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${isActive ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-          <Settings className="w-4 h-4" /> Subject Setup
         </NavLink>
         <div className="w-px bg-slate-300 mx-1 my-2"></div>
         <NavLink to="publish" className={({isActive}) => `flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${isActive ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>

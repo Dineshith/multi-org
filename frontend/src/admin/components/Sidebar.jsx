@@ -11,7 +11,8 @@ import {
   LogOut,
   Bell,
   ClipboardCheck,
-  FileText
+  FileText,
+  MessageSquare
 } from 'lucide-react';
 
 const menuItems = [
@@ -22,6 +23,7 @@ const menuItems = [
   { icon: CreditCard, label: 'Finance', path: '/admin/finance' },
   { icon: ClipboardCheck, label: 'Results', path: '/admin/results' },
   { icon: Bell, label: 'Notice', path: '/admin/notice' },
+  { icon: MessageSquare, label: 'Contact', path: '/admin/contact' },
   { icon: FileText, label: 'Content (CMS)', path: '/admin/cms' },
 ];
 

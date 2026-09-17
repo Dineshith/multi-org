@@ -22,6 +22,7 @@ export default function CMSManagement() {
                 { path: 'main-gallery', label: 'Home - Gallery', icon: ImagePlus },
                 { path: 'research-hero', label: 'Research - Hero', icon: FlaskConical },
                 { path: 'faculty-leadership', label: 'Faculty - Leadership', icon: Users },
+                { path: 'navbar', label: 'Global - Navbar', icon: Globe },
                 { path: 'footer', label: 'Global - Footer', icon: Globe },
             ];
         }

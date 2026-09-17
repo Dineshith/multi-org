@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import logo from '../../assets/logo.png'; 
+import logo from '../../assets/logo.png';
 
 const Navbar = () => {
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -32,36 +32,36 @@ const Navbar = () => {
         <img src={logo} alt="Akshar Logo" className="w-14 h-auto object-contain" />
         <span className="text-white font-bold text-2xl tracking-wider mt-1">अक्षर</span>
       </Link>
-      
+
       <div className="hidden xl:flex flex-1 justify-center">
         {/* यहाँ items-center थपेर एलाइनमेन्ट मिलाइएको छ */}
         <ul className="flex items-center space-x-10 text-white font-medium text-[16px] tracking-wide">
-          
+
           <li>
-            <NavLink 
-              to="/school/home" 
+            <NavLink
+              to="/school/home"
               className={({ isActive }) => `pb-1 transition-colors ${isActive ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'}`}
             >
               Home
             </NavLink>
           </li>
-          
+
           {/* About Us Dropdown */}
-          <li 
-            className="relative py-2" 
+          <li
+            className="relative py-2"
             onMouseEnter={() => handleMouseEnter('about')}
             onMouseLeave={handleMouseLeave}
           >
             <div className="flex items-center">
-              <NavLink 
-                to="/school/about" 
+              <NavLink
+                to="/school/about"
                 className={({ isActive }) => `pb-1 transition-colors flex items-center ${isActive || isDropdownActive('/school/faculty-messages') || isDropdownActive('/school/teachers') || isDropdownActive('/school/administrators') ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'}`}
               >
                 About us
                 <DownArrow />
               </NavLink>
             </div>
-            
+
             {hoveredMenu === 'about' && (
               <div className="absolute top-full left-0 mt-0 w-64 bg-white rounded-md shadow-xl py-2 border border-gray-100 z-50 transition-opacity duration-300">
                 <Link to="/school/about" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">About</Link>
@@ -71,16 +71,16 @@ const Navbar = () => {
               </div>
             )}
           </li>
-          
+
           {/* Resources Dropdown */}
-          <li 
+          <li
             className="relative py-2"
             onMouseEnter={() => handleMouseEnter('resources')}
             onMouseLeave={handleMouseLeave}
           >
             <div className="flex items-center">
-              <NavLink 
-                to="/school/resources" 
+              <NavLink
+                to="/school/resources"
                 className={({ isActive }) => `pb-1 transition-colors flex items-center ${isActive || isDropdownActive('/school/gallery') ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'}`}
               >
                 Resources
@@ -93,16 +93,16 @@ const Navbar = () => {
               </div>
             )}
           </li>
-          
+
           {/* Update Dropdown */}
-          <li 
+          <li
             className="relative py-2"
             onMouseEnter={() => handleMouseEnter('update')}
             onMouseLeave={handleMouseLeave}
           >
             <div className="flex items-center">
-              <NavLink 
-                to="/school/update" 
+              <NavLink
+                to="/school/update"
                 className={({ isActive }) => `pb-1 transition-colors flex items-center ${isActive || isDropdownActive('/school/events') ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'}`}
               >
                 Update
@@ -115,16 +115,16 @@ const Navbar = () => {
               </div>
             )}
           </li>
-          
+
           {/* Academic Dropdown */}
-          <li 
+          <li
             className="relative py-2"
             onMouseEnter={() => handleMouseEnter('academic')}
             onMouseLeave={handleMouseLeave}
           >
             <div className="flex items-center">
-              <NavLink 
-                to="/school/academic" 
+              <NavLink
+                to="/school/academic"
                 className={({ isActive }) => `pb-1 transition-colors flex items-center ${isActive || isDropdownActive('/school/scholarship') ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'}`}
               >
                 Academic
@@ -137,16 +137,16 @@ const Navbar = () => {
               </div>
             )}
           </li>
-          
+
           {/* Courses Dropdown */}
-          <li 
+          <li
             className="relative py-2"
             onMouseEnter={() => handleMouseEnter('courses')}
             onMouseLeave={handleMouseLeave}
           >
-             <div className="flex items-center">
-              <NavLink 
-                to="/school/courses" 
+            <div className="flex items-center">
+              <NavLink
+                to="/school/courses"
                 className={({ isActive }) => `pb-1 transition-colors flex items-center ${isActive ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'}`}
               >
                 Courses
@@ -154,39 +154,20 @@ const Navbar = () => {
               </NavLink>
             </div>
           </li>
-          
+
           <li>
-            <NavLink 
-              to="/school/contact" 
+            <NavLink
+              to="/school/contact"
               className={({ isActive }) => `pb-1 transition-colors ${isActive ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'}`}
             >
               Contact
             </NavLink>
           </li>
-          
+
         </ul>
       </div>
-      
-      <div className="hidden xl:flex items-center gap-2 shrink-0">
-        <Link
-          to="/school"
-          className="bg-[#da251c] text-white text-[0.78rem] font-bold py-1 px-3 rounded shadow"
-        >
-          School
-        </Link>
-        <Link
-          to="/home"
-          className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.78rem] font-semibold py-1 px-2.5 rounded transition"
-        >
-          PlusTwo
-        </Link>
-        <Link
-          to="/bachelor"
-          className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.78rem] font-semibold py-1 px-2.5 rounded transition"
-        >
-          Bachelors
-        </Link>
-      </div>
+
+
     </nav>
   );
 };

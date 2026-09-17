@@ -7,7 +7,18 @@ import {
   Users, GraduationCap, School, Building2, Camera, Mail, Droplets,
   Upload, FileSpreadsheet, Check, AlertCircle, ArrowLeft, ArrowRight, Info
 } from 'lucide-react';
-import { WINGS, PROGRAMS, LEVELS, BLOOD_GROUPS, GENDERS, STUDENT_STATUSES, ORG_INFO } from '../config/orgConfig';
+import { WINGS, PROGRAMS, LEVELS, BLOOD_GROUPS, GENDERS, STUDENT_STATUSES } from '../config/orgConfig';
+
+const DEFAULT_ORG_INFO = { name: 'Institute Name', address: 'Institute Address', phone: '', email: '', website: '', currentSession: '2081/2082' };
+
+const loadData = (key, defaultVal) => {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultVal;
+  } catch {
+    return defaultVal;
+  }
+};
 
 // =============================================
 // STUDENT DATA SERVICE (localStorage — swap with API later)
@@ -920,26 +931,33 @@ function PrintPreviewModal({ students, getProgramName, onClose }) {
 // ID CARD FRONT
 // =============================================
 function IDCardFront({ student, getProgramName }) {
+  const activeOrgInfo = loadData('multi_org_institute_details', DEFAULT_ORG_INFO);
+
   return (
     <div style={{
-      width: '324px', height: '204px', border: '2px solid #1e40af', borderRadius: '12px',
-      overflow: 'hidden', background: 'white', fontSize: '11px', fontFamily: "'Segoe UI', Arial, sans-serif"
+      width: '204px', height: '324px', border: '2px solid #1e40af', borderRadius: '12px',
+      overflow: 'hidden', background: 'white', position: 'relative',
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     }}>
       {/* Header */}
       <div style={{
         background: 'linear-gradient(135deg, #1e40af, #3b82f6)', color: 'white',
         padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px'
       }}>
-        <div style={{
-          width: '28px', height: '28px', background: 'rgba(255,255,255,0.25)',
-          borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 900, fontSize: '12px'
-        }}>
-          {ORG_INFO.name.charAt(0)}
-        </div>
+        {activeOrgInfo.logo ? (
+          <img src={activeOrgInfo.logo} alt="Logo" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{
+            width: '28px', height: '28px', background: 'rgba(255,255,255,0.25)',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 900, fontSize: '12px'
+          }}>
+            {activeOrgInfo.name.charAt(0)}
+          </div>
+        )}
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, fontSize: '12px', letterSpacing: '0.5px' }}>{ORG_INFO.name}</div>
-          <div style={{ fontSize: '9px', opacity: 0.85 }}>{ORG_INFO.address}</div>
+          <div style={{ fontWeight: 800, fontSize: '12px', letterSpacing: '0.5px' }}>{activeOrgInfo.name}</div>
+          <div style={{ fontSize: '9px', opacity: 0.85 }}>{activeOrgInfo.address}</div>
         </div>
         <div style={{
           padding: '2px 8px', borderRadius: '4px', fontSize: '9px', fontWeight: 700,
@@ -981,7 +999,7 @@ function IDCardFront({ student, getProgramName }) {
         justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0'
       }}>
         <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#1e40af', fontSize: '10px' }}>{student.id}</span>
-        <span style={{ fontSize: '9px', color: '#64748b', fontWeight: 600 }}>Valid: {ORG_INFO.currentSession}</span>
+        <span style={{ fontSize: '9px', color: '#64748b', fontWeight: 600 }}>Valid: {activeOrgInfo.currentSession}</span>
       </div>
     </div>
   );
@@ -991,6 +1009,8 @@ function IDCardFront({ student, getProgramName }) {
 // ID CARD BACK
 // =============================================
 function IDCardBack({ student }) {
+  const activeOrgInfo = loadData('multi_org_institute_details', DEFAULT_ORG_INFO);
+
   return (
     <div style={{
       width: '324px', height: '204px', border: '2px solid #1e40af', borderRadius: '12px',
@@ -1039,7 +1059,7 @@ function IDCardBack({ student }) {
         background: '#f1f5f9', padding: '5px 14px', textAlign: 'center',
         fontSize: '8px', color: '#64748b', borderTop: '1px solid #e2e8f0'
       }}>
-        If found, please return to: {ORG_INFO.name}, {ORG_INFO.address} | Ph: {ORG_INFO.phone}
+        If found, please return to: {activeOrgInfo.name}, {activeOrgInfo.address} | Ph: {activeOrgInfo.phone}
       </div>
     </div>
   );

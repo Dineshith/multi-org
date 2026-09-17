@@ -22,8 +22,10 @@ import MarksEntry from './admin/pages/results/MarksEntry';
 import ViewLedger from './admin/pages/results/ViewLedger';
 import SubjectSetup from './admin/pages/results/SubjectSetup';
 import PublishResult from './admin/pages/results/PublishResult';
+import InstutiteDetails from './admin/pages/results/InstutiteDetails';
 import AdminLogin from './admin/pages/AdminLogin';
 import CMSManagement from './admin/pages/cms/CMSManagement';
+import Contact from './admin/pages/Contact';
 
 // CMS Imports
 import MainPortalHomeHero from './admin/pages/cms/mainportal/home/Hero';
@@ -31,6 +33,7 @@ import MainPortalHomeGallery from './admin/pages/cms/mainportal/home/Gallery';
 import MainPortalResearchHero from './admin/pages/cms/mainportal/research/Hero';
 import MainPortalAcademicLeadership from './admin/pages/cms/mainportal/faculty/AcademicLeadership';
 import MainPortalFooter from './admin/pages/cms/mainportal/Footer';
+import MainPortalNavbar from './admin/pages/cms/mainportal/Navbar';
 
 // School imports
 import SchoolNavbar from './school/components/Navbar';
@@ -99,11 +102,13 @@ function App() {
           <Route path="students" element={<StudentManagement />} />
           <Route path="notice" element={<NoticeManagement />} />
           <Route path="users" element={<UserManagement />} />
+          <Route path="contact" element={<Contact />} />
           <Route path="results" element={<ResultManagement />}>
-            <Route index element={<Navigate to="entry" replace />} />
+            <Route index element={<Navigate to="institute-details" replace />} />
+            <Route path="institute-details" element={<InstutiteDetails />} />
+            <Route path="setup" element={<SubjectSetup />} />
             <Route path="entry" element={<MarksEntry />} />
             <Route path="ledger" element={<ViewLedger />} />
-            <Route path="setup" element={<SubjectSetup />} />
             <Route path="publish" element={<PublishResult />} />
           </Route>
           <Route path="cms" element={<CMSManagement />}>
@@ -113,6 +118,7 @@ function App() {
             <Route path="research-hero" element={<MainPortalResearchHero />} />
             <Route path="faculty-leadership" element={<MainPortalAcademicLeadership />} />
             <Route path="footer" element={<MainPortalFooter />} />
+            <Route path="navbar" element={<MainPortalNavbar />} />
           </Route>
           <Route path="*" element={<Dashboard />} />
         </Route>

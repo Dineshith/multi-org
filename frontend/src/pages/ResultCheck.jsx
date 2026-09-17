@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Search, AlertCircle, FileText, CheckCircle2, XCircle, Printer, Award } from 'lucide-react';
-import { WINGS, PROGRAMS, LEVELS, TERMINALS, ORG_INFO } from '../admin/config/orgConfig';
+import { WINGS, PROGRAMS, LEVELS, TERMINALS } from '../admin/config/orgConfig';
+
+const DEFAULT_ORG_INFO = { name: 'Institute Name', address: 'Institute Address', phone: '', email: '', website: '', currentSession: '2081/2082' };
 
 // Data Loader
 const loadData = (key, defaultVal) => {
@@ -30,6 +32,8 @@ const calculateGrade = (obtained, fullMarks) => {
 };
 
 export default function ResultCheck() {
+  const activeOrgInfo = loadData('multi_org_institute_details', DEFAULT_ORG_INFO);
+
   const [wing, setWing] = useState('');
   const [program, setProgram] = useState('');
   const [level, setLevel] = useState('');
@@ -217,8 +221,8 @@ export default function ResultCheck() {
                   {/* Result Header */}
                   <div className="bg-slate-900 px-8 py-10 text-center relative overflow-hidden">
                     <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
-                    <h2 className="text-2xl md:text-3xl font-black text-white relative z-10 tracking-tight">{ORG_INFO.name}</h2>
-                    <p className="text-slate-300 relative z-10 text-sm mt-1">{ORG_INFO.address} | {ORG_INFO.website}</p>
+                    <h2 className="text-2xl md:text-3xl font-black text-white relative z-10 tracking-tight">{activeOrgInfo.name}</h2>
+                    <p className="text-slate-300 relative z-10 text-sm mt-1">{activeOrgInfo.address} | {activeOrgInfo.website}</p>
                     
                     <div className="mt-6 inline-block bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-6 py-2 relative z-10">
                       <p className="text-white font-bold tracking-widest uppercase text-sm">{terminal}</p>

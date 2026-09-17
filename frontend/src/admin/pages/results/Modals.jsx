@@ -1,7 +1,16 @@
 import React, { useState, useRef } from 'react';
 import Papa from 'papaparse';
 import { Upload, Trash2, CheckCircle2, FileImage, Settings, Edit3, TableProperties, Plus, Download, FileSpreadsheet, X, Info, AlertCircle, Check, ArrowLeft, AlertTriangle } from 'lucide-react';
-import { ORG_INFO } from '../../config/orgConfig';
+const DEFAULT_ORG_INFO = { name: 'Institute Name', address: 'Institute Address', phone: '', email: '', website: '', currentSession: '2081/2082' };
+
+const loadData = (key, defaultVal) => {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultVal;
+  } catch {
+    return defaultVal;
+  }
+};
 
 // --- Grading System Logic (NEB Standard) ---
 const calculateGrade = (obtained, fullMarks) => {
@@ -391,6 +400,7 @@ function ImportMarksCSVModal({ onClose, onImport, entryWing, entryProgram, entry
 // MARK SHEET / GRADE SHEET MODAL
 // =============================================
 function MarkSheetModal({ student, onClose, entryWing, entryProgram, entryLevel, entryTerminal, subjects, studentMarks, symbolNumbers }) {
+  const activeOrgInfo = loadData('multi_org_institute_details', DEFAULT_ORG_INFO);
   const symbolKey = `${entryLevel}-${entryTerminal}-${student.id}`;
   const symbolVal = symbolNumbers[symbolKey] || 'N/A';
 
@@ -524,11 +534,11 @@ function MarkSheetModal({ student, onClose, entryWing, entryProgram, entryLevel,
               
               {/* Mark Sheet Header */}
               <div className="header" style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #1e3a8a', paddingBottom: '20px' }}>
-                <h1 className="school-name" style={{ fontSize: '32px', fontWeight: 'bold', color: '#1e3a8a', margin: '0 0 5px 0', textTransform: 'uppercase', letterSpacing: '1px' }}>{ORG_INFO.name}</h1>
-                <p className="school-address" style={{ fontSize: '16px', margin: '0 0 5px 0' }}>{ORG_INFO.address}</p>
-                <p className="school-contact" style={{ fontSize: '14px', margin: '0', color: '#475569' }}>Phone: {ORG_INFO.phone} | Email: {ORG_INFO.email}</p>
+                <h1 className="school-name" style={{ fontSize: '32px', fontWeight: 'bold', color: '#1e3a8a', margin: '0 0 5px 0', textTransform: 'uppercase', letterSpacing: '1px' }}>{activeOrgInfo.name}</h1>
+                <p className="school-address" style={{ fontSize: '16px', margin: '0 0 5px 0' }}>{activeOrgInfo.address}</p>
+                <p className="school-contact" style={{ fontSize: '14px', margin: '0', color: '#475569' }}>Phone: {activeOrgInfo.phone} | Email: {activeOrgInfo.email}</p>
                 <div className="sheet-title" style={{ fontSize: '22px', fontWeight: 'bold', background: '#1e3a8a', color: 'white', display: 'inline-block', padding: '8px 25px', borderRadius: '50px', marginTop: '15px', letterSpacing: '2px' }}>GRADE SHEET</div>
-                <p style={{ marginTop: '10px', fontWeight: 'bold', fontSize: '16px', textTransform: 'uppercase' }}>{entryTerminal} - {ORG_INFO.currentSession}</p>
+                <p style={{ marginTop: '10px', fontWeight: 'bold', fontSize: '16px', textTransform: 'uppercase' }}>{entryTerminal} - {activeOrgInfo.currentSession}</p>
               </div>
 
               {/* Student Details */}
