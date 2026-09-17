@@ -10,6 +10,16 @@ import ResultCheck from './pages/ResultCheck';
 
 // Bachelor Project Imports
 import BachelorHome from './bachelor/pages/Home';
+import BachelorAbout from './bachelor/pages/About';
+import BachelorPrograms from './bachelor/pages/Programs';
+import BachelorFaculty from './bachelor/pages/Faculty';
+import BachelorNotice from './bachelor/pages/Notice';
+import BachelorGallery from './bachelor/pages/Gallery';
+import BachelorContact from './bachelor/pages/Contact';
+import BachelorResults from './bachelor/pages/Results';
+import BachelorNavbar from './bachelor/components/Navbar';
+import BachelorFooter from './bachelor/components/Footer';
+
 
 // Admin imports
 import AdminLayout from './admin/AdminLayout';
@@ -34,6 +44,7 @@ import MainPortalResearchHero from './admin/pages/cms/mainportal/research/Hero';
 import MainPortalAcademicLeadership from './admin/pages/cms/mainportal/faculty/AcademicLeadership';
 import MainPortalFooter from './admin/pages/cms/mainportal/Footer';
 import MainPortalNavbar from './admin/pages/cms/mainportal/Navbar';
+import OrganizationManagement from './admin/pages/OrganizationManagement';
 
 // School imports
 import SchoolNavbar from './school/components/Navbar';
@@ -63,11 +74,32 @@ function App() {
         <Route path="/results" element={<ResultCheck />} />
 
         {/* Bachelor (College) Routes */}
-        <Route path="/bachelor" element={<BachelorHome />} />
-        <Route path="/bachelor/*" element={<BachelorHome />} />
+        <Route
+          path="/bachelor/*"
+          element={
+            <div className="w-full min-h-screen bg-white text-gray-900 font-sans flex flex-col">
+              <BachelorNavbar />
+              <main className="flex-1 w-full">
+                <Routes>
+                  <Route index element={<BachelorHome />} />
+                  <Route path="about" element={<BachelorAbout />} />
+                  <Route path="programs" element={<BachelorPrograms />} />
+                  <Route path="faculty" element={<BachelorFaculty />} />
+                  <Route path="notice" element={<BachelorNotice />} />
+                  <Route path="gallery" element={<BachelorGallery />} />
+                  <Route path="contact" element={<BachelorContact />} />
+                  <Route path="results" element={<BachelorResults />} />
+                  <Route path="*" element={<Navigate to="/bachelor" replace />} />
+                </Routes>
+              </main>
+              <BachelorFooter />
+            </div>
+          }
+        />
         <Route path="/bachelors" element={<Navigate to="/bachelor" replace />} />
         <Route path="/bachelors/*" element={<Navigate to="/bachelor" replace />} />
         <Route path="/college" element={<Navigate to="/bachelor" replace />} />
+        <Route path="/college/*" element={<Navigate to="/bachelor" replace />} />
 
         {/* School Project Routes */}
         <Route
@@ -103,6 +135,7 @@ function App() {
           <Route path="notice" element={<NoticeManagement />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="organization" element={<OrganizationManagement />} />
           <Route path="results" element={<ResultManagement />}>
             <Route index element={<Navigate to="institute-details" replace />} />
             <Route path="institute-details" element={<InstutiteDetails />} />

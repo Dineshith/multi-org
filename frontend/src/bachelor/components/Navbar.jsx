@@ -55,14 +55,13 @@ const Navbar = () => {
             </button>
             {hoveredMenu === 'about' && (
               <div className="absolute top-full left-0 mt-0 w-60 bg-white rounded-md shadow-xl py-2 border border-gray-100 z-50 text-gray-800">
-                <a href="#about" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">About Akshar</a>
-                <a href="#notices" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">Leadership & Message</a>
-                <a href="#testimonials" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">Testimonials</a>
+                <NavLink to="/bachelor/about" onClick={() => setHoveredMenu(null)} className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">About Us</NavLink>
+                <NavLink to="/bachelor/faculty" onClick={() => setHoveredMenu(null)} className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">Faculty & Staff</NavLink>
               </div>
             )}
           </div>
 
-          {/* Academics / Resources dropdown */}
+          {/* Academics dropdown */}
           <div
             className="relative py-2"
             onMouseEnter={() => handleMouseEnter('academics')}
@@ -74,42 +73,70 @@ const Navbar = () => {
             </button>
             {hoveredMenu === 'academics' && (
               <div className="absolute top-full left-0 mt-0 w-56 bg-white rounded-md shadow-xl py-2 border border-gray-100 z-50 text-gray-800">
-                <a href="#faculties" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">Programs Offered</a>
-                <a href="#notices" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">Academic Calendar</a>
-                <a href="#notices" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">Scholarships</a>
+                <NavLink to="/bachelor/programs" onClick={() => setHoveredMenu(null)} className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">Programs Offered</NavLink>
+                <NavLink to="/bachelor/results" onClick={() => setHoveredMenu(null)} className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">Exam Results</NavLink>
               </div>
             )}
           </div>
 
-          {/* Courses / Faculties */}
-          <div
-            className="relative py-2"
-            onMouseEnter={() => handleMouseEnter('courses')}
-            onMouseLeave={handleMouseLeave}
+          {/* Notice */}
+          <NavLink
+            to="/bachelor/notice"
+            className={({ isActive }) =>
+              `pb-1 transition-colors ${
+                isActive ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'
+              }`
+            }
           >
-            <a href="#faculties" className="flex items-center pb-1 transition-colors text-white hover:text-gray-300 bg-transparent border-none cursor-pointer p-0 font-medium text-[16px] tracking-wide">
-              Courses
-              <DownArrow />
-            </a>
-            {hoveredMenu === 'courses' && (
-              <div className="absolute top-full left-0 mt-0 w-64 bg-white rounded-md shadow-xl py-2 border border-gray-100 z-50 text-gray-800">
-                <a href="#faculties" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">BCA (Computer Application)</a>
-                <a href="#faculties" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">BBS (Business Studies)</a>
-                <a href="#faculties" className="block px-4 py-2 text-[15px] text-gray-700 hover:bg-slate-100 hover:text-[#da251c] transition-colors">BSW (Social Work)</a>
-              </div>
-            )}
-          </div>
+            Notice
+          </NavLink>
 
-          {/* Update */}
-          <a href="#news" className="pb-1 transition-colors text-white hover:text-gray-300">
-            Update
-          </a>
+          {/* Gallery */}
+          <NavLink
+            to="/bachelor/gallery"
+            className={({ isActive }) =>
+              `pb-1 transition-colors ${
+                isActive ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'
+              }`
+            }
+          >
+            Gallery
+          </NavLink>
 
           {/* Contact */}
-          <a href="#contact" className="pb-1 transition-colors text-white hover:text-gray-300">
+          <NavLink
+            to="/bachelor/contact"
+            className={({ isActive }) =>
+              `pb-1 transition-colors ${
+                isActive ? 'text-[#da251c] border-b-2 border-[#da251c]' : 'hover:text-gray-300'
+              }`
+            }
+          >
             Contact
-          </a>
+          </NavLink>
           </div>
+        </div>
+
+        {/* Institution Switcher Buttons */}
+        <div className="hidden md:flex items-center gap-2">
+          <Link
+            to="/school"
+            className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.8rem] font-semibold py-1.5 px-3 rounded transition-all shadow-sm"
+          >
+            School
+          </Link>
+          <Link
+            to="/home"
+            className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.8rem] font-semibold py-1.5 px-3 rounded transition-all shadow-sm"
+          >
+            PlusTwo
+          </Link>
+          <Link
+            to="/bachelor"
+            className="bg-[#da251c] text-white text-[0.8rem] font-bold py-1.5 px-3.5 rounded transition-all shadow ring-2 ring-white/30"
+          >
+            Bachelors
+          </Link>
         </div>
 
         {/* Mobile Toggle Button */}
@@ -138,41 +165,80 @@ const Navbar = () => {
           >
             Home
           </Link>
-          <a
-            href="#about"
+          <Link
+            to="/bachelor/about"
             onClick={() => setMobileOpen(false)}
             className="py-1.5 text-base font-medium hover:text-gray-300"
           >
-            About us
-          </a>
-          <a
-            href="#faculties"
+            About Us
+          </Link>
+          <Link
+            to="/bachelor/programs"
             onClick={() => setMobileOpen(false)}
             className="py-1.5 text-base font-medium hover:text-gray-300"
           >
-            Courses & Programs
-          </a>
-          <a
-            href="#notices"
+            Programs
+          </Link>
+          <Link
+            to="/bachelor/faculty"
             onClick={() => setMobileOpen(false)}
             className="py-1.5 text-base font-medium hover:text-gray-300"
           >
-            Notices & Events
-          </a>
-          <a
-            href="#news"
+            Faculty
+          </Link>
+          <Link
+            to="/bachelor/notice"
             onClick={() => setMobileOpen(false)}
             className="py-1.5 text-base font-medium hover:text-gray-300"
           >
-            News & Updates
-          </a>
-          <a
-            href="#contact"
+            Notice
+          </Link>
+          <Link
+            to="/bachelor/gallery"
+            onClick={() => setMobileOpen(false)}
+            className="py-1.5 text-base font-medium hover:text-gray-300"
+          >
+            Gallery
+          </Link>
+          <Link
+            to="/bachelor/results"
+            onClick={() => setMobileOpen(false)}
+            className="py-1.5 text-base font-medium hover:text-gray-300"
+          >
+            Results
+          </Link>
+          <Link
+            to="/bachelor/contact"
             onClick={() => setMobileOpen(false)}
             className="py-1.5 text-base font-medium hover:text-gray-300"
           >
             Contact
-          </a>
+          </Link>
+
+          {/* Quick institution switches */}
+          <div className="flex gap-2 pt-3 border-t border-white/10 mt-2">
+            <Link
+              to="/school"
+              onClick={() => setMobileOpen(false)}
+              className="flex-1 text-center bg-[#da251c]/80 text-white text-xs font-semibold py-2 rounded"
+            >
+              School
+            </Link>
+            <Link
+              to="/home"
+              onClick={() => setMobileOpen(false)}
+              className="flex-1 text-center bg-[#da251c]/80 text-white text-xs font-semibold py-2 rounded"
+            >
+              PlusTwo
+            </Link>
+            <Link
+              to="/bachelor"
+              onClick={() => setMobileOpen(false)}
+              className="flex-1 text-center bg-[#da251c] text-white text-xs font-bold py-2 rounded ring-1 ring-white/40"
+            >
+              Bachelors
+            </Link>
+          </div>
         </div>
       )}
     </header>
