@@ -1,7 +1,5 @@
-// =============================================
-// SHARED CONFIG: Wings, Programs, Levels
+
 // Used by: StudentManagement, ResultManagement, etc.
-// =============================================
 
 export const WINGS = ['School', 'Plus2', 'Bachelors'];
 
