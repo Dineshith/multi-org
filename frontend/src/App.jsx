@@ -164,7 +164,7 @@ function App() {
         />
 
         {/* Admin Login Route */}
-        <Route path="/admin/login" element={<AdminLogin />} />
+        {/* <Route path="/admin/login" element={<AdminLogin />} /> */}
 
         {/* Admin Nested Routes */}
         <Route path="/admin" element={<AdminLayout />}>

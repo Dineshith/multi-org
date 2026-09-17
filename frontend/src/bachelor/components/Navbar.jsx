@@ -117,27 +117,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Institution Switcher Buttons */}
-        <div className="hidden md:flex items-center gap-2">
-          <Link
-            to="/school"
-            className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.8rem] font-semibold py-1.5 px-3 rounded transition-all shadow-sm"
-          >
-            School
-          </Link>
-          <Link
-            to="/plus2"
-            className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.8rem] font-semibold py-1.5 px-3 rounded transition-all shadow-sm"
-          >
-            PlusTwo
-          </Link>
-          <Link
-            to="/bachelor"
-            className="bg-[#da251c] text-white text-[0.8rem] font-bold py-1.5 px-3.5 rounded transition-all shadow ring-2 ring-white/30"
-          >
-            Bachelors
-          </Link>
-        </div>
 
         {/* Mobile Toggle Button */}
         <button
@@ -215,30 +194,6 @@ const Navbar = () => {
             Contact
           </Link>
 
-          {/* Quick institution switches */}
-          <div className="flex gap-2 pt-3 border-t border-white/10 mt-2">
-            <Link
-              to="/school"
-              onClick={() => setMobileOpen(false)}
-              className="flex-1 text-center bg-[#da251c]/80 text-white text-xs font-semibold py-2 rounded"
-            >
-              School
-            </Link>
-            <Link
-              to="/plus2"
-              onClick={() => setMobileOpen(false)}
-              className="flex-1 text-center bg-[#da251c]/80 text-white text-xs font-semibold py-2 rounded"
-            >
-              PlusTwo
-            </Link>
-            <Link
-              to="/bachelor"
-              onClick={() => setMobileOpen(false)}
-              className="flex-1 text-center bg-[#da251c] text-white text-xs font-bold py-2 rounded ring-1 ring-white/40"
-            >
-              Bachelors
-            </Link>
-          </div>
         </div>
       )}
     </header>
