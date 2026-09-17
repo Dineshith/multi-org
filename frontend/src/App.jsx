@@ -20,6 +20,14 @@ import BachelorResults from './bachelor/pages/Results';
 import BachelorNavbar from './bachelor/components/Navbar';
 import BachelorFooter from './bachelor/components/Footer';
 
+// Plus2 Imports
+import Plus2Navbar from './plus2/component/Navbar';
+import Plus2Footer from './plus2/component/Footer';
+import Plus2GalleryPage from './plus2/pages/GalleryPage';
+import Plus2Scholarship from './plus2/pages/Scholarship';
+import Plus2FeeStructure from './plus2/pages/FeeStructure';
+import Plus2Contact from './plus2/pages/Contact';
+
 
 // Admin imports
 import AdminLayout from './admin/AdminLayout';
@@ -86,6 +94,27 @@ function App() {
         <Route path="/bachelors/*" element={<Navigate to="/bachelor" replace />} />
         <Route path="/college" element={<Navigate to="/bachelor" replace />} />
         <Route path="/college/*" element={<Navigate to="/bachelor" replace />} />
+
+        {/* Plus2 (Higher Secondary) Routes */}
+        <Route
+          path="/plus2/*"
+          element={
+            <div className="w-full min-h-screen bg-white text-gray-900 font-sans flex flex-col">
+              <Plus2Navbar />
+              <main className="flex-1 w-full">
+                <Routes>
+                  <Route index element={<Navigate to="/home" replace />} />
+                  <Route path="gallery" element={<Plus2GalleryPage />} />
+                  <Route path="scholarship" element={<Plus2Scholarship />} />
+                  <Route path="fee-structure" element={<Plus2FeeStructure />} />
+                  <Route path="contact" element={<Plus2Contact />} />
+                  <Route path="*" element={<Navigate to="/home" replace />} />
+                </Routes>
+              </main>
+              <Plus2Footer />
+            </div>
+          }
+        />
 
         {/* School Project Routes */}
         <Route
