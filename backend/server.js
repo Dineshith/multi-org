@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRoutes from "./src/routes/authRoutes.js";
 import contactRoutes from "./src/routes/contactRoutes.js";
 import noticeRoutes from "./src/routes/noticeRoutes.js";
+import organizationRoute from "./src/routes/admin/organizationRoute.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/notices", noticeRoutes);
+app.use("/api/admin", organizationRoute)
 
 // Test route
 app.get("/", (req, res) => {
