@@ -27,7 +27,7 @@ export default function Navbar() {
       </Link>
 
       {/* Desktop Menu Links */}
-      <div className="hidden lg:flex items-center justify-center gap-7 font-semibold text-[15px]">
+      <div className="hidden lg:flex flex-1 items-center justify-center gap-7 font-semibold text-[15px] pr-[140px]">
         <NavLink 
           to="/plus2" 
           end
