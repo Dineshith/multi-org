@@ -64,7 +64,7 @@ export default function Navbar() {
               School
             </Link>
             <Link
-              to="/home"
+              to="/plus2"
               onClick={() => setMobileOpen(false)}
               className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
               id="btn-results"

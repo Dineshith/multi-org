@@ -175,7 +175,7 @@ const Navbar = () => {
           School
         </Link>
         <Link
-          to="/home"
+          to="/plus2"
           className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.78rem] font-semibold py-1 px-2.5 rounded transition"
         >
           PlusTwo
