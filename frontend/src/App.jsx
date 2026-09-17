@@ -67,25 +67,25 @@ function App() {
               <BachelorNavbar />
               <main className="flex-1 w-full">
                 <Routes>
-                  <Route path="/" element={<BachelorHome />} />
-                  <Route path="/about" element={<BachelorAbout />} />
-                  <Route path="/programs" element={<BachelorPrograms />} />
-                  <Route path="/faculty" element={<BachelorFaculty />} />
-                  <Route path="/notice" element={<BachelorNotice />} />
-                  <Route path="/gallery" element={<BachelorGallery />} />
-                  <Route path="/contact" element={<BachelorContact />} />
-                  <Route path="/results" element={<BachelorResults />} />
-                  <Route path="*" element={<BachelorHome />} />
+                  <Route index element={<BachelorHome />} />
+                  <Route path="about" element={<BachelorAbout />} />
+                  <Route path="programs" element={<BachelorPrograms />} />
+                  <Route path="faculty" element={<BachelorFaculty />} />
+                  <Route path="notice" element={<BachelorNotice />} />
+                  <Route path="gallery" element={<BachelorGallery />} />
+                  <Route path="contact" element={<BachelorContact />} />
+                  <Route path="results" element={<BachelorResults />} />
+                  <Route path="*" element={<Navigate to="/bachelor" replace />} />
                 </Routes>
               </main>
               <BachelorFooter />
             </div>
           }
         />
-        <Route path="/bachelor" element={<Navigate to="/bachelor/" replace />} />
-        <Route path="/bachelors" element={<Navigate to="/bachelor/" replace />} />
-        <Route path="/bachelors/*" element={<Navigate to="/bachelor/" replace />} />
-        <Route path="/college" element={<Navigate to="/bachelor/" replace />} />
+        <Route path="/bachelors" element={<Navigate to="/bachelor" replace />} />
+        <Route path="/bachelors/*" element={<Navigate to="/bachelor" replace />} />
+        <Route path="/college" element={<Navigate to="/bachelor" replace />} />
+        <Route path="/college/*" element={<Navigate to="/bachelor" replace />} />
 
         {/* School Project Routes */}
         <Route

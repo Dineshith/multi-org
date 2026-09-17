@@ -33,7 +33,7 @@ const Navbar = () => {
         {/* Desktop Navigation Links */}
         <div className="hidden min-[960px]:flex items-center space-x-8 text-white font-medium text-[15px]">
           <NavLink
-            to="/bachelor/"
+            to="/bachelor"
             end
             className={({ isActive }) =>
               `pb-1 transition-colors ${
@@ -159,7 +159,7 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="min-[960px]:hidden bg-[#0c1a30] border-t border-white/10 px-6 py-4 flex flex-col gap-3 text-white">
           <Link
-            to="/bachelor/"
+            to="/bachelor"
             onClick={() => setMobileOpen(false)}
             className="py-1.5 text-base font-medium text-[#da251c]"
           >
