@@ -1,7 +1,5 @@
-// =============================================
-// SHARED CONFIG: Wings, Programs, Levels
+
 // Used by: StudentManagement, ResultManagement, etc.
-// =============================================
 
 export const WINGS = ['School', 'Plus2', 'Bachelors'];
 
@@ -43,15 +41,3 @@ export const GENDERS = ['Male', 'Female', 'Other'];
 
 export const STUDENT_STATUSES = ['Active', 'Passed Out', 'Dropped', 'Transferred'];
 
-// Organization info (will come from API later)
-export const ORG_INFO = {
-  name: 'Sunrise Academy',
-  address: 'Kathmandu, Nepal',
-  phone: '01-4XXXXXX',
-  email: 'info@sunriseacademy.edu.np',
-  website: 'www.sunriseacademy.edu.np',
-  established: '2050 BS',
-  panNo: '123456789',
-  logo: null, // URL or base64
-  currentSession: '2081/2082',
-};

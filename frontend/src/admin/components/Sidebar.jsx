@@ -10,7 +10,9 @@ import {
   Images,
   LogOut,
   Bell,
-  ClipboardCheck
+  ClipboardCheck,
+  FileText,
+  MessageSquare
 } from 'lucide-react';
 
 const menuItems = [
@@ -19,7 +21,8 @@ const menuItems = [
   { icon: BookOpen, label: 'Students', path: '/admin/students' },
   { icon: ClipboardCheck, label: 'Results', path: '/admin/results' },
   { icon: Bell, label: 'Notice', path: '/admin/notice' },
-  { icon: Images, label: 'Gallery', path: '/admin/gallery' },
+  { icon: MessageSquare, label: 'Contact', path: '/admin/contact' },
+  { icon: FileText, label: 'Content (CMS)', path: '/admin/cms' },
 ];
 
 
@@ -48,8 +51,8 @@ export default function Sidebar({ onLogout }) {
               to={item.path}
               end={item.path === '/admin'}
               className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20'
-                  : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20'
+                : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 }`}
             >
               {({ isActive }) => (

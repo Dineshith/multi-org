@@ -93,7 +93,7 @@ const Faculty = () => {
 
   const filteredFaculty = facultyData.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          member.role.toLowerCase().includes(searchTerm.toLowerCase());
+      member.role.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDept = selectedDept === "All" || member.department === selectedDept;
     return matchesSearch && matchesDept;
   });
@@ -137,11 +137,10 @@ const Faculty = () => {
             {departments.map(dept => (
               <button
                 key={dept}
-                className={`py-[0.55rem] px-[1.15rem] rounded-[var(--radius-sm)] border-[0.09375rem] text-[0.85rem] font-semibold whitespace-nowrap transition-all duration-[var(--transition-fast)] cursor-pointer font-[inherit] ${
-                  selectedDept === dept
+                className={`py-[0.55rem] px-[1.15rem] rounded-[var(--radius-sm)] border-[0.09375rem] text-[0.85rem] font-semibold whitespace-nowrap transition-all duration-[var(--transition-fast)] cursor-pointer font-[inherit] ${selectedDept === dept
                     ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-[var(--shadow-primary-btn)]'
                     : 'bg-transparent text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text-heading)] hover:border-[var(--color-border-hover)]'
-                }`}
+                  }`}
                 onClick={() => setSelectedDept(dept)}
               >
                 {dept}
@@ -214,7 +213,8 @@ const Faculty = () => {
       </div>
 
       {/* Hide scrollbar utility */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />

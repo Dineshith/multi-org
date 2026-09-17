@@ -27,7 +27,7 @@ export default function Navbar() {
       </Link>
 
       {/* Desktop Menu Links */}
-      <div className="hidden lg:flex items-center justify-center gap-7 font-semibold text-[15px]">
+      <div className="hidden lg:flex flex-1 items-center justify-center gap-7 font-semibold text-[15px] pr-[140px]">
         <NavLink 
           to="/plus2" 
           end
@@ -93,27 +93,6 @@ export default function Navbar() {
         </NavLink>
       </div>
 
-      {/* Institution Switcher Buttons */}
-      <div className="hidden sm:flex items-center gap-2">
-        <Link
-          to="/school"
-          className="bg-red-600/80 hover:bg-red-600 text-white text-[0.78rem] font-semibold py-1.5 px-3 rounded transition-all shadow-sm no-underline"
-        >
-          School
-        </Link>
-        <Link
-          to="/plus2"
-          className="bg-red-600 text-white text-[0.78rem] font-bold py-1.5 px-3.5 rounded transition-all shadow ring-2 ring-white/30 no-underline"
-        >
-          PlusTwo
-        </Link>
-        <Link
-          to="/bachelor"
-          className="bg-red-600/80 hover:bg-red-600 text-white text-[0.78rem] font-semibold py-1.5 px-3 rounded transition-all shadow-sm no-underline"
-        >
-          Bachelors
-        </Link>
-      </div>
 
       {/* Mobile Toggle Button */}
       <button
@@ -183,30 +162,6 @@ export default function Navbar() {
             Contact
           </Link>
 
-          {/* Quick institution switches for mobile */}
-          <div className="flex gap-2 pt-3 border-t border-white/10 mt-2">
-            <Link
-              to="/school"
-              onClick={() => setMobileOpen(false)}
-              className="flex-1 text-center bg-red-600/80 text-white text-xs font-semibold py-2 rounded no-underline"
-            >
-              School
-            </Link>
-            <Link
-              to="/plus2"
-              onClick={() => setMobileOpen(false)}
-              className="flex-1 text-center bg-red-600 text-white text-xs font-bold py-2 rounded ring-1 ring-white/40 no-underline"
-            >
-              PlusTwo
-            </Link>
-            <Link
-              to="/bachelor"
-              onClick={() => setMobileOpen(false)}
-              className="flex-1 text-center bg-red-600/80 text-white text-xs font-semibold py-2 rounded no-underline"
-            >
-              Bachelors
-            </Link>
-          </div>
         </div>
       )}
     </nav>

@@ -7,10 +7,10 @@ export default function AdminLayout() {
   const token = localStorage.getItem('adminToken');
   const navigate = useNavigate();
 
-  // Auth guard — redirect to login if no token
-  if (!token) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  // Auth guard — redirect to login if no token (DISABLED TEMPORARILY)
+  // if (!token) {
+  //   return <Navigate to="/admin/login" replace />;
+  // }
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');

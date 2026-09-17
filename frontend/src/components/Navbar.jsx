@@ -30,11 +30,12 @@ export default function Navbar() {
 
         {/* Mobile Overlay */}
         {mobileOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40 min-[821px]:hidden top-[4rem]"
             onClick={() => setMobileOpen(false)}
           />
         )}
+
 
         {/* Mobile Dropdown & Desktop Nav Container */}
         <div className={`
@@ -47,10 +48,8 @@ export default function Navbar() {
             <Link to="/home" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/home' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Home</Link>
             <Link to="/research" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/research' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Research</Link>
             <Link to="/faculty" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/faculty' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Faculty</Link>
-            <Link to="/plus2/scholarship" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname.startsWith('/plus2/scholarship') ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Scholarship</Link>
-            <Link to="/plus2/gallery" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname.startsWith('/plus2/gallery') ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Gallery</Link>
             <Link to="/about" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/about' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>About Us</Link>
-            <Link to="/contact" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/contact' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Contact</Link>
+            <Link to="/results" onClick={() => setMobileOpen(false)} className={`text-amber-300 text-[0.95rem] font-bold w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/results' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-amber-300 after:rounded-sm' : ''}`}>Check Results</Link>
           </div>
 
           {/* Action Buttons */}
@@ -58,7 +57,7 @@ export default function Navbar() {
             <Link
               to="/school"
               onClick={() => setMobileOpen(false)}
-              className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
+              className="bg-[var(--color-accent)] text-white text-[0.95rem] font-bold py-[0.6rem] px-[1.5rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
               id="btn-admission"
             >
               School
@@ -66,7 +65,7 @@ export default function Navbar() {
             <Link
               to="/plus2"
               onClick={() => setMobileOpen(false)}
-              className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
+              className="bg-[var(--color-accent)] text-white text-[0.95rem] font-bold py-[0.6rem] px-[1.5rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
               id="btn-results"
             >
               PlusTwo
@@ -74,12 +73,11 @@ export default function Navbar() {
             <Link
               to="/bachelor"
               onClick={() => setMobileOpen(false)}
-              className="bg-[var(--color-accent)] text-white text-[0.78rem] font-semibold py-[0.45rem] px-[0.95rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
+              className="bg-[var(--color-accent)] text-white text-[0.95rem] font-bold py-[0.6rem] px-[1.5rem] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
               id="btn-bachelors"
             >
               Bachelors
             </Link>
-           
           </div>
         </div>
 
