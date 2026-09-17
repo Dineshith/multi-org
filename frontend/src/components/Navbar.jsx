@@ -44,10 +44,12 @@ export default function Navbar() {
           min-[821px]:translate-x-0 min-[821px]:transition-none min-[821px]:w-auto min-[821px]:h-auto min-[821px]:flex min-[821px]:static min-[821px]:flex-row min-[821px]:flex-1 min-[821px]:items-center min-[821px]:justify-between min-[821px]:p-0 min-[821px]:shadow-none min-[821px]:bg-transparent min-[821px]:ml-8 min-[821px]:overflow-visible
         `}>
           {/* Navigation Links */}
-          <div className="flex flex-col min-[821px]:flex-row min-[821px]:items-center gap-4 min-[821px]:gap-[clamp(1.2rem,2.5vw,2.5rem)] min-[821px]:mx-auto">
+          <div className="flex flex-col min-[821px]:flex-row min-[821px]:items-center gap-4 min-[821px]:gap-[clamp(0.8rem,1.8vw,1.8rem)] min-[821px]:mx-auto">
             <Link to="/home" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/home' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Home</Link>
             <Link to="/research" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/research' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Research</Link>
             <Link to="/faculty" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/faculty' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Faculty</Link>
+            <Link to="/plus2/scholarship" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname.startsWith('/plus2/scholarship') ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Scholarship</Link>
+            <Link to="/plus2/gallery" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname.startsWith('/plus2/gallery') ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>Gallery</Link>
             <Link to="/about" className={`text-white text-[0.95rem] font-medium w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/about' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-white after:rounded-sm' : ''}`}>About Us</Link>
             <Link to="/results" onClick={() => setMobileOpen(false)} className={`text-amber-300 text-[0.95rem] font-bold w-fit no-underline transition-all duration-[var(--transition-fast)] relative py-1 hover:opacity-85 ${location.pathname === '/results' ? 'after:content-[""] after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-0.5 after:bg-amber-300 after:rounded-sm' : ''}`}>Check Results</Link>
           </div>
@@ -63,7 +65,7 @@ export default function Navbar() {
               School
             </Link>
             <Link
-              to="/plustwo"
+              to="/plus2"
               onClick={() => setMobileOpen(false)}
               className="bg-[var(--color-accent)] text-white text-[0.9rem] font-bold py-[0.65rem] px-[2rem] min-w-[120px] rounded border-none cursor-pointer whitespace-nowrap transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-accent-dark)] hover:-translate-y-px hover:shadow-[var(--shadow-sm)] active:translate-y-0 text-center no-underline flex items-center justify-center"
               id="btn-results"

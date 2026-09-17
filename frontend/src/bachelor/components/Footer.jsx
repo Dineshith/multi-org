@@ -104,7 +104,7 @@ const Footer = () => {
         </div>
         <div className="flex gap-6">
           <Link to="/school" className="hover:text-white transition">School Wing</Link>
-          <Link to="/home" className="hover:text-white transition">PlusTwo Wing</Link>
+          <Link to="/plus2" className="hover:text-white transition">PlusTwo Wing</Link>
           <Link to="/bachelor" className="hover:text-white transition text-[#da251c] font-bold">Bachelors Wing</Link>
         </div>
       </div>

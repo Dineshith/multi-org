@@ -1,0 +1,5 @@
+admin registration
+static id for admin
+all dynamic
+esprint
+contentadmin dashboard

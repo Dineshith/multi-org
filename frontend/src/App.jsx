@@ -20,6 +20,17 @@ import BachelorResults from './bachelor/pages/Results';
 import BachelorNavbar from './bachelor/components/Navbar';
 import BachelorFooter from './bachelor/components/Footer';
 
+// Plus2 Imports
+import Plus2Navbar from './plus2/component/Navbar';
+import Plus2Footer from './plus2/component/Footer';
+import Plus2Home from './plus2/pages/Home';
+import Plus2About from './plus2/pages/About';
+import Plus2Faculty from './plus2/pages/Faculty';
+import Plus2GalleryPage from './plus2/pages/GalleryPage';
+import Plus2Scholarship from './plus2/pages/Scholarship';
+import Plus2FeeStructure from './plus2/pages/FeeStructure';
+import Plus2Contact from './plus2/pages/Contact';
+
 
 // Admin imports
 import AdminLayout from './admin/AdminLayout';
@@ -100,6 +111,33 @@ function App() {
         <Route path="/bachelors/*" element={<Navigate to="/bachelor" replace />} />
         <Route path="/college" element={<Navigate to="/bachelor" replace />} />
         <Route path="/college/*" element={<Navigate to="/bachelor" replace />} />
+
+        {/* Plus2 (Higher Secondary) Routes */}
+        <Route
+          path="/plus2/*"
+          element={
+            <div className="w-full min-h-screen bg-white text-gray-900 font-sans flex flex-col">
+              <Plus2Navbar />
+              <main className="flex-1 w-full">
+                <Routes>
+                  <Route index element={<Plus2Home />} />
+                  <Route path="home" element={<Navigate to="/plus2" replace />} />
+                  <Route path="about" element={<Plus2About />} />
+                  <Route path="faculty" element={<Plus2Faculty />} />
+                  <Route path="scholarship" element={<Plus2Scholarship />} />
+                  <Route path="fee-structure" element={<Plus2FeeStructure />} />
+                  <Route path="gallery" element={<Plus2GalleryPage />} />
+                  <Route path="contact" element={<Plus2Contact />} />
+                  <Route path="*" element={<Navigate to="/plus2" replace />} />
+                </Routes>
+              </main>
+              <Plus2Footer />
+            </div>
+          }
+        />
+        <Route path="/plustwo" element={<Navigate to="/plus2" replace />} />
+        <Route path="/plustwo/*" element={<Navigate to="/plus2" replace />} />
+
 
         {/* School Project Routes */}
         <Route

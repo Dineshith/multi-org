@@ -126,7 +126,7 @@ const Navbar = () => {
             School
           </Link>
           <Link
-            to="/home"
+            to="/plus2"
             className="bg-[#da251c]/80 hover:bg-[#da251c] text-white text-[0.8rem] font-semibold py-1.5 px-3 rounded transition-all shadow-sm"
           >
             PlusTwo
@@ -225,7 +225,7 @@ const Navbar = () => {
               School
             </Link>
             <Link
-              to="/home"
+              to="/plus2"
               onClick={() => setMobileOpen(false)}
               className="flex-1 text-center bg-[#da251c]/80 text-white text-xs font-semibold py-2 rounded"
             >

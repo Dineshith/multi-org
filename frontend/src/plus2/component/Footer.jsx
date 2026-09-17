@@ -1,17 +1,18 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-gradient-to-b from-[#020510] to-[#0A1B3F] text-white py-12 px-8 md:px-20 border-t border-gray-800">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-        
-      
-        <div>
-          <div className="flex flex-col items-start mb-3">
+    <footer className="w-full bg-[#0c1a30] text-white pt-16 pb-8 px-6 md:px-16 border-t border-white/10">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+        {/* Column 1: Info */}
+        <div className="flex flex-col items-start">
+          <div className="flex items-center gap-3 mb-4">
             <img 
               src="/logo.png" 
               alt="Akshar Logo" 
-              className="h-14 w-auto object-contain brightness-0 invert mb-2" 
+              className="h-12 w-auto object-contain brightness-0 invert" 
               onError={(e) => { 
                 e.target.style.display = 'none'; 
               }} 
@@ -20,34 +21,112 @@ export default function Footer() {
               अक्षर
             </span>
           </div>
-          <p className="text-sm text-gray-400 mt-2">Aaitabare-Itahari, Sunsari</p>
+          <h3 className="text-base font-bold text-white mb-1">Akshar Higher Secondary School</h3>
+          <p className="text-xs text-gray-400 mb-3">Plus Two (+2) Wing, Itahari</p>
+          <p className="text-xs text-gray-300 leading-relaxed">
+            Delivering 28+ years of academic excellence in Science, Management, and Computer Science with distinguished NEB results and top university placements.
+          </p>
         </div>
 
-      
+        {/* Column 2: Programs & Links */}
         <div>
-          <h4 className="font-semibold text-white mb-4 text-base">Faculty</h4>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li>Science</li>
-            <li>IT</li>
-            <li>Management</li>
+          <h4 className="font-bold text-sm text-white mb-5 uppercase tracking-wider">
+            Plus Two Programs
+          </h4>
+          <ul className="text-xs text-gray-300 space-y-2.5 font-medium">
+            <li>
+              <Link to="/plus2" className="hover:text-white transition no-underline text-gray-300">
+                +2 Science (Medical & Engineering)
+              </Link>
+            </li>
+            <li>
+              <Link to="/plus2" className="hover:text-white transition no-underline text-gray-300">
+                +2 Management & Business Studies
+              </Link>
+            </li>
+            <li>
+              <Link to="/plus2" className="hover:text-white transition no-underline text-gray-300">
+                +2 Computer Science & IT
+              </Link>
+            </li>
+            <li>
+              <Link to="/plus2/scholarship" className="hover:text-white transition no-underline text-gray-300">
+                Scholarship Criteria 2026/27
+              </Link>
+            </li>
+            <li>
+              <Link to="/plus2/fee-structure" className="hover:text-white transition no-underline text-gray-300">
+                Fee Structure Breakdown
+              </Link>
+            </li>
           </ul>
         </div>
 
-    
+        {/* Column 3: Quick Navigation */}
         <div>
-          <h4 className="font-semibold text-white mb-4 text-base">Contact Us</h4>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li>Akshar@gmail.com</li>
-            <li>9842108899</li>
+          <h4 className="font-bold text-sm text-white mb-5 uppercase tracking-wider">
+            Quick Links
+          </h4>
+          <ul className="text-xs text-gray-300 space-y-2.5 font-medium">
+            <li>
+              <Link to="/plus2/about" className="hover:text-white transition no-underline text-gray-300">
+                About Us & History
+              </Link>
+            </li>
+            <li>
+              <Link to="/plus2/faculty" className="hover:text-white transition no-underline text-gray-300">
+                Faculty Members
+              </Link>
+            </li>
+            <li>
+              <Link to="/plus2/gallery" className="hover:text-white transition no-underline text-gray-300">
+                Campus Photo Gallery
+              </Link>
+            </li>
+            <li>
+              <Link to="/plus2/contact" className="hover:text-white transition no-underline text-gray-300">
+                Admission Inquiry & FAQ
+              </Link>
+            </li>
           </ul>
         </div>
 
-     
+        {/* Column 4: Contact & Location */}
         <div>
-          <h4 className="font-semibold text-white mb-4 text-base">Location</h4>
-          
+          <h4 className="font-bold text-sm text-white mb-5 uppercase tracking-wider">
+            Campus Desk
+          </h4>
+          <ul className="text-xs text-gray-300 space-y-3 font-medium">
+            <li className="flex items-start gap-2.5">
+              <MapPin className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+              <span>Aaitabare, Itahari-4, Sunsari, Nepal</span>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Phone className="w-4 h-4 text-red-500 shrink-0" />
+              <span>+977 025-581234 / 9842108899</span>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Mail className="w-4 h-4 text-red-500 shrink-0" />
+              <span>plustwo@akshar.edu.np</span>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Clock className="w-4 h-4 text-red-500 shrink-0" />
+              <span>Sun - Fri: 6:00 AM - 5:00 PM</span>
+            </li>
+          </ul>
         </div>
+      </div>
 
+      {/* Bottom Row */}
+      <div className="max-w-6xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+        <div>
+          © {new Date().getFullYear()} Akshar Higher Secondary School (+2). All Rights Reserved.
+        </div>
+        <div className="flex items-center gap-6">
+          <Link to="/school" className="hover:text-white transition no-underline text-gray-400">School Wing</Link>
+          <Link to="/plus2" className="hover:text-white transition text-red-400 font-bold no-underline">PlusTwo Wing</Link>
+          <Link to="/bachelor" className="hover:text-white transition no-underline text-gray-400">Bachelors Wing</Link>
+        </div>
       </div>
     </footer>
   );

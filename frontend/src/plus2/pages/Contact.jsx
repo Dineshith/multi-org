@@ -173,9 +173,10 @@ const Contact = () => {
                 <div className="relative">
                   <select 
                     required
+                    defaultValue=""
                     className="w-full py-3 px-4 pr-10 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none transition-all focus:border-blue-900 focus:ring-4 focus:ring-blue-900/10 appearance-none bg-white cursor-pointer"
                   >
-                    <option value="" disabled selected>Select an option</option>
+                    <option value="" disabled>Select an option</option>
                     <option value="admission">Admissions</option>
                     <option value="general">General Inquiry</option>
                     <option value="it">IT Support</option>
