@@ -15,17 +15,15 @@ import {
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-  { icon: Users, label: 'User Management', path: '/admin/users' },
-  { icon: GraduationCap, label: 'Academics', path: '/admin/academics' },
+  { icon: Building2, label: 'Organization', path: '/admin/organization' },
   { icon: BookOpen, label: 'Students', path: '/admin/students' },
-  { icon: CreditCard, label: 'Finance', path: '/admin/finance' },
   { icon: ClipboardCheck, label: 'Results', path: '/admin/results' },
   { icon: Bell, label: 'Notice', path: '/admin/notice' },
   { icon: Images, label: 'Gallery', path: '/admin/gallery' },
-
 ];
 
-export default function Sidebar() {
+
+export default function Sidebar({ onLogout }) {
   return (
     <aside className="w-64 bg-[#0b1329] text-white flex flex-col h-screen fixed left-0 top-0 shadow-[4px_0_24px_rgba(0,0,0,0.15)] z-50">
       {/* Logo Area */}
@@ -75,7 +73,13 @@ export default function Sidebar() {
             <p className="text-sm font-semibold text-white truncate">Super Admin</p>
             <p className="text-xs text-slate-400 truncate">admin@system.com</p>
           </div>
-          <LogOut className="w-4 h-4 text-slate-400 hover:text-red-400 transition-colors" />
+          <button
+            onClick={onLogout}
+            title="Logout"
+            className="p-1.5 rounded-lg hover:bg-red-500/20 transition-colors group"
+          >
+            <LogOut className="w-4 h-4 text-slate-400 group-hover:text-red-400 transition-colors" />
+          </button>
         </div>
       </div>
     </aside>

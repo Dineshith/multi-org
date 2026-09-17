@@ -1,19 +1,26 @@
 import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useNavigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import { Bell, Search } from 'lucide-react';
 
 export default function AdminLayout() {
   const token = localStorage.getItem('adminToken');
+  const navigate = useNavigate();
 
-  // TEMPORARILY DISABLED ADMIN LOGIN FOR NOW
-  // if (!token) {
-  //   return <Navigate to="/admin/login" replace />;
-  // }
+  // Auth guard — redirect to login if no token
+  if (!token) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    navigate('/admin/login');
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans">
-      <Sidebar />
+      <Sidebar onLogout={handleLogout} />
 
       {/* Main Content Area */}
       <main className="flex-1 ml-64 flex flex-col min-h-screen">
