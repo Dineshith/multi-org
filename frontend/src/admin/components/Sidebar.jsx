@@ -18,6 +18,7 @@ import {
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: Building2, label: 'Organization', path: '/admin/organization' },
+  { icon: Users, label: 'Users', path: '/admin/users' },
   { icon: BookOpen, label: 'Students', path: '/admin/students' },
   { icon: ClipboardCheck, label: 'Results', path: '/admin/results' },
   { icon: Bell, label: 'Notice', path: '/admin/notice' },
