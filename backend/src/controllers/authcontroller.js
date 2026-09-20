@@ -2,7 +2,6 @@ import db from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// ADMIN LOGIN
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -30,18 +29,17 @@ const login = async (req, res) => {
 
         const user = users[0];
 
-        // Check admin role
-        if (user.role !== "admin") {
+        if (!['ADMIN', 'CONTENT_ADMIN'].includes(user.role)) {
             return res.status(403).json({
                 success: false,
-                message: "Access denied. Admin only."
+                message: "Access denied"
             });
         }
 
         // Compare password
         const isPasswordValid = await bcrypt.compare(
             password,
-            user.password
+            user.password_hash
         );
 
         if (!isPasswordValid) {
@@ -56,7 +54,8 @@ const login = async (req, res) => {
             {
                 id: user.id,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                organization_id: user.organization_id
             },
             process.env.JWT_SECRET,
             {
@@ -66,13 +65,14 @@ const login = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Admin login successful",
+            message: "Login successful",
             token,
             user: {
                 id: user.id,
-                full_name: user.full_name,
+                name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                organization_id: user.organization_id
             }
         });
 
@@ -92,7 +92,9 @@ const login = async (req, res) => {
 const getProfile = async (req, res) => {
     try {
         const [users] = await db.query(
-            "SELECT id, full_name, email, role FROM users WHERE id = ?",
+            `SELECT id, name, email, role, organization_id
+             FROM users
+             WHERE id = ?`,
             [req.user.id]
         );
 

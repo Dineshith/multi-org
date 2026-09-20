@@ -1,5 +1,43 @@
 import db from "../config/db.js";
 
+const submitContactMessage = async (req, res) => {
+    try {
+        const { name, email, phone, subject, message } = req.body;
+
+        if (!name || !email || !message) {
+            return res.status(400).json({
+                success: false,
+                message: "Name, email and message are required"
+            });
+        }
+
+        const [organizations] = await db.query(
+            "SELECT id FROM organizations WHERE slug = ?",
+            [req.params.slug]
+        );
+
+        if (organizations.length === 0) {
+            return res.status(404).json({ success: false, message: "Organization not found" });
+        }
+
+        const [result] = await db.query(
+            `INSERT INTO contact_messages
+                (organization_id, name, email, phone, subject, message)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [organizations[0].id, name, email, phone || null, subject || null, message]
+        );
+
+        return res.status(201).json({
+            success: true,
+            message: "Contact message sent successfully",
+            contactId: result.insertId
+        });
+    } catch (error) {
+        console.error("Submit contact message error:", error);
+        return res.status(500).json({ success: false, message: "Failed to send contact message" });
+    }
+};
+
 // =========================
 // CREATE CONTACT MESSAGE
 // =========================
@@ -145,4 +183,4 @@ const deleteContact = async (req, res) => {
 };
 
 
-export { createContact, getAllContacts, getContactById, deleteContact };
+export { createContact, getAllContacts, getContactById, deleteContact, submitContactMessage };

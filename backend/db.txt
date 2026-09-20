@@ -16,6 +16,8 @@ CREATE TABLE organizations (
     address VARCHAR(300) NULL,
     map_link VARCHAR(1000) NULL,
     logo_url VARCHAR(1000) NULL,
+    about_image_url VARCHAR(1000) NULL,
+    why_us_image_url VARCHAR(1000) NULL,
     website VARCHAR(1000) NULL,
     why_us JSON NULL,
     status ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',

@@ -14,7 +14,6 @@ export const createOrganization = async (req, res) => {
       logo_url,
       website,
       why_us,
-      status,
     } = req.body;
 
     if (!name || !type) {
@@ -54,8 +53,7 @@ export const createOrganization = async (req, res) => {
     map_link,
     logo_url,
     website,
-    why_us,
-    status
+    why_us
   )
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
@@ -72,7 +70,6 @@ export const createOrganization = async (req, res) => {
       logo_url || null,
       website || null,
       why_us || null,
-      status || "active",
     ];
 
     const [result] = await pool.execute(sql, values);
@@ -158,7 +155,6 @@ export const updateOrganization = async (req, res) => {
       logo_url,
       website,
       why_us,
-      status,
     } = req.body;
 
     // Check organization exists
@@ -233,8 +229,7 @@ export const updateOrganization = async (req, res) => {
         map_link = ?,
         logo_url = ?,
         website = ?,
-        why_us = ?,
-        status = ?
+        why_us = ?
       WHERE slug = ?
     `;
 
@@ -251,8 +246,6 @@ export const updateOrganization = async (req, res) => {
       website ?? existing[0].website,
 
       why_us !== undefined ? JSON.stringify(whyUsData) : existing[0].why_us,
-
-      status ?? existing[0].status,
 
       slug,
     ];

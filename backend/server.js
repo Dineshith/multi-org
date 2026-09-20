@@ -6,6 +6,10 @@ import authRoutes from "./src/routes/authRoutes.js";
 import contactRoutes from "./src/routes/contactRoutes.js";
 import noticeRoutes from "./src/routes/noticeRoutes.js";
 import organizationRoute from "./src/routes/admin/organizationRoute.js";
+import userRoute from "./src/routes/admin/userRoute.js";
+import contentRoute from "./src/routes/admin/contentRoute.js";
+import pageRoute from "./src/routes/admin/pageRoute.js";
+import publicRoutes from "./src/routes/publicRoutes.js";
 
 dotenv.config();
 
@@ -20,6 +24,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/notices", noticeRoutes);
 app.use("/api/admin", organizationRoute)
+app.use("/api/admin", userRoute);
+app.use("/api/content-admin", contentRoute);
+app.use("/api/content-admin", pageRoute);
+app.use("/api/public", publicRoutes);
 
 // Test route
 app.get("/", (req, res) => {
