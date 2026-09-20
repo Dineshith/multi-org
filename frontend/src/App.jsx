@@ -57,6 +57,27 @@ import MainPortalFooter from './admin/pages/cms/mainportal/Footer';
 import MainPortalNavbar from './admin/pages/cms/mainportal/Navbar';
 import OrganizationManagement from './admin/pages/OrganizationManagement';
 
+// School CMS Imports
+import CMSSchoolHomeHero from './admin/pages/cms/school/home/Hero';
+import CMSSchoolHomeNotice from './admin/pages/cms/school/home/NoticeBoard';
+import CMSSchoolHomeOffer from './admin/pages/cms/school/home/WhatWeOffer';
+import CMSSchoolAboutHero from './admin/pages/cms/school/about/Hero';
+import CMSSchoolAboutContent from './admin/pages/cms/school/about/AboutContent';
+import CMSSchoolFacultyMessagesHero from './admin/pages/cms/school/facultymessages/Hero';
+import CMSSchoolFacultyMessagesList from './admin/pages/cms/school/facultymessages/FacultyMessagesList';
+import CMSSchoolTeachersHero from './admin/pages/cms/school/teachers/Hero';
+import CMSSchoolTeachersList from './admin/pages/cms/school/teachers/TeachersList';
+import CMSSchoolAdministratorsHero from './admin/pages/cms/school/administrators/Hero';
+import CMSSchoolAdministratorsList from './admin/pages/cms/school/administrators/AdministratorsList';
+import CMSSchoolEventsHero from './admin/pages/cms/school/events/Hero';
+import CMSSchoolEventsList from './admin/pages/cms/school/events/EventsList';
+import CMSSchoolGalleryHero from './admin/pages/cms/school/gallery/Hero';
+import CMSSchoolGalleryGrid from './admin/pages/cms/school/gallery/GalleryGrid';
+import CMSSchoolScholarshipHero from './admin/pages/cms/school/scholarship/Hero';
+import CMSSchoolScholarshipList from './admin/pages/cms/school/scholarship/ScholarshipList';
+import CMSSchoolNavbar from './admin/pages/cms/school/Navbar';
+import CMSSchoolFooter from './admin/pages/cms/school/Footer';
+
 // School imports
 import SchoolNavbar from './school/components/Navbar';
 import SchoolHome from './school/pages/Home';
@@ -190,6 +211,27 @@ function App() {
             <Route path="faculty-leadership" element={<MainPortalAcademicLeadership />} />
             <Route path="footer" element={<MainPortalFooter />} />
             <Route path="navbar" element={<MainPortalNavbar />} />
+
+            {/* School CMS Routes */}
+            <Route path="school-hero" element={<CMSSchoolHomeHero />} />
+            <Route path="school-notice" element={<CMSSchoolHomeNotice />} />
+            <Route path="school-offer" element={<CMSSchoolHomeOffer />} />
+            <Route path="school-about-hero" element={<CMSSchoolAboutHero />} />
+            <Route path="school-about-content" element={<CMSSchoolAboutContent />} />
+            <Route path="school-messages-hero" element={<CMSSchoolFacultyMessagesHero />} />
+            <Route path="school-messages-list" element={<CMSSchoolFacultyMessagesList />} />
+            <Route path="school-teachers-hero" element={<CMSSchoolTeachersHero />} />
+            <Route path="school-teachers-list" element={<CMSSchoolTeachersList />} />
+            <Route path="school-admins-hero" element={<CMSSchoolAdministratorsHero />} />
+            <Route path="school-admins-list" element={<CMSSchoolAdministratorsList />} />
+            <Route path="school-events-hero" element={<CMSSchoolEventsHero />} />
+            <Route path="school-events-list" element={<CMSSchoolEventsList />} />
+            <Route path="school-gallery-hero" element={<CMSSchoolGalleryHero />} />
+            <Route path="school-gallery-grid" element={<CMSSchoolGalleryGrid />} />
+            <Route path="school-scholarship-hero" element={<CMSSchoolScholarshipHero />} />
+            <Route path="school-scholarship-list" element={<CMSSchoolScholarshipList />} />
+            <Route path="school-navbar" element={<CMSSchoolNavbar />} />
+            <Route path="school-footer" element={<CMSSchoolFooter />} />
           </Route>
           <Route path="*" element={<Dashboard />} />
         </Route>

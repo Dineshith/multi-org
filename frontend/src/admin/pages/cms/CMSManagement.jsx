@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, School, GraduationCap, LayoutDashboard, ImagePlus, FlaskConical, Users } from 'lucide-react';
+import { 
+    Globe, School, GraduationCap, LayoutDashboard, ImagePlus, 
+    FlaskConical, Users, Bell, Layers, Info, MessageSquareQuote, 
+    Award, Calendar 
+} from 'lucide-react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
 export default function CMSManagement() {
@@ -26,6 +30,29 @@ export default function CMSManagement() {
                 { path: 'footer', label: 'Global - Footer', icon: Globe },
             ];
         }
+        if (portalId === 'school') {
+            return [
+                { path: 'school-hero', label: 'Home - Hero', icon: LayoutDashboard },
+                { path: 'school-notice', label: 'Home - Notice Board', icon: Bell },
+                { path: 'school-offer', label: 'Home - What We Offer', icon: Layers },
+                { path: 'school-about-hero', label: 'About - Hero', icon: Info },
+                { path: 'school-about-content', label: 'About - Story & Stats', icon: Info },
+                { path: 'school-messages-hero', label: 'Messages - Hero', icon: MessageSquareQuote },
+                { path: 'school-messages-list', label: 'Messages - Leadership', icon: MessageSquareQuote },
+                { path: 'school-teachers-hero', label: 'Teachers - Hero', icon: Users },
+                { path: 'school-teachers-list', label: 'Teachers - Directory', icon: Users },
+                { path: 'school-admins-hero', label: 'Admins - Hero', icon: Award },
+                { path: 'school-admins-list', label: 'Admins - Leadership', icon: Award },
+                { path: 'school-events-hero', label: 'Events - Hero', icon: Calendar },
+                { path: 'school-events-list', label: 'Events - List', icon: Calendar },
+                { path: 'school-gallery-hero', label: 'Gallery - Hero', icon: ImagePlus },
+                { path: 'school-gallery-grid', label: 'Gallery - Photos', icon: ImagePlus },
+                { path: 'school-scholarship-hero', label: 'Scholarship - Hero', icon: GraduationCap },
+                { path: 'school-scholarship-list', label: 'Scholarship - Rules', icon: GraduationCap },
+                { path: 'school-navbar', label: 'Global - Navbar', icon: Globe },
+                { path: 'school-footer', label: 'Global - Footer', icon: Globe },
+            ];
+        }
         // Placeholder for other portals
         return [
             { path: 'coming-soon', label: 'More sections coming soon...', icon: LayoutDashboard }
@@ -35,9 +62,17 @@ export default function CMSManagement() {
     const sections = getSidebarSections(activePortal);
     const currentPortal = portals.find(p => p.id === activePortal);
 
-    // Sync active portal with URL on initial load if possible, though currently only main is built
+    // Sync active portal with URL on load / navigation
     useEffect(() => {
-        if (location.pathname.includes('main-') || location.pathname.includes('footer') || location.pathname.includes('research') || location.pathname.includes('faculty')) {
+        if (location.pathname.includes('school-')) {
+            setActivePortal('school');
+        } else if (
+            location.pathname.includes('main-') || 
+            location.pathname.includes('research') || 
+            location.pathname.includes('faculty') || 
+            (location.pathname.endsWith('/navbar') && !location.pathname.includes('school')) || 
+            (location.pathname.endsWith('/footer') && !location.pathname.includes('school'))
+        ) {
             setActivePortal('main');
         }
     }, [location.pathname]);
@@ -61,6 +96,8 @@ export default function CMSManagement() {
                                 setActivePortal(portal.id);
                                 if (portal.id === 'main') {
                                     navigate('main-hero');
+                                } else if (portal.id === 'school') {
+                                    navigate('school-hero');
                                 } else {
                                     navigate('coming-soon');
                                 }
@@ -80,7 +117,7 @@ export default function CMSManagement() {
                     <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4 px-3">
                         {currentPortal.label} Pages
                     </h3>
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1.5 max-h-[calc(100vh-200px)] overflow-y-auto pr-1">
                         {sections.map(sec => {
                             const Icon = sec.icon;
                             // Check if current URL ends with this path
@@ -89,10 +126,10 @@ export default function CMSManagement() {
                                 <button
                                     key={sec.path}
                                     onClick={() => navigate(sec.path)}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left ${isActive ? `${currentPortal.bg} ${currentPortal.color} font-bold` : 'text-slate-600 hover:bg-slate-50 font-medium'}`}
+                                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left text-sm ${isActive ? `${currentPortal.bg} ${currentPortal.color} font-bold` : 'text-slate-600 hover:bg-slate-50 font-medium'}`}
                                 >
-                                    <Icon className={`w-5 h-5 ${isActive ? currentPortal.color : 'text-slate-400'}`} />
-                                    {sec.label}
+                                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? currentPortal.color : 'text-slate-400'}`} />
+                                    <span className="truncate">{sec.label}</span>
                                 </button>
                             )
                         })}
@@ -101,7 +138,7 @@ export default function CMSManagement() {
 
                 {/* Dynamic Content Area (Routed via Outlet) */}
                 <div className="flex-1 w-full">
-                    {activePortal !== 'main' ? (
+                    {activePortal !== 'main' && activePortal !== 'school' ? (
                         <div className="p-10 flex flex-col items-center justify-center text-center text-gray-400 min-h-[500px] bg-white rounded-3xl shadow-sm border border-slate-200/60">
                             <Globe className="w-16 h-16 mb-4 opacity-20" />
                             <h3 className="text-xl font-medium text-gray-600">Under Construction</h3>
