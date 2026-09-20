@@ -27,7 +27,7 @@ const Login = () => {
         if (result.user.role === 'SUPER_ADMIN') {
           navigate('/platform-admin');
         } else {
-          navigate('/admin');
+          navigate('/admin/dashboard');
         }
       } else {
         setError(result.message);

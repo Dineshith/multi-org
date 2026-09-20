@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getPages, createPage, deletePage } from '../../services/mockDbService';
-import { Plus, Search, Edit2, Trash2, LayoutTemplate } from 'lucide-react';
+import { getPages, createPage, updatePage, deletePage } from '../../services/mockDbService';
+import { Plus, Search, Edit2, Trash2, LayoutTemplate, List } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../../components/shared/Modal';
 
@@ -10,7 +10,8 @@ const Pages = () => {
   const [pages, setPages] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newPage, setNewPage] = useState({ title: '', slug: '' });
+  const [newPage, setNewPage] = useState({ title: '', slug: '', dropdownItems: [] });
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     loadPages();
@@ -22,13 +23,37 @@ const Pages = () => {
 
   const handleCreatePage = (e) => {
     e.preventDefault();
-    createPage(user.organizationId, {
-      ...newPage,
-      sections: []
-    });
+    if (editingId) {
+      updatePage(editingId, {
+        title: newPage.title,
+        slug: newPage.slug,
+        dropdownItems: newPage.dropdownItems.filter(g => g.trim() !== '')
+      });
+    } else {
+      createPage(user.organizationId, {
+        ...newPage,
+        dropdownItems: newPage.dropdownItems.filter(g => g.trim() !== ''),
+        sections: []
+      });
+    }
     loadPages();
     setIsModalOpen(false);
-    setNewPage({ title: '', slug: '' });
+    setNewPage({ title: '', slug: '', dropdownItems: [] });
+    setEditingId(null);
+  };
+
+  const handleEditMeta = (page) => {
+    let dItems = [];
+    if (Array.isArray(page.dropdownItems)) {
+      dItems = page.dropdownItems;
+    } else if (Array.isArray(page.menuGroups)) {
+      dItems = page.menuGroups; // migrate old data
+    } else if (page.menuGroup) {
+      dItems = [page.menuGroup];
+    }
+    setNewPage({ title: page.title, slug: page.slug, dropdownItems: dItems });
+    setEditingId(page.id);
+    setIsModalOpen(true);
   };
 
   const handleDelete = (id) => {
@@ -56,7 +81,11 @@ const Pages = () => {
           />
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditingId(null);
+            setNewPage({ title: '', slug: '', dropdownItems: [] });
+            setIsModalOpen(true);
+          }}
           className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
         >
           <Plus size={20} />
@@ -73,9 +102,9 @@ const Pages = () => {
                   <LayoutTemplate size={24} />
                 </div>
                 <div className="flex space-x-2">
-                  <Link to={`/admin/pages/${page.id}`} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                  <button onClick={() => handleEditMeta(page)} className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Edit details">
                     <Edit2 size={18} />
-                  </Link>
+                  </button>
                   <button onClick={() => handleDelete(page.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                     <Trash2 size={18} />
                   </button>
@@ -84,12 +113,18 @@ const Pages = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-1">{page.title}</h3>
               <p className="text-sm text-gray-500">/{page.slug}</p>
               
-              <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-sm">
-                <span className="text-gray-500">{page.sections?.length || 0} Sections</span>
-                <Link to={`/admin/pages/${page.id}`} className="text-indigo-600 font-medium hover:text-indigo-800">
-                  Open Builder &rarr;
-                </Link>
-              </div>
+              {page.dropdownItems && page.dropdownItems.length > 0 ? (
+                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-sm">
+                  <span className="text-gray-500 italic flex items-center"><List size={14} className="mr-1" /> Dropdown Menu</span>
+                </div>
+              ) : (
+                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-sm">
+                  <span className="text-gray-500">{page.sections?.length || 0} Sections</span>
+                  <Link to={user.role === 'SUPER_ADMIN' ? `/platform-admin/pages/${page.id}` : `/admin/dashboard/pages/${page.id}`} className="text-indigo-600 font-medium hover:text-indigo-800">
+                    Open Builder &rarr;
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -103,7 +138,7 @@ const Pages = () => {
         )}
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Page">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingId ? "Edit Page Details" : "Create New Page"}>
         <form onSubmit={handleCreatePage} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Page Title</label>
@@ -116,8 +151,58 @@ const Pages = () => {
                    value={newPage.slug} onChange={e => setNewPage({...newPage, slug: e.target.value})} />
             <p className="mt-1 text-xs text-gray-500">Will be accessible at /org/your-org/{newPage.slug || 'slug'}</p>
           </div>
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-sm font-medium text-gray-700">Dropdown Sub-menus (Optional)</label>
+              <button 
+                type="button" 
+                onClick={() => setNewPage({...newPage, dropdownItems: [...newPage.dropdownItems, '']})}
+                className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
+              >
+                <Plus size={14} className="mr-1" /> Add Sub-menu
+              </button>
+            </div>
+            
+            {newPage.dropdownItems.map((item, index) => (
+              <div key={index} className="flex items-center space-x-2 mt-2">
+                <input type="text" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                       value={item} 
+                       onChange={e => {
+                         const updated = [...newPage.dropdownItems];
+                         updated[index] = e.target.value;
+                         setNewPage({...newPage, dropdownItems: updated});
+                       }} 
+                       placeholder="e.g. Teachers" />
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    const updated = [...newPage.dropdownItems];
+                    updated.splice(index, 1);
+                    setNewPage({...newPage, dropdownItems: updated});
+                  }}
+                  className="p-2 text-red-500 hover:bg-red-50 rounded"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+            
+            {newPage.dropdownItems.length === 0 && (
+              <button 
+                type="button" 
+                onClick={() => setNewPage({...newPage, dropdownItems: ['']})}
+                className="mt-1 w-full p-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+              >
+                + Add a Sub-menu Item
+              </button>
+            )}
+            
+            <p className="mt-2 text-xs text-gray-500">Adding sub-menus will turn this page into a dropdown menu in the navbar (e.g. {newPage.title || 'About Us'} +).</p>
+          </div>
           <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-            <button type="submit" className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:col-start-2">Create Page</button>
+            <button type="submit" className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:col-start-2">
+              {editingId ? "Save Changes" : "Create Page"}
+            </button>
             <button type="button" onClick={() => setIsModalOpen(false)} className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">Cancel</button>
           </div>
         </form>

@@ -21,56 +21,38 @@ import OANotices from './pages/OrgAdmin/Notices';
 import OAEvents from './pages/OrgAdmin/Events';
 import OAPages from './pages/OrgAdmin/Pages';
 import OAPageBuilder from './pages/OrgAdmin/PageBuilder';
+import OASettings from './pages/OrgAdmin/Settings';
 
 // Public Pages
 import DynamicPage from './pages/Public/DynamicPage';
 
-// Main Landing
-const PlatformLanding = () => (
-  <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white p-4">
-    <h1 className="text-5xl font-extrabold tracking-tight mb-4 text-center">
-      Welcome to EDU<span className="text-blue-500">CMS</span> Platform
-    </h1>
-    <p className="text-xl text-slate-400 max-w-2xl text-center mb-8">
-      A Multi-Tenant Content Management System for Educational Institutions.
-    </p>
-    <div className="flex gap-4">
-      <a href="/login" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
-        Login to Portal
-      </a>
-      <a href="/org/abc-college" className="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-medium rounded-lg transition-colors">
-        View Demo College
-      </a>
-      <a href="/org/xyz-school" className="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-medium rounded-lg transition-colors">
-        View Demo School
-      </a>
-    </div>
-  </div>
-);
-
+// Removed PlatformLanding
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<PlatformLanding />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/org/main-portal" replace />} />
+          <Route path="/admin" element={<Login />} />
 
           {/* Super Admin Routes */}
           <Route path="/platform-admin" element={<SuperAdminLayout />}>
             <Route index element={<SADashboard />} />
+            <Route path="pages" element={<OAPages />} />
+            <Route path="pages/:pageId" element={<OAPageBuilder />} />
             <Route path="organizations" element={<SAOrganizations />} />
             <Route path="users" element={<div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200">Users Management coming soon</div>} />
           </Route>
 
           {/* Organization Admin Routes */}
-          <Route path="/admin" element={<OrgAdminLayout />}>
+          <Route path="/admin/dashboard" element={<OrgAdminLayout />}>
             <Route index element={<OADashboard />} />
             <Route path="notices" element={<OANotices />} />
             <Route path="events" element={<OAEvents />} />
             <Route path="pages" element={<OAPages />} />
             <Route path="pages/:pageId" element={<OAPageBuilder />} />
             <Route path="staff" element={<div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200">Staff Management coming soon</div>} />
+            <Route path="settings" element={<OASettings />} />
           </Route>
 
           {/* Public Organization Routes */}

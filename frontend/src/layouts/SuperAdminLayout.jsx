@@ -9,7 +9,7 @@ const SuperAdminLayout = () => {
   const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/admin" state={{ from: location }} replace />;
   }
 
   if (user.role !== 'SUPER_ADMIN') {
@@ -18,11 +18,12 @@ const SuperAdminLayout = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/admin');
   };
 
   const navItems = [
     { name: 'Dashboard', path: '/platform-admin', icon: LayoutDashboard },
+    { name: 'Platform Pages', path: '/platform-admin/pages', icon: LayoutDashboard }, // Added Pages
     { name: 'Organizations', path: '/platform-admin/organizations', icon: Building2 },
     { name: 'Users', path: '/platform-admin/users', icon: Users },
   ];
@@ -38,7 +39,7 @@ const SuperAdminLayout = () => {
         
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || (location.pathname.startsWith(item.path) && item.path !== '/platform-admin');
             const Icon = item.icon;
             return (
               <Link

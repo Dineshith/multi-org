@@ -13,9 +13,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     initDB(); // Ensure DB is initialized
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const storedUserStr = localStorage.getItem('user');
+    if (storedUserStr) {
+      let storedUser = JSON.parse(storedUserStr);
+      // Auto-migration for cached super admin
+      if (storedUser.role === 'SUPER_ADMIN' && storedUser.organizationId === null) {
+        storedUser.organizationId = 0;
+        localStorage.setItem('user', JSON.stringify(storedUser));
+      }
+      setUser(storedUser);
     }
     setLoading(false);
   }, []);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getNotices, createNotice, deleteNotice } from '../../services/mockDbService';
+import { getNotices, createNotice, updateNotice, deleteNotice } from '../../services/mockDbService';
 import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
 import Modal from '../../components/shared/Modal';
 
@@ -9,7 +9,8 @@ const Notices = () => {
   const [notices, setNotices] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newNotice, setNewNotice] = useState({ title: '', content: '', published: true });
+  const [newNotice, setNewNotice] = useState({ title: '', content: '', image: '', published: true, publishOnMainPortal: false });
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     loadNotices();
@@ -21,10 +22,36 @@ const Notices = () => {
 
   const handleCreateNotice = (e) => {
     e.preventDefault();
-    createNotice(user.organizationId, newNotice);
+    if (editingId) {
+      updateNotice(editingId, newNotice);
+    } else {
+      createNotice(user.organizationId, newNotice);
+    }
     loadNotices();
     setIsModalOpen(false);
-    setNewNotice({ title: '', content: '', published: true });
+    setNewNotice({ title: '', content: '', image: '', published: true, publishOnMainPortal: false });
+    setEditingId(null);
+  };
+
+  const handleEdit = (notice) => {
+    setNewNotice({ title: notice.title, content: notice.content, image: notice.image || '', published: notice.published, publishOnMainPortal: !!notice.publishOnMainPortal });
+    setEditingId(notice.id);
+    setIsModalOpen(true);
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 1024 * 1024) { // 1MB limit for local storage
+        alert('Image is too large. Please select an image under 1MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewNotice({ ...newNotice, image: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleDelete = (id) => {
@@ -52,7 +79,11 @@ const Notices = () => {
           />
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditingId(null);
+            setNewNotice({ title: '', content: '', image: '', published: true, publishOnMainPortal: false });
+            setIsModalOpen(true);
+          }}
           className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
         >
           <Plus size={20} />
@@ -89,7 +120,7 @@ const Notices = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end space-x-3">
-                    <button className="text-indigo-600 hover:text-indigo-900" title="Edit">
+                    <button onClick={() => handleEdit(notice)} className="text-indigo-600 hover:text-indigo-900" title="Edit">
                       <Edit2 size={18} />
                     </button>
                     <button onClick={() => handleDelete(notice.id)} className="text-red-600 hover:text-red-900" title="Delete">
@@ -110,7 +141,7 @@ const Notices = () => {
         </table>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Notice">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingId ? "Edit Notice" : "Create New Notice"}>
         <form onSubmit={handleCreateNotice} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Notice Title</label>
@@ -118,19 +149,33 @@ const Notices = () => {
                    value={newNotice.title} onChange={e => setNewNotice({...newNotice, title: e.target.value})} />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700">Notice Image (Optional)</label>
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+            {newNotice.image && (
+              <div className="mt-2 relative inline-block">
+                <img src={newNotice.image} alt="Preview" className="h-20 w-auto rounded border border-gray-200" />
+                <button type="button" onClick={() => setNewNotice({...newNotice, image: ''})} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            )}
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">Content</label>
             <textarea required rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
                    value={newNotice.content} onChange={e => setNewNotice({...newNotice, content: e.target.value})} />
           </div>
           <div className="flex items-center">
-            <input id="published" type="checkbox" className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" 
-                   checked={newNotice.published} onChange={e => setNewNotice({...newNotice, published: e.target.checked})} />
-            <label htmlFor="published" className="ml-2 block text-sm text-gray-900">
-              Publish immediately
+            <input id="publishOnMainPortal" type="checkbox" className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" 
+                   checked={newNotice.publishOnMainPortal} onChange={e => setNewNotice({...newNotice, publishOnMainPortal: e.target.checked})} />
+            <label htmlFor="publishOnMainPortal" className="ml-2 block text-sm text-gray-900">
+              Publish on Main portal
             </label>
           </div>
           <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-            <button type="submit" className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:col-start-2">Create Notice</button>
+            <button type="submit" className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:col-start-2">
+              {editingId ? "Update Notice" : "Create Notice"}
+            </button>
             <button type="button" onClick={() => setIsModalOpen(false)} className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">Cancel</button>
           </div>
         </form>

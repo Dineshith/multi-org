@@ -1,5 +1,21 @@
 export const organizations = [
   {
+    id: 0,
+    name: 'EduCMS Platform',
+    type: 'platform',
+    slug: 'main-portal',
+    email: 'contact@educms.com',
+    phone: '+1-800-EDUCMS',
+    address: 'Global',
+    status: 'active',
+    branding: {
+      logo: 'https://placehold.co/150x150/0f172a/ffffff?text=EduCMS',
+      primaryColor: '#0f172a', // slate-900
+      secondaryColor: '#f8fafc', 
+    },
+    sisterOrganizations: [],
+  },
+  {
     id: 1,
     name: 'ABC College',
     type: 'college',
@@ -10,9 +26,14 @@ export const organizations = [
     status: 'active',
     branding: {
       logo: 'https://placehold.co/150x150/1e40af/ffffff?text=ABC+Logo',
-      primaryColor: '#1e40af', // blue-800
-      secondaryColor: '#f3f4f6', // gray-100
+      primaryColor: '#111860', // dark blue for new design
+      secondaryColor: '#f3f4f6', 
     },
+    sisterOrganizations: [
+      { name: 'School', link: '#' },
+      { name: 'PlusTwo', link: '#' },
+      { name: 'Bachelors', link: '#' }
+    ],
   },
   {
     id: 2,
@@ -38,7 +59,7 @@ export const users = [
     email: 'super@admin.com',
     password: 'password123',
     role: 'SUPER_ADMIN',
-    organizationId: null,
+    organizationId: 0,
   },
   {
     id: 2,
@@ -103,6 +124,35 @@ export const events = [
 ];
 
 export const pages = [
+  {
+    id: 0,
+    organizationId: 0,
+    title: 'Home',
+    slug: 'home',
+    sections: [
+      {
+        id: 100,
+        type: 'hero',
+        background: 'dark',
+        data: {
+          title: 'Welcome to EDU<span class="text-blue-500">CMS</span> Platform',
+          subtitle: 'A Multi-Tenant Content Management System for Educational Institutions.',
+          image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80',
+        },
+      },
+      {
+        id: 101,
+        type: 'cta',
+        background: 'default',
+        data: {
+          title: 'Ready to manage your institution?',
+          description: 'Login to access your dedicated portal.',
+          buttonText: 'Login to Portal',
+          buttonLink: '/admin'
+        },
+      },
+    ],
+  },
   {
     id: 1,
     organizationId: 1,

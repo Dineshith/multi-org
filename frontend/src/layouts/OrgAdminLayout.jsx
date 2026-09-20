@@ -17,7 +17,7 @@ const OrgAdminLayout = () => {
   }, [user]);
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/admin" state={{ from: location }} replace />;
   }
 
   if (user.role !== 'ORG_ADMIN' && user.role !== 'EDITOR') {
@@ -26,15 +26,16 @@ const OrgAdminLayout = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/admin');
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-    { name: 'Pages', path: '/admin/pages', icon: FileText },
-    { name: 'Notices', path: '/admin/notices', icon: FileText },
-    { name: 'Events', path: '/admin/events', icon: Calendar },
-    { name: 'Staff', path: '/admin/staff', icon: Users },
+    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Pages', path: '/admin/dashboard/pages', icon: FileText },
+    { name: 'Notices', path: '/admin/dashboard/notices', icon: FileText },
+    { name: 'Events', path: '/admin/dashboard/events', icon: Calendar },
+    { name: 'Staff', path: '/admin/dashboard/staff', icon: Users },
+    { name: 'Settings', path: '/admin/dashboard/settings', icon: Settings },
   ];
 
   return (
@@ -57,7 +58,7 @@ const OrgAdminLayout = () => {
         
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path || (location.pathname.startsWith(item.path) && item.path !== '/admin');
+            const isActive = location.pathname === item.path || (location.pathname.startsWith(item.path) && item.path !== '/admin/dashboard');
             const Icon = item.icon;
             return (
               <Link
