@@ -1,0 +1,218 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { getOrganization, updateOrganization } from '../../services/mockDbService';
+import { Plus, Trash2 } from 'lucide-react';
+
+const Settings = () => {
+  const { user } = useAuth();
+  const [organization, setOrganization] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  useEffect(() => {
+    if (user && user.organizationId) {
+      const org = getOrganization(user.organizationId);
+      if (org) {
+        setOrganization({
+          ...org,
+          sisterOrganizations: org.sisterOrganizations || [],
+          branding: org.branding || { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6', logo: '' },
+          footer: org.footer || { logo: '', description: '', facultyTitle: 'Faculty', facultyDetails: '', contactTitle: 'Contact Us', contactInfo: '', mapUrl: '', copyrightText: '' }
+        });
+      }
+    }
+  }, [user]);
+
+  const handleAddSisterOrg = () => {
+    setOrganization({
+      ...organization,
+      sisterOrganizations: [...organization.sisterOrganizations, { name: '', link: '', menuGroup: '' }]
+    });
+  };
+
+  const handleRemoveSisterOrg = (index) => {
+    const updated = [...organization.sisterOrganizations];
+    updated.splice(index, 1);
+    setOrganization({ ...organization, sisterOrganizations: updated });
+  };
+
+  const handleUpdateSisterOrg = (index, field, value) => {
+    const updated = [...organization.sisterOrganizations];
+    updated[index][field] = value;
+    setOrganization({ ...organization, sisterOrganizations: updated });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    
+    setTimeout(() => {
+      updateOrganization(organization.id, organization);
+      setIsSaving(false);
+      setSuccessMsg('Settings updated successfully!');
+      
+      setTimeout(() => setSuccessMsg(''), 3000);
+    }, 500);
+  };
+
+  if (!organization) return <div>Loading...</div>;
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Organization Settings</h1>
+        <p className="text-gray-500">Manage your organization's general details and footer branding.</p>
+      </div>
+
+      {successMsg && (
+        <div className="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-700">
+          {successMsg}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        
+        {/* General Details */}
+        <div>
+          <h2 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">General Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Organization Name</label>
+              <input type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                     value={organization.name} onChange={e => setOrganization({...organization, name: e.target.value})} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                     value={organization.phone} onChange={e => setOrganization({...organization, phone: e.target.value})} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email Address</label>
+              <input type="email" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                     value={organization.email} onChange={e => setOrganization({...organization, email: e.target.value})} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Navbar Logo URL</label>
+              <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                     value={organization.branding?.logo || ''} onChange={e => setOrganization({...organization, branding: {...organization.branding, logo: e.target.value}})} 
+                     placeholder="https://example.com/nav-logo.png" />
+              <p className="mt-1 text-xs text-gray-500">Provide an absolute URL to an image. Leave blank to use organization name.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Physical Address</label>
+              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                     value={organization.address} onChange={e => setOrganization({...organization, address: e.target.value})} />
+            </div>
+          </div>
+        </div>
+
+        {/* Sister Organizations Settings */}
+        <div>
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-lg font-medium text-gray-900">Sister Organizations</h2>
+            <button type="button" onClick={handleAddSisterOrg} className="text-sm flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+              <Plus size={16} className="mr-1" /> Add Organization
+            </button>
+          </div>
+          <div className="space-y-4">
+            {organization.sisterOrganizations.length === 0 && (
+              <p className="text-sm text-gray-500 italic">No sister organizations added yet.</p>
+            )}
+            {organization.sisterOrganizations.map((sister, index) => (
+              <div key={index} className="flex flex-col md:flex-row gap-4 items-start md:items-end bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="flex-1 w-full">
+                  <label className="block text-xs font-medium text-gray-700">Name</label>
+                  <input type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                         value={sister.name} onChange={e => handleUpdateSisterOrg(index, 'name', e.target.value)} placeholder="e.g. Science College" />
+                </div>
+                <div className="flex-1 w-full">
+                  <label className="block text-xs font-medium text-gray-700">Link URL</label>
+                  <input type="url" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                         value={sister.link} onChange={e => handleUpdateSisterOrg(index, 'link', e.target.value)} placeholder="https://..." />
+                </div>
+                <div className="flex-1 w-full">
+                  <label className="block text-xs font-medium text-gray-700">Menu Group (Optional)</label>
+                  <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                         value={sister.menuGroup || ''} onChange={e => handleUpdateSisterOrg(index, 'menuGroup', e.target.value)} placeholder="e.g. Academic" />
+                </div>
+                <button type="button" onClick={() => handleRemoveSisterOrg(index)} className="p-2 text-red-500 hover:bg-red-100 rounded-md transition-colors mt-2 md:mt-0">
+                  <Trash2 size={20} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Settings */}
+        <div>
+          <h2 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Footer Settings (Public Layout)</h2>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Footer Logo URL</label>
+              <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                     value={organization.footer.logo} onChange={e => setOrganization({...organization, footer: {...organization.footer, logo: e.target.value}})} placeholder="https://example.com/logo.png" />
+              <p className="mt-1 text-xs text-gray-500">Provide an absolute URL to an image. Leave blank to use organization name.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Footer Description</label>
+              <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                        rows="3" value={organization.footer.description} onChange={e => setOrganization({...organization, footer: {...organization.footer, description: e.target.value}})}
+                        placeholder="E.g. Empowering higher education and excellence."></textarea>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div>
+                  <label className="block text-sm font-medium text-gray-700">Faculty Section Title</label>
+                  <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                         value={organization.footer.facultyTitle} onChange={e => setOrganization({...organization, footer: {...organization.footer, facultyTitle: e.target.value}})} />
+                  
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700">Faculty Details (One per line)</label>
+                    <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                              rows="4" value={organization.footer.facultyDetails} onChange={e => setOrganization({...organization, footer: {...organization.footer, facultyDetails: e.target.value}})}
+                              placeholder="Science&#10;IT&#10;Management"></textarea>
+                  </div>
+               </div>
+               <div>
+                  <label className="block text-sm font-medium text-gray-700">Contact Section Title</label>
+                  <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                         value={organization.footer.contactTitle} onChange={e => setOrganization({...organization, footer: {...organization.footer, contactTitle: e.target.value}})} />
+                  
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700">Contact Details (One per line)</label>
+                    <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                              rows="4" value={organization.footer.contactInfo} onChange={e => setOrganization({...organization, footer: {...organization.footer, contactInfo: e.target.value}})}
+                              placeholder="contact@educms.com&#10;+1-800-EDUCMS"></textarea>
+                  </div>
+               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Map Embed URL</label>
+              <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                     value={organization.footer.mapUrl || ''} onChange={e => setOrganization({...organization, footer: {...organization.footer, mapUrl: e.target.value}})} 
+                     placeholder="https://www.google.com/maps/embed?..." />
+              <p className="mt-1 text-xs text-gray-500">Provide a valid Google Maps embed URL.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Copyright Text</label>
+              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                     value={organization.footer.copyrightText} onChange={e => setOrganization({...organization, footer: {...organization.footer, copyrightText: e.target.value}})} 
+                     placeholder="© 2026 EduCMS Platform. All rights reserved." />
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4 flex justify-end">
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          >
+            {isSaving ? 'Saving...' : 'Save Settings'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default Settings;
