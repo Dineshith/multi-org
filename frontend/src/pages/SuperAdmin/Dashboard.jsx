@@ -12,12 +12,11 @@ const Dashboard = () => {
   }, []);
 
   const activeOrgs = organizations.filter(o => o.status === 'active').length;
-  const totalUsers = users.length;
   const orgAdmins = users.filter(u => u.role === 'ORG_ADMIN').length;
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
           <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
             <Building2 size={24} />
@@ -27,17 +26,6 @@ const Dashboard = () => {
             <p className="text-2xl font-bold text-gray-900">{activeOrgs}</p>
           </div>
         </div>
-        
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
-            <UsersIcon size={24} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Total Users</p>
-            <p className="text-2xl font-bold text-gray-900">{totalUsers}</p>
-          </div>
-        </div>
-
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
           <div className="p-3 bg-green-50 text-green-600 rounded-lg">
             <Activity size={24} />

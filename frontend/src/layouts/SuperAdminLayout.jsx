@@ -25,7 +25,6 @@ const SuperAdminLayout = () => {
     { name: 'Dashboard', path: '/platform-admin', icon: LayoutDashboard },
     { name: 'Platform Pages', path: '/platform-admin/pages', icon: LayoutDashboard }, // Added Pages
     { name: 'Organizations', path: '/platform-admin/organizations', icon: Building2 },
-    { name: 'Users', path: '/platform-admin/users', icon: Users },
   ];
 
   return (

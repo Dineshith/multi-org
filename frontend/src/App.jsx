@@ -41,7 +41,6 @@ function App() {
             <Route path="pages" element={<OAPages />} />
             <Route path="pages/:pageId" element={<OAPageBuilder />} />
             <Route path="organizations" element={<SAOrganizations />} />
-            <Route path="users" element={<div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200">Users Management coming soon</div>} />
           </Route>
 
           {/* Organization Admin Routes */}
