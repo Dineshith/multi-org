@@ -242,9 +242,11 @@ const PublicLayout = () => {
             </div>
 
           </div>
-          <div className="border-t border-white/20 pt-6 text-center text-gray-400 text-sm">
-            <p>{tenant.footer?.copyrightText || `© ${new Date().getFullYear()} ${tenant.name}. Powered by EDU CMS Platform.`}</p>
-          </div>
+          {tenant.footer?.copyrightText && (
+            <div className="border-t border-white/20 pt-6 text-center text-gray-400 text-sm">
+              <p>{tenant.footer.copyrightText}</p>
+            </div>
+          )}
         </div>
       </footer>
     </div>
