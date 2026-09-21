@@ -112,7 +112,7 @@ const getDB = () => {
         contactTitle: org.footer?.contactTitle || 'Contact Us',
         contactInfo: org.footer?.contactInfo || '',
         mapUrl: org.footer?.mapUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.8142900902094!2d85.31694677617478!3d27.69213407619131!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19b19295555f%3A0xabfe5f4b310f97de!2sThe%20British%20College%2C%20Kathmandu!5e0!3m2!1sen!2snp!4v1709623862218!5m2!1sen!2snp',
-        copyrightText: org.footer?.copyrightText || `© ${new Date().getFullYear()} ${org.name}. Powered by EDU CMS Platform.`
+        copyrightText: org.footer?.copyrightText || ''
       };
       // Clean up old quickLinks data
       if (org.footer.quickLinks) delete org.footer.quickLinks;
@@ -206,7 +206,7 @@ export const createOrganization = (data) => {
       contactTitle: 'Contact Us',
       contactInfo: '',
       mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.8142900902094!2d85.31694677617478!3d27.69213407619131!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19b19295555f%3A0xabfe5f4b310f97de!2sThe%20British%20College%2C%20Kathmandu!5e0!3m2!1sen!2snp!4v1709623862218!5m2!1sen!2snp',
-      copyrightText: `© ${new Date().getFullYear()} ${data.name}. Powered by EDU CMS Platform.`
+      copyrightText: ''
     },
     statsBanner: [],
     sisterOrganizations: []

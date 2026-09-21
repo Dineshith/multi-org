@@ -243,8 +243,8 @@ const Organizations = () => {
               <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                       value={newOrg.type} onChange={e => setNewOrg({...newOrg, type: e.target.value})}>
                 <option value="school">School</option>
-                <option value="college">College</option>
-                <option value="institute">Institute</option>
+                <option value="plus-two">PlusTwo</option>
+                <option value="bachelors">Bachelors</option>
               </select>
             </div>
             <div>
@@ -306,6 +306,8 @@ const Organizations = () => {
                 <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                         value={editOrg.type} onChange={e => setEditOrg({...editOrg, type: e.target.value})}>
                   <option value="school">School</option>
+                  <option value="plus-two">PlusTwo</option>
+                  <option value="bachelors">Bachelors</option>
                   <option value="college">College</option>
                   <option value="institute">Institute</option>
                 </select>

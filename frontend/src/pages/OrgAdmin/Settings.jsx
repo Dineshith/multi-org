@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getOrganization, updateOrganization } from '../../services/mockDbService';
-import { Plus, Trash2 } from 'lucide-react';
 
 const Settings = () => {
   const { user } = useAuth();
@@ -15,7 +14,7 @@ const Settings = () => {
       if (org) {
         setOrganization({
           ...org,
-          sisterOrganizations: org.sisterOrganizations || [],
+
           branding: org.branding || { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6', logo: '' },
           footer: org.footer || { logo: '', description: '', facultyTitle: 'Faculty', facultyDetails: '', contactTitle: 'Contact Us', contactInfo: '', mapUrl: '', copyrightText: '' }
         });
@@ -23,24 +22,6 @@ const Settings = () => {
     }
   }, [user]);
 
-  const handleAddSisterOrg = () => {
-    setOrganization({
-      ...organization,
-      sisterOrganizations: [...organization.sisterOrganizations, { name: '', link: '', menuGroup: '' }]
-    });
-  };
-
-  const handleRemoveSisterOrg = (index) => {
-    const updated = [...organization.sisterOrganizations];
-    updated.splice(index, 1);
-    setOrganization({ ...organization, sisterOrganizations: updated });
-  };
-
-  const handleUpdateSisterOrg = (index, field, value) => {
-    const updated = [...organization.sisterOrganizations];
-    updated[index][field] = value;
-    setOrganization({ ...organization, sisterOrganizations: updated });
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -106,42 +87,6 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Sister Organizations Settings */}
-        <div>
-          <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-lg font-medium text-gray-900">Sister Organizations</h2>
-            <button type="button" onClick={handleAddSisterOrg} className="text-sm flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
-              <Plus size={16} className="mr-1" /> Add Organization
-            </button>
-          </div>
-          <div className="space-y-4">
-            {organization.sisterOrganizations.length === 0 && (
-              <p className="text-sm text-gray-500 italic">No sister organizations added yet.</p>
-            )}
-            {organization.sisterOrganizations.map((sister, index) => (
-              <div key={index} className="flex flex-col md:flex-row gap-4 items-start md:items-end bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div className="flex-1 w-full">
-                  <label className="block text-xs font-medium text-gray-700">Name</label>
-                  <input type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
-                         value={sister.name} onChange={e => handleUpdateSisterOrg(index, 'name', e.target.value)} placeholder="e.g. Science College" />
-                </div>
-                <div className="flex-1 w-full">
-                  <label className="block text-xs font-medium text-gray-700">Link URL</label>
-                  <input type="url" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
-                         value={sister.link} onChange={e => handleUpdateSisterOrg(index, 'link', e.target.value)} placeholder="https://..." />
-                </div>
-                <div className="flex-1 w-full">
-                  <label className="block text-xs font-medium text-gray-700">Menu Group (Optional)</label>
-                  <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
-                         value={sister.menuGroup || ''} onChange={e => handleUpdateSisterOrg(index, 'menuGroup', e.target.value)} placeholder="e.g. Academic" />
-                </div>
-                <button type="button" onClick={() => handleRemoveSisterOrg(index)} className="p-2 text-red-500 hover:bg-red-100 rounded-md transition-colors mt-2 md:mt-0">
-                  <Trash2 size={20} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Footer Settings */}
         <div>

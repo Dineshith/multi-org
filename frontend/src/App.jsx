@@ -10,10 +10,12 @@ import PublicLayout from './layouts/PublicLayout';
 
 // Auth
 import Login from './pages/Auth/Login';
+import ForgetPassword from './pages/Auth/ForgetPassword';
 
 // Super Admin Pages
 import SADashboard from './pages/SuperAdmin/Dashboard';
 import SAOrganizations from './pages/SuperAdmin/Organizations';
+import SASettings from './pages/SuperAdmin/Setting';
 
 // Org Admin Pages
 import OADashboard from './pages/OrgAdmin/Dashboard';
@@ -34,6 +36,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/org/main-portal" replace />} />
           <Route path="/admin" element={<Login />} />
+          <Route path="/admin/forgot-password" element={<ForgetPassword />} />
 
           {/* Super Admin Routes */}
           <Route path="/platform-admin" element={<SuperAdminLayout />}>
@@ -41,7 +44,7 @@ function App() {
             <Route path="pages" element={<OAPages />} />
             <Route path="pages/:pageId" element={<OAPageBuilder />} />
             <Route path="organizations" element={<SAOrganizations />} />
-            <Route path="users" element={<div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200">Users Management coming soon</div>} />
+            <Route path="settings" element={<SASettings />} />
           </Route>
 
           {/* Organization Admin Routes */}
