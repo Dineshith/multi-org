@@ -16,6 +16,7 @@ import ForgetPassword from './pages/Auth/ForgetPassword';
 import SADashboard from './pages/SuperAdmin/Dashboard';
 import SAOrganizations from './pages/SuperAdmin/Organizations';
 import SASettings from './pages/SuperAdmin/Setting';
+import SAPasswordRequests from './pages/SuperAdmin/PasswordRequests';
 
 // Org Admin Pages
 import OADashboard from './pages/OrgAdmin/Dashboard';
@@ -44,6 +45,7 @@ function App() {
             <Route path="pages" element={<OAPages />} />
             <Route path="pages/:pageId" element={<OAPageBuilder />} />
             <Route path="organizations" element={<SAOrganizations />} />
+            <Route path="password-requests" element={<SAPasswordRequests />} />
             <Route path="settings" element={<SASettings />} />
           </Route>
 

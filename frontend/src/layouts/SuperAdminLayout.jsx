@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Building2, Users, Settings, LogOut, LayoutDashboard } from 'lucide-react';
+import { Building2, Users, Settings, LogOut, LayoutDashboard, ChevronDown, ChevronRight, KeyRound } from 'lucide-react';
 
 const SuperAdminLayout = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -24,8 +24,23 @@ const SuperAdminLayout = () => {
   const navItems = [
     { name: 'Dashboard', path: '/platform-admin', icon: LayoutDashboard },
     { name: 'Platform Pages', path: '/platform-admin/pages', icon: LayoutDashboard }, // Added Pages
-    { name: 'Organizations', path: '/platform-admin/organizations', icon: Building2 },
+    { 
+      name: 'Organizations', 
+      icon: Building2,
+      children: [
+        { name: 'All Organizations', path: '/platform-admin/organizations', icon: Building2 },
+        { name: 'Password Requests', path: '/platform-admin/password-requests', icon: KeyRound },
+      ]
+    },
   ];
+
+  const [openMenus, setOpenMenus] = useState({
+    'Organizations': true // Open by default or based on active path later
+  });
+
+  const toggleMenu = (name) => {
+    setOpenMenus(prev => ({ ...prev, [name]: !prev[name] }));
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -38,8 +53,57 @@ const SuperAdminLayout = () => {
         
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path || (location.pathname.startsWith(item.path) && item.path !== '/platform-admin');
+            const hasChildren = item.children && item.children.length > 0;
+            const isActive = !hasChildren && (location.pathname === item.path || (location.pathname.startsWith(item.path) && item.path !== '/platform-admin'));
+            
+            // For parent menu of active child
+            const isChildActive = hasChildren && item.children.some(child => location.pathname === child.path || location.pathname.startsWith(child.path));
+            
+            // isOpen strictly follows the toggle state
+            const isOpen = openMenus[item.name];
+            
             const Icon = item.icon;
+            
+            if (hasChildren) {
+              return (
+                <div key={item.name} className="space-y-1">
+                  <button
+                    onClick={() => toggleMenu(item.name)}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer transition-colors ${
+                      isChildActive ? 'text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Icon size={20} className={isChildActive ? 'text-blue-400' : ''} />
+                      <span className="font-medium">{item.name}</span>
+                    </div>
+                    {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  </button>
+                  
+                  {isOpen && (
+                    <div className="pl-11 pr-2 space-y-1 pb-2">
+                      {item.children.map(child => {
+                        const childActive = location.pathname === child.path || location.pathname.startsWith(child.path);
+                        const ChildIcon = child.icon || LayoutDashboard; // Fallback icon
+                        return (
+                          <Link
+                            key={child.name}
+                            to={child.path}
+                            className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-sm ${
+                              childActive ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                            }`}
+                          >
+                            <ChildIcon size={16} />
+                            <span>{child.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             return (
               <Link
                 key={item.name}
