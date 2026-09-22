@@ -18,8 +18,8 @@ import SAOrganizations from './pages/SuperAdmin/Organizations';
 import SASettings from './pages/SuperAdmin/Setting';
 import SAPasswordRequests from './pages/SuperAdmin/PasswordRequests';
 
-// Org Admin Pages
 import OADashboard from './pages/OrgAdmin/Dashboard';
+import OANews from './pages/OrgAdmin/News';
 import OANotices from './pages/OrgAdmin/Notices';
 import OAEvents from './pages/OrgAdmin/Events';
 import OAPages from './pages/OrgAdmin/Pages';
@@ -52,6 +52,7 @@ function App() {
           {/* Organization Admin Routes */}
           <Route path="/admin/dashboard" element={<OrgAdminLayout />}>
             <Route index element={<OADashboard />} />
+            <Route path="news" element={<OANews />} />
             <Route path="notices" element={<OANotices />} />
             <Route path="events" element={<OAEvents />} />
             <Route path="pages" element={<OAPages />} />

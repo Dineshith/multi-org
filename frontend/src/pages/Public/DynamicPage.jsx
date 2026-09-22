@@ -13,6 +13,7 @@ const DynamicPage = () => {
   const [page, setPage] = useState(null);
   const [notices, setNotices] = useState([]);
   const [events, setEvents] = useState([]);
+  const [clientNews, setClientNews] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
@@ -94,6 +95,14 @@ const DynamicPage = () => {
 
       setNotices(combinedNotices);
       setEvents(combinedEvents);
+
+      // Fetch News from localStorage for demo purposes
+      try {
+        const storedNews = JSON.parse(localStorage.getItem('orgNews') || '[]');
+        setClientNews(storedNews.filter(n => n.status === 'published' && n.organizationId === tenant.id));
+      } catch (e) {
+        setClientNews([]);
+      }
     }
   }, [tenant, pageSlug]);
 
@@ -322,6 +331,47 @@ const DynamicPage = () => {
                   ))
                 ) : (
                   <div className="text-center py-8 opacity-60">No notices available.</div>
+                )}
+              </div>
+            </div>
+          </section>
+        );
+
+      case 'news_list':
+        if (tenant.id === 0 || clientNews.length === 0) return null;
+        return (
+          <section key={index} className={`py-16 ${bgClass}`}>
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              {section.data.title && (
+                <div
+                  className={`text-3xl font-bold mb-8 text-center ${section.data.titleColor && section.data.titleColor !== 'default' ? getTextColorClass(section.data.titleColor) : ''}`}
+                  dangerouslySetInnerHTML={{ __html: section.data.title }}
+                />
+              )}
+              <div className="space-y-4">
+                {clientNews.length > 0 ? (
+                  clientNews.map(news => (
+                    <div key={news.id}
+                      className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow flex flex-col md:flex-row gap-6 cursor-pointer"
+                      onClick={() => setSelectedItem({ type: 'news', data: news })}>
+                      {news.image && (
+                        <div className="w-full md:w-48 h-32 flex-shrink-0">
+                          <img src={news.image} alt={news.title} className="w-full h-full object-cover rounded-lg border border-gray-100" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-xl font-semibold text-gray-900">{news.title}</h3>
+                          <span className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                            {new Date(news.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 whitespace-pre-wrap line-clamp-3 text-justify">{news.content}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 opacity-60">No news available.</div>
                 )}
               </div>
             </div>
@@ -836,8 +886,13 @@ const DynamicPage = () => {
                 Published: {new Date(selectedItem.data.publishedAt).toLocaleDateString()}
               </p>
             )}
+            {selectedItem.type === 'news' && (
+              <p className="mb-6 text-sm font-bold text-gray-600 bg-gray-50 inline-block px-3 py-1 rounded">
+                Published: {new Date(selectedItem.data.createdAt).toLocaleDateString()}
+              </p>
+            )}
             <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-lg">
-              {selectedItem.type === 'notice' ? selectedItem.data.content : selectedItem.data.description}
+              {selectedItem.type === 'notice' ? selectedItem.data.content : selectedItem.type === 'news' ? selectedItem.data.content : selectedItem.data.description}
             </p>
           </div>
         </div>
@@ -854,10 +909,18 @@ const DynamicPage = () => {
         </div>
       );
     }
-    if (pageSlug === 'news' || pageSlug === 'notice' || pageSlug === 'notices') {
+    if (pageSlug === 'notice' || pageSlug === 'notices') {
       return (
         <div className="min-h-screen bg-white pb-20 pt-8">
-          {renderSection({ type: 'notice_list', data: { title: 'News & Notices' }, background: 'default' }, 'standalone-notices')}
+          {renderSection({ type: 'notice_list', data: { title: 'Notices' }, background: 'default' }, 'standalone-notices')}
+          {renderModal()}
+        </div>
+      );
+    }
+    if (pageSlug === 'news') {
+      return (
+        <div className="min-h-screen bg-white pb-20 pt-8">
+          {renderSection({ type: 'news_list', data: { title: 'Latest News' }, background: 'default' }, 'standalone-news')}
           {renderModal()}
         </div>
       );

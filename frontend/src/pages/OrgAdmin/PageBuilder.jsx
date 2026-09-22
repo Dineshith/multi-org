@@ -880,15 +880,7 @@ const PageBuilder = () => {
                 </div>
               </button>
 
-              <button onClick={() => addSection('contact_form')} className="w-full flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-sm transition-all text-left group mt-3">
-                <div className="p-2 bg-teal-50 text-teal-600 rounded-lg group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                  <Type size={20} />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm">Contact Form</h4>
-                  <p className="text-[10px] text-gray-500">Collect user messages</p>
-                </div>
-              </button>
+
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, FileText, Calendar, Image as ImageIcon, Settings, LogOut, Users } from 'lucide-react';
+import { LayoutDashboard, FileText, Calendar, Image as ImageIcon, Settings, LogOut, Users, Newspaper } from 'lucide-react';
 import { getOrganization } from '../services/mockDbService';
 
 const OrgAdminLayout = () => {
@@ -32,6 +32,7 @@ const OrgAdminLayout = () => {
   const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Pages', path: '/admin/dashboard/pages', icon: FileText },
+    { name: 'News', path: '/admin/dashboard/news', icon: Newspaper },
     { name: 'Notices', path: '/admin/dashboard/notices', icon: FileText },
     { name: 'Events', path: '/admin/dashboard/events', icon: Calendar },
     { name: 'Staff', path: '/admin/dashboard/staff', icon: Users },
