@@ -2,19 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTenant } from '../context/TenantContext';
 import { getPages } from '../services/mockDbService';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Menu, X } from 'lucide-react';
 
 const PublicLayout = () => {
   const { tenant, loading, error } = useTenant();
   const [pages, setPages] = useState([]);
   const location = useLocation();
   const currentPath = location.pathname;
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedMobileMenus, setExpandedMobileMenus] = useState({});
 
   useEffect(() => {
     if (tenant) {
       setPages(getPages(tenant.id));
     }
   }, [tenant]);
+
+  const toggleMobileMenu = (id) => {
+    setExpandedMobileMenus(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
 
   if (loading) {
     return (
@@ -97,19 +106,19 @@ const PublicLayout = () => {
           <div className="flex justify-between items-center h-16">
             
             {/* Left: Logo/Name */}
-            <Link to={`/org/${tenant.slug}`} className="flex items-center flex-shrink-0 space-x-3">
+            <Link to={`/org/${tenant.slug}`} className="flex items-center flex-shrink-0 space-x-2 sm:space-x-3">
               {tenant.branding?.logo ? (
-                <img src={tenant.branding.logo} alt={tenant.name} className="h-10 w-10 object-contain rounded-full bg-white p-0.5 shadow-sm" />
+                <img src={tenant.branding.logo} alt={tenant.name} className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-full bg-white p-0.5 shadow-sm" />
               ) : (
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xl shadow-sm">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-lg sm:text-xl shadow-sm">
                   {tenant.name.charAt(0)}
                 </div>
               )}
-              <div className="text-2xl font-extrabold text-white tracking-tight">{tenant.name}</div>
+              <div className="text-xl sm:text-2xl font-extrabold text-white tracking-tight truncate max-w-[150px] sm:max-w-xs md:max-w-sm">{tenant.name}</div>
             </Link>
             
             {/* Middle: Navigation Links */}
-            <nav className="hidden md:flex flex-1 justify-center space-x-2 lg:space-x-6">
+            <nav className="hidden lg:flex flex-1 justify-center space-x-2 lg:space-x-6">
               {navItems.map(item => {
                 if (item.type === 'standalone') {
                   const isActive = currentPath === item.link;
@@ -148,23 +157,114 @@ const PublicLayout = () => {
               })}
             </nav>
             
-            {/* Right: Sister Organizations */}
-            <div className="flex items-center space-x-2 flex-shrink-0">
-              {standaloneSisterOrgs.map((sister) => (
-                <a 
-                  key={sister.id} 
-                  href={sister.link} 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-2 bg-[#d32f2f] hover:bg-[#b71c1c] text-white text-sm font-bold rounded shadow-sm transition-colors uppercase tracking-wider"
-                >
-                  {sister.label}
-                </a>
-              ))}
+            {/* Right: Sister Organizations and Mobile Toggle */}
+            <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+              <div className="hidden sm:flex items-center space-x-2">
+                {standaloneSisterOrgs.map((sister) => (
+                  <a 
+                    key={sister.id} 
+                    href={sister.link} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 sm:px-5 py-1.5 sm:py-2 bg-[#d32f2f] hover:bg-[#b71c1c] text-white text-xs sm:text-sm font-bold rounded shadow-sm transition-colors uppercase tracking-wider whitespace-nowrap"
+                  >
+                    {sister.label}
+                  </a>
+                ))}
+              </div>
+              <button 
+                className="lg:hidden p-2 text-white hover:bg-white/10 rounded-md transition-colors -mr-2"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle mobile menu"
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
 
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden absolute top-16 left-0 right-0 bg-[#0c1142] border-t border-white/10 shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto z-40">
+            <div className="px-4 py-4 space-y-2">
+              {navItems.map(item => {
+                if (item.type === 'standalone') {
+                  const isActive = currentPath === item.link;
+                  return (
+                    <Link
+                      key={item.id}
+                      to={item.link}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
+                        isActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                } else {
+                  const isActive = item.children.some(c => currentPath === c.link);
+                  const isExpanded = expandedMobileMenus[item.id];
+                  
+                  return (
+                    <div key={item.id} className="space-y-1">
+                      <button
+                        onClick={() => toggleMobileMenu(item.id)}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-base font-medium transition-colors ${
+                          isActive ? 'bg-white/10 text-white' : 'text-white/90 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <span>{item.label}</span>
+                        <span className="text-xl leading-none w-4 text-center">
+                          {isExpanded ? '-' : '+'}
+                        </span>
+                      </button>
+                      
+                      {isExpanded && (
+                        <div className="pl-6 pr-4 py-2 space-y-1 bg-black/20 rounded-lg mx-2">
+                          {item.children.map(child => {
+                            const childActive = currentPath === child.link;
+                            return (
+                              <Link
+                                key={child.id}
+                                to={child.link}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={`block px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                                  childActive ? 'text-white bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
+                                }`}
+                              >
+                                {child.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+              })}
+              
+              {/* Mobile Sister Orgs */}
+              {standaloneSisterOrgs.length > 0 && (
+                <div className="pt-4 mt-4 border-t border-white/10 sm:hidden flex flex-col space-y-3 px-2">
+                  <span className="px-2 text-xs font-semibold text-white/50 uppercase tracking-wider">Other Portals</span>
+                  {standaloneSisterOrgs.map((sister) => (
+                    <a 
+                      key={sister.id} 
+                      href={sister.link} 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full px-4 py-3 text-center bg-[#d32f2f] hover:bg-[#b71c1c] text-white text-sm font-bold rounded-lg shadow-sm transition-colors uppercase tracking-wider"
+                    >
+                      {sister.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content Area */}

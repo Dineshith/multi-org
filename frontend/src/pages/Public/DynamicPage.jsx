@@ -680,7 +680,7 @@ const DynamicPage = () => {
         return (
           <section key={index} className={`py-24 ${bgClass}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className={`flex flex-col md:flex-row gap-12 lg:gap-20 ${section.data.imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
+              <div className={`flex flex-col-reverse md:flex-row gap-12 lg:gap-20 ${section.data.imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
 
                 {/* Images Column */}
                 <div className="w-full md:w-1/2">

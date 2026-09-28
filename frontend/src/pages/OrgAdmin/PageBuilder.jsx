@@ -183,9 +183,9 @@ const PageBuilder = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Editor Area */}
-        <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-4 lg:p-8">
           <div className="max-w-4xl mx-auto space-y-6 pb-32">
             {sections.length === 0 && (
               <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300 shadow-sm">
@@ -756,7 +756,7 @@ const PageBuilder = () => {
         </div>
 
         {/* Sidebar Blocks Palette */}
-        <div className="w-72 bg-white border-l border-gray-200 flex flex-col shadow-lg relative z-10 overflow-y-auto">
+        <div className="w-full lg:w-72 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col shadow-lg relative z-10 overflow-y-auto h-64 lg:h-auto flex-shrink-0">
           <div className="p-4 border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
             <h3 className="font-bold text-gray-900 flex items-center space-x-2">
               <Plus size={18} />
