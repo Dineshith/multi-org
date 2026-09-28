@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS organizations (
 
 -- =========================================================
 -- 2. SYSTEM SETTINGS
--- Settings for the overall AKSHAR system
 -- =========================================================
 CREATE TABLE IF NOT EXISTS settings (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -60,8 +59,6 @@ CREATE TABLE IF NOT EXISTS settings (
 
 -- =========================================================
 -- 3. USERS
--- SUPER_ADMIN = organization_id NULL
--- ORG_ADMIN   = organization_id assigned
 -- =========================================================
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -95,7 +92,6 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- =========================================================
 -- 4. PASSWORD RESET TOKENS
--- Used for Forgot Password
 -- =========================================================
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
