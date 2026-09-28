@@ -1,18 +1,36 @@
 import express from "express";
-import { createContact, getAllContacts, getContactById, deleteContact } from "../controllers/contactController.js";
+import {
+  createContact,
+  deleteContact,
+  getAllContacts,
+  getContactById,
+} from "../controllers/contactController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import roleMiddleware from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// Public - user submits contact form
 router.post("/", createContact);
 
-// Admin - view contact messages
-router.get("/", getAllContacts);
+router.get(
+  "/",
+  authMiddleware,
+  roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"),
+  getAllContacts,
+);
 
-// Admin - view single message
-router.get("/:id", getContactById);
+router.get(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"),
+  getContactById,
+);
 
-// Admin - delete message
-router.delete("/:id", deleteContact);
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"),
+  deleteContact,
+);
 
 export default router;

@@ -1,0 +1,34 @@
+//login for superadmin
+USE multiorg;
+
+INSERT INTO users (
+    organization_id,
+    name,
+    email,
+    password_hash,
+    role
+)
+VALUES (
+    NULL,
+    'Super Admin',
+    'superadmin@example.com',
+    '$2b$10$RiIUj9ju2f2RzBaXBL/PXuD56A4SWpBM/Z5yDvqTZkLgHujD7nbVa',
+    'SUPER_ADMIN'
+);
+//login for ORG_ADMIN
+USE multiorg;
+
+INSERT INTO users (
+    organization_id,
+    name,
+    email,
+    password_hash,
+    role
+)
+VALUES (
+    NULL,
+    'Oraganization Admin',
+    'orgadmin@gmail.com',
+    '$2b$10$RiIUj9ju2f2RzBaXBL/PXuD56A4SWpBM/Z5yDvqTZkLgHujD7nbVa',
+    'ORG_ADMIN'
+);
