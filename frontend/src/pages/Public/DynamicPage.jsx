@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { getPages, getNotices, getEvents, getAllNotices, getAllEvents } from '../../services/mockDbService';
 import { useParams, Link } from 'react-router-dom';
-import { LayoutTemplate, ArrowRight, MapPin, Mail, Phone, Users, Info, CheckCircle, Star } from 'lucide-react';
+import { LayoutTemplate, ArrowRight, MapPin, Mail, Phone, Users, Info, CheckCircle, Star, X } from 'lucide-react';
 
 const DynamicPage = () => {
   const { tenant } = useTenant();
@@ -15,6 +15,7 @@ const DynamicPage = () => {
   const [events, setEvents] = useState([]);
   const [clientNews, setClientNews] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isNoticeVisible, setIsNoticeVisible] = useState(true);
 
   useEffect(() => {
     if (tenant) {
@@ -190,56 +191,23 @@ const DynamicPage = () => {
                 </div>
               )}
               <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full z-10 text-white">
-                <div className={`grid grid-cols-1 ${tenant.id === 0 ? 'lg:grid-cols-12 gap-12' : ''}`}>
-                  <div className={`flex flex-col justify-center ${tenant.id === 0 ? 'lg:col-span-7' : ''}`}>
+                  <div className="flex flex-col justify-center">
                     {section.data.title && (
                       <div
-                        className={`text-4xl md:text-5xl font-extrabold tracking-tight mb-4 ${tenant.id !== 0 ? 'max-w-3xl' : ''} ${section.data.titleColor && section.data.titleColor !== 'default' ? getTextColorClass(section.data.titleColor) : ''}`}
+                        className={`text-4xl md:text-5xl font-extrabold tracking-tight mb-4 max-w-3xl ${section.data.titleColor && section.data.titleColor !== 'default' ? getTextColorClass(section.data.titleColor) : ''}`}
                         dangerouslySetInnerHTML={{ __html: section.data.title }}
                       />
                     )}
                     <div
-                      className={`text-xl text-gray-300 ${tenant.id !== 0 ? 'max-w-2xl' : ''}`}
+                      className="text-xl text-gray-300 max-w-2xl"
                       dangerouslySetInnerHTML={{ __html: section.data.subtitle }}
                     />
                   </div>
-
-                  {/* Global Updates Section for Main Portal */}
-                  {tenant.id === 0 && (
-                    <div className="hidden lg:flex flex-col lg:col-span-5 bg-white/20 backdrop-blur-md rounded-2xl border border-white/40 shadow-xl overflow-hidden self-center min-h-[300px]">
-                      {/* Header */}
-                      <div className="text-center py-4 border-b border-white/40 bg-white/10 shrink-0">
-                        <h3 className="text-3xl font-bold text-white tracking-wide">Notice</h3>
-                      </div>
-                      
-                      {/* Single Latest Content Area */}
-                      {latestUpdate ? (
-                        <div className="p-8 flex flex-col justify-center flex-1 cursor-pointer hover:bg-white/10 transition-colors"
-                             onClick={() => setSelectedItem({ type: latestUpdate._type, data: latestUpdate })}>
-                          <div className="flex justify-between items-start mb-6">
-                            <span className="text-sm font-bold text-white/90 uppercase tracking-widest">{latestUpdate._type}</span>
-                            <span className="text-sm text-white/90 font-medium">
-                              {latestUpdate._date.toLocaleString('default', { month: 'short' })} {latestUpdate._date.getDate()}
-                            </span>
-                          </div>
-                          <h4 className="text-2xl font-bold text-white mb-4 line-clamp-2 leading-tight">{latestUpdate.title}</h4>
-                          <p className="text-base text-white/90 line-clamp-4 leading-relaxed">
-                            {latestUpdate._type === 'notice' ? latestUpdate.content : latestUpdate.description}
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="flex-1 p-8 flex flex-col items-center justify-center text-center opacity-70">
-                          <p className="text-white text-lg font-medium">No recent updates.</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
-              </div>
             </section>
 
             {/* Stats Banner Below Hero */}
-            {tenant.statsBanner && tenant.statsBanner.length > 0 && (
+            {tenant.statsBanner && tenant.statsBanner.length > 0 && pageSlug === 'home' && (
               <section className="bg-white border-b border-gray-100 py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-200 text-center">
@@ -938,6 +906,14 @@ const DynamicPage = () => {
     );
   }
 
+  const allUpdates = [];
+  if (tenant && tenant.id === 0) {
+    events.forEach(e => allUpdates.push({ ...e, _type: 'event', _date: new Date(e.date || 0) }));
+    notices.forEach(n => allUpdates.push({ ...n, _type: 'notice', _date: new Date(n.publishedAt || 0) }));
+    allUpdates.sort((a, b) => b._date - a._date);
+  }
+  const latestUpdate = allUpdates[0];
+
   return (
     <div className="min-h-screen bg-white relative">
       {page.sections?.length > 0 ? (
@@ -947,6 +923,45 @@ const DynamicPage = () => {
           This page has no content yet.
         </div>
       )}
+
+      {/* Floating Global Updates Section for Main Portal */}
+      {tenant && tenant.id === 0 && isNoticeVisible && pageSlug === 'home' && (
+        <div className="flex flex-col fixed bottom-4 left-4 right-4 lg:bottom-auto lg:left-auto lg:top-32 lg:right-8 z-[90] lg:w-[400px] bg-black/70 backdrop-blur-lg rounded-2xl border border-white/20 shadow-2xl overflow-hidden min-h-[150px] lg:min-h-[250px] transition-all">
+          {/* Header */}
+          <div className="relative text-center py-2 lg:py-3 border-b border-white/20 bg-white/5 shrink-0">
+            <h3 className="text-lg lg:text-2xl font-bold text-white tracking-wide">Notice</h3>
+            <button 
+              onClick={() => setIsNoticeVisible(false)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+              aria-label="Close Notice"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          
+          {/* Single Latest Content Area */}
+          {latestUpdate ? (
+            <div className="p-4 lg:p-6 flex flex-col justify-center flex-1 cursor-pointer hover:bg-white/10 transition-colors"
+                 onClick={() => setSelectedItem({ type: latestUpdate._type, data: latestUpdate })}>
+              <div className="flex justify-between items-start mb-2 lg:mb-4">
+                <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">{latestUpdate._type}</span>
+                <span className="text-xs text-gray-300 font-medium bg-white/10 px-2 py-1 rounded">
+                  {latestUpdate._date.toLocaleString('default', { month: 'short' })} {latestUpdate._date.getDate()}
+                </span>
+              </div>
+              <h4 className="text-base lg:text-xl font-bold text-white mb-2 lg:mb-3 line-clamp-2 leading-tight">{latestUpdate.title}</h4>
+              <p className="text-xs lg:text-sm text-gray-200 line-clamp-2 lg:line-clamp-3 leading-relaxed">
+                {latestUpdate._type === 'notice' ? latestUpdate.content : latestUpdate.description}
+              </p>
+            </div>
+          ) : (
+            <div className="flex-1 p-4 lg:p-6 flex flex-col items-center justify-center text-center opacity-70">
+              <p className="text-white text-sm lg:text-base font-medium">No recent updates.</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {renderModal()}
     </div>
   );

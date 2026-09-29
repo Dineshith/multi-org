@@ -58,7 +58,7 @@ const PublicLayout = () => {
       }
     });
   });
-  
+
   pages.forEach(p => {
     // Support new dropdownItems and migrate old menuGroups
     const subItems = p.dropdownItems || p.menuGroups || [];
@@ -104,7 +104,7 @@ const PublicLayout = () => {
       <header className="sticky top-0 z-50 bg-[#111860] shadow-md">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16">
           <div className="flex justify-between items-center h-16">
-            
+
             {/* Left: Logo/Name */}
             <Link to={`/org/${tenant.slug}`} className="flex items-center flex-shrink-0 space-x-2 sm:space-x-3">
               {tenant.branding?.logo ? (
@@ -116,16 +116,16 @@ const PublicLayout = () => {
               )}
               <div className="text-xl sm:text-2xl font-extrabold text-white tracking-tight truncate max-w-[150px] sm:max-w-xs md:max-w-sm">{tenant.name}</div>
             </Link>
-            
+
             {/* Middle: Navigation Links */}
             <nav className="hidden lg:flex flex-1 justify-center space-x-2 lg:space-x-6">
               {navItems.map(item => {
                 if (item.type === 'standalone') {
                   const isActive = currentPath === item.link;
                   return (
-                    <Link 
-                      key={item.id} 
-                      to={item.link} 
+                    <Link
+                      key={item.id}
+                      to={item.link}
                       className={`text-white font-medium text-sm transition-all border-b-2 py-5 px-2 ${isActive ? 'opacity-100 border-white' : 'opacity-90 border-transparent hover:opacity-100 hover:border-white'}`}
                     >
                       {item.label}
@@ -136,34 +136,34 @@ const PublicLayout = () => {
                   return (
                     <div key={item.id} className="relative group flex items-center">
                       <button type="button" onClick={(e) => e.preventDefault()} className={`text-white font-medium text-sm transition-all border-b-2 py-5 px-2 flex items-center space-x-1 cursor-pointer ${isActive ? 'opacity-100 border-white' : 'opacity-90 border-transparent hover:opacity-100 hover:border-white'}`}>
-                      <span>{item.label}</span>
-                      <span className="font-bold text-lg leading-none w-3 text-center inline-block">
-                        <span className="group-hover:hidden">+</span>
-                        <span className="hidden group-hover:inline">-</span>
-                      </span>
-                    </button>
-                    <div className="absolute top-full left-0 mt-0 w-56 bg-white shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 rounded-b-md overflow-hidden">
-                      <div className="py-2 flex flex-col">
-                        {item.children.map(child => (
-                          <Link key={child.id} to={child.link} className="px-5 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors border-l-4 border-transparent hover:border-indigo-600">
-                            {child.label}
-                          </Link>
-                        ))}
+                        <span>{item.label}</span>
+                        <span className="font-bold text-lg leading-none w-3 text-center inline-block">
+                          <span className="group-hover:hidden">+</span>
+                          <span className="hidden group-hover:inline">-</span>
+                        </span>
+                      </button>
+                      <div className="absolute top-full left-0 mt-0 w-56 bg-white shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 rounded-b-md overflow-hidden">
+                        <div className="py-2 flex flex-col">
+                          {item.children.map(child => (
+                            <Link key={child.id} to={child.link} className="px-5 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors border-l-4 border-transparent hover:border-indigo-600">
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
                   );
                 }
               })}
             </nav>
-            
+
             {/* Right: Sister Organizations and Mobile Toggle */}
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
               <div className="hidden sm:flex items-center space-x-2">
                 {standaloneSisterOrgs.map((sister) => (
-                  <a 
-                    key={sister.id} 
-                    href={sister.link} 
+                  <a
+                    key={sister.id}
+                    href={sister.link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-3 sm:px-5 py-1.5 sm:py-2 bg-[#d32f2f] hover:bg-[#b71c1c] text-white text-xs sm:text-sm font-bold rounded shadow-sm transition-colors uppercase tracking-wider whitespace-nowrap"
@@ -172,7 +172,7 @@ const PublicLayout = () => {
                   </a>
                 ))}
               </div>
-              <button 
+              <button
                 className="lg:hidden p-2 text-white hover:bg-white/10 rounded-md transition-colors -mr-2"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="Toggle mobile menu"
@@ -196,9 +196,8 @@ const PublicLayout = () => {
                       key={item.id}
                       to={item.link}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-                        isActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10 hover:text-white'
-                      }`}
+                      className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${isActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10 hover:text-white'
+                        }`}
                     >
                       {item.label}
                     </Link>
@@ -206,21 +205,20 @@ const PublicLayout = () => {
                 } else {
                   const isActive = item.children.some(c => currentPath === c.link);
                   const isExpanded = expandedMobileMenus[item.id];
-                  
+
                   return (
                     <div key={item.id} className="space-y-1">
                       <button
                         onClick={() => toggleMobileMenu(item.id)}
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-                          isActive ? 'bg-white/10 text-white' : 'text-white/90 hover:bg-white/10 hover:text-white'
-                        }`}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-base font-medium transition-colors ${isActive ? 'bg-white/10 text-white' : 'text-white/90 hover:bg-white/10 hover:text-white'
+                          }`}
                       >
                         <span>{item.label}</span>
                         <span className="text-xl leading-none w-4 text-center">
                           {isExpanded ? '-' : '+'}
                         </span>
                       </button>
-                      
+
                       {isExpanded && (
                         <div className="pl-6 pr-4 py-2 space-y-1 bg-black/20 rounded-lg mx-2">
                           {item.children.map(child => {
@@ -230,9 +228,8 @@ const PublicLayout = () => {
                                 key={child.id}
                                 to={child.link}
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={`block px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${
-                                  childActive ? 'text-white bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
-                                }`}
+                                className={`block px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${childActive ? 'text-white bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
+                                  }`}
                               >
                                 {child.label}
                               </Link>
@@ -244,15 +241,15 @@ const PublicLayout = () => {
                   );
                 }
               })}
-              
+
               {/* Mobile Sister Orgs */}
               {standaloneSisterOrgs.length > 0 && (
                 <div className="pt-4 mt-4 border-t border-white/10 sm:hidden flex flex-col space-y-3 px-2">
                   <span className="px-2 text-xs font-semibold text-white/50 uppercase tracking-wider">Other Portals</span>
                   {standaloneSisterOrgs.map((sister) => (
-                    <a 
-                      key={sister.id} 
-                      href={sister.link} 
+                    <a
+                      key={sister.id}
+                      href={sister.link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block w-full px-4 py-3 text-center bg-[#d32f2f] hover:bg-[#b71c1c] text-white text-sm font-bold rounded-lg shadow-sm transition-colors uppercase tracking-wider"
@@ -276,7 +273,7 @@ const PublicLayout = () => {
       <footer className="bg-[#000066] text-white pt-12 pb-6">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-12 items-start">
-            
+
             {/* Column 1: Logo and Name */}
             <div className="lg:col-span-5 flex items-center space-x-4">
               {tenant.footer?.logo ? (
@@ -327,7 +324,7 @@ const PublicLayout = () => {
               <div>
                 <h4 className="text-base font-semibold mb-4 tracking-wide text-left lg:text-center">Location</h4>
                 {tenant.footer?.mapUrl ? (
-                  <iframe 
+                  <iframe
                     src={tenant.footer.mapUrl}
                     title="Location Map"
                     className="w-48 h-32 border-2 border-green-600 rounded-sm shadow-sm bg-gray-200"
