@@ -12,6 +12,8 @@ export const createOrganization = async (req, res) => {
       address,
       map_link,
       logo_url,
+      about_image_url,
+      why_us_image_url,
       website,
       why_us,
     } = req.body;
@@ -52,10 +54,12 @@ export const createOrganization = async (req, res) => {
     address,
     map_link,
     logo_url,
+    about_image_url,
+    why_us_image_url,
     website,
     why_us
   )
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
     const values = [
@@ -68,6 +72,8 @@ export const createOrganization = async (req, res) => {
       address || null,
       map_link || null,
       logo_url || null,
+      about_image_url || null,
+      why_us_image_url || null,
       website || null,
       why_us || null,
     ];
@@ -153,6 +159,8 @@ export const updateOrganization = async (req, res) => {
       address,
       map_link,
       logo_url,
+      about_image_url,
+      why_us_image_url,
       website,
       why_us,
     } = req.body;
@@ -228,6 +236,8 @@ export const updateOrganization = async (req, res) => {
         address = ?,
         map_link = ?,
         logo_url = ?,
+        about_image_url = ?,
+        why_us_image_url = ?,
         website = ?,
         why_us = ?
       WHERE slug = ?
@@ -243,6 +253,8 @@ export const updateOrganization = async (req, res) => {
       address ?? existing[0].address,
       map_link ?? existing[0].map_link,
       logo_url ?? existing[0].logo_url,
+      about_image_url ?? existing[0].about_image_url,
+      why_us_image_url ?? existing[0].why_us_image_url,
       website ?? existing[0].website,
 
       why_us !== undefined ? JSON.stringify(whyUsData) : existing[0].why_us,

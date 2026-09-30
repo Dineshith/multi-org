@@ -6,7 +6,8 @@ const getOrganizationHome = async (req, res) => {
 
         const [organizations] = await db.query(
             `SELECT id, name, slug, type, description, email, phone,
-                    address, map_link, logo_url, website, why_us
+                    address, map_link, logo_url, about_image_url,
+                    why_us_image_url, website, why_us
              FROM organizations
              WHERE slug = ?
              LIMIT 1`,
@@ -116,8 +117,8 @@ const getOrganizationHome = async (req, res) => {
 const getActiveOrganization = async (slug) => {
     const [organizations] = await db.query(
         `SELECT id, name, slug, type, description, email, phone, address,
-                map_link, logo_url,
-                website, why_us
+            map_link, logo_url, about_image_url, why_us_image_url,
+            website, why_us
          FROM organizations
              WHERE slug = ?
          LIMIT 1`,
@@ -151,11 +152,11 @@ const getOrganizationAbout = async (req, res) => {
                 hero: banners[0] || null,
                 about: {
                     description: organization.description,
-                    image_url: organization.logo_url
+                    image_url: organization.about_image_url || organization.logo_url
                 },
                 why_us: {
                     items: organization.why_us || [],
-                    image_url: organization.logo_url
+                    image_url: organization.why_us_image_url || organization.logo_url
                 }
             }
         });

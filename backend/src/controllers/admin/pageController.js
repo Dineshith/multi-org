@@ -21,7 +21,7 @@ const updateOrganizationProfile = async (req, res) => {
 
         const allowedFields = [
             "description", "email", "phone", "address", "map_link", "logo_url",
-            "website", "why_us"
+            "about_image_url", "why_us_image_url", "website", "why_us"
         ];
         const updates = {};
 
