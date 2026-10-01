@@ -2,9 +2,7 @@ import db from "../config/db.js";
 import fs from "fs";
 import path from "path";
 
-// =====================================
-// GET ALL GALLERY IMAGES
-// =====================================
+// GET all gallery images
 
 export const getGalleryImages = async (req, res) => {
   try {
@@ -35,9 +33,7 @@ export const getGalleryImages = async (req, res) => {
   }
 };
 
-// =====================================
-// GET IMAGES BY GALLERY
-// =====================================
+// GET images by gallery
 
 export const getImagesByGallery = async (req, res) => {
   try {
@@ -74,9 +70,7 @@ export const getImagesByGallery = async (req, res) => {
   }
 };
 
-// =====================================
-// ADD GALLERY IMAGE
-// =====================================
+// ADD gallery image
 
 export const addGalleryImage = async (req, res) => {
   try {
@@ -167,9 +161,7 @@ export const addGalleryImage = async (req, res) => {
   }
 };
 
-// =====================================
-// UPDATE GALLERY IMAGE
-// =====================================
+// UPDATE gallery image
 
 export const updateGalleryImage = async (req, res) => {
   try {
@@ -277,9 +269,7 @@ export const updateGalleryImage = async (req, res) => {
   }
 };
 
-// =====================================
-// DELETE GALLERY IMAGE
-// =====================================
+// DELETE gallery image
 
 export const deleteGalleryImage = async (req, res) => {
   try {

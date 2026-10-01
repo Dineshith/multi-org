@@ -10,9 +10,7 @@ import {
 
 const router = express.Router();
 
-// =====================================
 // Upload folder
-// =====================================
 
 const uploadDir = "./public/images/home";
 
@@ -22,9 +20,7 @@ if (!fs.existsSync(uploadDir)) {
   });
 }
 
-// =====================================
-// Multer Storage
-// =====================================
+// Multer storage
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -41,9 +37,7 @@ const storage = multer.diskStorage({
   },
 });
 
-// =====================================
-// File Filter
-// =====================================
+// File filter
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif/;
@@ -69,9 +63,7 @@ const upload = multer({
   },
 });
 
-// =====================================
-// Routes
-// =====================================
+// Banner routes
 
 // Get current banner
 router.get("/", getBanner);

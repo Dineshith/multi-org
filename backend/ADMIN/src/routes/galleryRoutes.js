@@ -12,29 +12,19 @@ import upload from "../middleware/multerconfig.js";
 
 const router = express.Router();
 
-// =====================================
-// GET ALL GALLERIES
-// =====================================
+// GET all galleries
 router.get("/", getGallery);
 
-// =====================================
-// GET SINGLE GALLERY
-// =====================================
+// GET single gallery
 router.get("/:id", getGalleryById);
 
-// =====================================
-// ADD GALLERY
-// =====================================
+// ADD gallery
 router.post("/", upload.single("image"), addGallery);
 
-// =====================================
-// UPDATE GALLERY
-// =====================================
+// UPDATE gallery
 router.put("/:id", upload.single("image"), updateGallery);
 
-// =====================================
-// DELETE GALLERY
-// =====================================
+// DELETE gallery
 router.delete("/:id", deleteGallery);
 
 export default router;

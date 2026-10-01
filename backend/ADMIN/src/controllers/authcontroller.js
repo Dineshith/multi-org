@@ -2,9 +2,7 @@ import db from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// ===============================
-// SETUP ADMIN
-// ===============================
+// SETUP admin
 const setupAdmin = async (req, res) => {
     try {
         const { fullName, email, password } = req.body;
@@ -64,9 +62,7 @@ const setupAdmin = async (req, res) => {
 };
 
 
-// ===============================
-// ADMIN LOGIN
-// ===============================
+// ADMIN login
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -177,9 +173,7 @@ const login = async (req, res) => {
 };
 
 
-// ===============================
-// GET LOGGED-IN ADMIN PROFILE
-// ===============================
+// GET logged-in admin profile
 const getProfile = async (req, res) => {
     try {
         // Check authentication
@@ -241,9 +235,7 @@ const getProfile = async (req, res) => {
 };
 
 
-// ===============================
 // EXPORT
-// ===============================
 export {
     setupAdmin,
     login,

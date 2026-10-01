@@ -66,7 +66,7 @@ const createPage = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Organization is required" });
     }
-    let finalSlug = slug || generateSlug(title, db);
+    let finalSlug = slug || (await generateSlug(title, db));
     const [result] = await db.query(
       `INSERT INTO pages (organization_id, title, slug, sections) VALUES (?, ?, ?, ?)`,
       [
@@ -76,14 +76,12 @@ const createPage = async (req, res) => {
         sections ? JSON.stringify(sections) : null,
       ],
     );
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Page created successfully",
-        pageId: result.insertId,
-        slug: finalSlug,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Page created successfully",
+      pageId: result.insertId,
+      slug: finalSlug,
+    });
   } catch (error) {
     console.error("Create page error:", error);
     res.status(500).json({ success: false, message: "Failed to create page" });
@@ -94,54 +92,84 @@ const updatePage = async (req, res) => {
   try {
     const { id } = req.params;
     const { orgId, scoped } = getOrgFilter(req);
-    let checkQuery, checkParams;
+
+    let checkQuery;
+    let checkParams;
+
     if (scoped) {
-      checkQuery = `SELECT * FROM pages WHERE id = ? AND organization_id = ? LIMIT 1`;
+      checkQuery = `
+        SELECT *
+        FROM pages
+        WHERE id = ? AND organization_id = ?
+        LIMIT 1
+      `;
       checkParams = [id, orgId];
     } else {
-      checkQuery = `SELECT * FROM pages WHERE id = ? LIMIT 1`;
+      checkQuery = `
+        SELECT *
+        FROM pages
+        WHERE id = ?
+        LIMIT 1
+      `;
       checkParams = [id];
     }
+
     const [existing] = await db.query(checkQuery, checkParams);
+
     if (existing.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Page not found" });
-    }
-    const page = existing[0];
-    const { title, slug, sections } = req.body;
-    let finalSlug = slug;
-    if (!finalSlug && title && title !== page.title) {
-      finalSlug = await generateSlug(title, db);
-    } else if (!finalSlug) {
-      finalSlug = page.slug;
-    }
-    await db.query(
-      `UPDATE pages SET title = ?, slug = ?, sections = ? WHERE id = ?`,
-      [
-        title ?? page.title,
-        finalSlug,
-        sections !== undefined
-          ? sections
-            ? JSON.stringify(sections)
-            : null
-          : page.sections,
-        id,
-      ],
-    );
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Page updated successfully",
-        slug: finalSlug,
+      return res.status(404).json({
+        success: false,
+        message: "Page not found",
       });
+    }
+
+    const page = existing[0];
+
+    const title = req.body.title ?? page.title;
+
+    let finalSlug = page.slug;
+
+    if (req.body.slug) {
+      finalSlug = req.body.slug;
+    } else if (req.body.title && req.body.title !== page.title) {
+      finalSlug = await generateSlug(req.body.title, db);
+    }
+
+    let sectionsValue = null;
+
+    if (req.body.sections !== undefined) {
+      sectionsValue = JSON.stringify(req.body.sections);
+    } else if (page.sections !== null) {
+      sectionsValue = JSON.stringify(page.sections);
+    }
+
+    await db.query(
+      `UPDATE pages
+       SET title = ?, slug = ?, sections = ?
+       WHERE id = ?`,
+      [
+        title,
+        finalSlug,
+        sectionsValue,
+        id,
+      ]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Page updated successfully",
+      slug: finalSlug,
+    });
+
   } catch (error) {
     console.error("Update page error:", error);
-    res.status(500).json({ success: false, message: "Failed to update page" });
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update page",
+    });
   }
 };
-
 const deletePage = async (req, res) => {
   try {
     const { id } = req.params;

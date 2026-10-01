@@ -1,8 +1,6 @@
 import db from "../config/db.js";
 
-// =====================================
-// GET ALL GALLERY
-// =====================================
+// GET all galleries
 export const getGallery = async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -34,9 +32,7 @@ export const getGallery = async (req, res) => {
 };
 
 
-// =====================================
-// GET SINGLE GALLERY
-// =====================================
+// GET single gallery
 export const getGalleryById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,9 +74,7 @@ export const getGalleryById = async (req, res) => {
 };
 
 
-// =====================================
-// ADD GALLERY
-// =====================================
+// ADD gallery
 export const addGallery = async (req, res) => {
   try {
     const { title, description } = req.body;
@@ -124,9 +118,7 @@ export const addGallery = async (req, res) => {
 };
 
 
-// =====================================
-// UPDATE GALLERY
-// =====================================
+// UPDATE gallery
 export const updateGallery = async (req, res) => {
   try {
     const { id } = req.params;
@@ -193,9 +185,7 @@ export const updateGallery = async (req, res) => {
 };
 
 
-// =====================================
-// DELETE GALLERY
-// =====================================
+// DELETE gallery
 export const deleteGallery = async (req, res) => {
   try {
     const { id } = req.params;
