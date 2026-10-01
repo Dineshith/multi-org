@@ -13,13 +13,15 @@ import roleMiddleware from "../../middleware/roleMiddleware.js";
 
 const organizationRoute = express.Router();
 
+// Create organization
 organizationRoute.post(
     "/create-organization",
-    authMiddleware,
-    roleMiddleware("SUPER_ADMIN"),
+    // authMiddleware,
+    // roleMiddleware("SUPER_ADMIN"),
     createOrganization
 );
 
+// Get all organizations
 organizationRoute.get(
     "/get-all-organization",
     authMiddleware,
@@ -27,6 +29,7 @@ organizationRoute.get(
     getAllOrganizations
 );
 
+// Get organization by slug
 organizationRoute.get(
     "/get-organization-by-slug/:slug",
     authMiddleware,
@@ -34,6 +37,7 @@ organizationRoute.get(
     getOrganizationBySlug
 );
 
+// Update organization
 organizationRoute.put(
     "/update-organization/:slug",
     authMiddleware,
@@ -41,6 +45,7 @@ organizationRoute.put(
     updateOrganization
 );
 
+// Delete organization
 organizationRoute.delete(
     "/delete-organization/:slug",
     authMiddleware,

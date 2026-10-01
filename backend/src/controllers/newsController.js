@@ -1,19 +1,28 @@
 import db from "../config/db.js";
+import generateSlug from "../utils/generateSlug.js";
+
+const getOrgFilter = (req) => {
+  const user = req.user;
+  if (user.role === "SUPER_ADMIN") {
+    return { orgId: null, scoped: false };
+  }
+  return { orgId: user.organization_id, scoped: true };
+};
 
 const getAllNews = async (req, res) => {
   try {
-    const [news] = await db.query(`
-            SELECT
-                n.*,
-                o.name AS organization_name,
-                nc.name AS category_name
-            FROM news n
-            LEFT JOIN organizations o
-                ON n.organization_id = o.id
-            LEFT JOIN news_categories nc
-                ON n.category_id = nc.id
-            ORDER BY n.news_date DESC
-        `);
+    const { orgId, scoped } = getOrgFilter(req);
+
+    let query, params;
+    if (scoped) {
+      query = `SELECT * FROM news WHERE organization_id = ? ORDER BY created_at DESC`;
+      params = [orgId];
+    } else {
+      query = `SELECT * FROM news ORDER BY created_at DESC`;
+      params = [];
+    }
+
+    const [news] = await db.query(query, params);
 
     res.status(200).json({
       success: true,
@@ -21,7 +30,6 @@ const getAllNews = async (req, res) => {
     });
   } catch (error) {
     console.error("Get news error:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch news",
@@ -32,22 +40,18 @@ const getAllNews = async (req, res) => {
 const getNewsById = async (req, res) => {
   try {
     const { id } = req.params;
+    const { orgId, scoped } = getOrgFilter(req);
 
-    const [news] = await db.query(
-      `
-            SELECT
-                n.*,
-                o.name AS organization_name,
-                nc.name AS category_name
-            FROM news n
-            LEFT JOIN organizations o
-                ON n.organization_id = o.id
-            LEFT JOIN news_categories nc
-                ON n.category_id = nc.id
-            WHERE n.id = ?
-        `,
-      [id],
-    );
+    let query, params;
+    if (scoped) {
+      query = `SELECT * FROM news WHERE id = ? AND organization_id = ? LIMIT 1`;
+      params = [id, orgId];
+    } else {
+      query = `SELECT * FROM news WHERE id = ? LIMIT 1`;
+      params = [id];
+    }
+
+    const [news] = await db.query(query, params);
 
     if (news.length === 0) {
       return res.status(404).json({
@@ -62,7 +66,6 @@ const getNewsById = async (req, res) => {
     });
   } catch (error) {
     console.error("Get news error:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch news",
@@ -70,51 +73,57 @@ const getNewsById = async (req, res) => {
   }
 };
 
-// CREATE NEWS
 const createNews = async (req, res) => {
   try {
+    const { orgId, scoped } = getOrgFilter(req);
     const {
-      organization_id,
-      category_id,
-      created_by,
       title,
-      description,
-      image_url,
-      news_date,
-      status,
+      slug,
+      excerpt,
+      content,
+      featured_image,
+      published,
+      publish_on_main_portal,
     } = req.body;
 
-    if (!organization_id || !title || !news_date) {
+    if (!title) {
       return res.status(400).json({
         success: false,
-        message: "Organization, title and news date are required",
+        message: "Title is required",
       });
     }
 
+    const organization_id = scoped ? orgId : req.body.organization_id;
+
+    if (!organization_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Organization is required",
+      });
+    }
+
+    let finalSlug = slug;
+    if (!finalSlug) {
+      finalSlug = await generateSlug(title, db);;
+    }
+
+    const isPublished = published === true || published === "true";
+    const published_at = isPublished ? new Date() : null;
+
     const [result] = await db.query(
-      `
-            INSERT INTO news
-            (
-                organization_id,
-                category_id,
-                created_by,
-                title,
-                description,
-                image_url,
-                news_date,
-                status
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `,
+      `INSERT INTO news
+        (organization_id, title, slug, excerpt, content, featured_image, published, published_at, publish_on_main_portal)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         organization_id,
-        category_id || null,
-        created_by || null,
         title,
-        description || null,
-        image_url || null,
-        news_date,
-        status || "PUBLISHED",
+        finalSlug,
+        excerpt || null,
+        content || null,
+        featured_image || null,
+        isPublished,
+        published_at,
+        publish_on_main_portal === true || publish_on_main_portal === "true",
       ],
     );
 
@@ -122,10 +131,10 @@ const createNews = async (req, res) => {
       success: true,
       message: "News created successfully",
       newsId: result.insertId,
+      slug: finalSlug,
     });
   } catch (error) {
     console.error("Create news error:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to create news",
@@ -133,63 +142,93 @@ const createNews = async (req, res) => {
   }
 };
 
-// UPDATE NEWS
 const updateNews = async (req, res) => {
   try {
     const { id } = req.params;
+    const { orgId, scoped } = getOrgFilter(req);
 
-    const {
-      organization_id,
-      category_id,
-      created_by,
-      title,
-      description,
-      image_url,
-      news_date,
-      status,
-    } = req.body;
+    let checkQuery, checkParams;
+    if (scoped) {
+      checkQuery = `SELECT * FROM news WHERE id = ? AND organization_id = ? LIMIT 1`;
+      checkParams = [id, orgId];
+    } else {
+      checkQuery = `SELECT * FROM news WHERE id = ? LIMIT 1`;
+      checkParams = [id];
+    }
 
-    const [result] = await db.query(
-      `
-            UPDATE news
-            SET
-                organization_id = ?,
-                category_id = ?,
-                created_by = ?,
-                title = ?,
-                description = ?,
-                image_url = ?,
-                news_date = ?,
-                status = ?
-            WHERE id = ?
-        `,
-      [
-        organization_id,
-        category_id || null,
-        created_by || null,
-        title,
-        description || null,
-        image_url || null,
-        news_date,
-        status,
-        id,
-      ],
-    );
+    const [existing] = await db.query(checkQuery, checkParams);
 
-    if (result.affectedRows === 0) {
+    if (existing.length === 0) {
       return res.status(404).json({
         success: false,
         message: "News not found",
       });
     }
 
+    const news = existing[0];
+
+    const {
+      title,
+      slug,
+      excerpt,
+      content,
+      featured_image,
+      published,
+      publish_on_main_portal,
+    } = req.body;
+
+    let finalSlug = slug;
+    if (!finalSlug && title && title !== news.title) {
+      finalSlug = await generateSlug(title, db);
+    } else if (!finalSlug) {
+      finalSlug = news.slug;
+    }
+
+    const isPublished =
+      published !== undefined
+        ? published === true || published === "true"
+        : news.published;
+
+    let published_at = news.published_at;
+    if (isPublished && !news.published_at) {
+      published_at = new Date();
+    } else if (!isPublished) {
+      published_at = null;
+    }
+
+    await db.query(
+      `UPDATE news SET
+        title = ?,
+        slug = ?,
+        excerpt = ?,
+        content = ?,
+        featured_image = ?,
+        published = ?,
+        published_at = ?,
+        publish_on_main_portal = ?
+      WHERE id = ?`,
+      [
+        title ?? news.title,
+        finalSlug,
+        excerpt ?? news.excerpt,
+        content ?? news.content,
+        featured_image ?? news.featured_image,
+        isPublished,
+        published_at,
+        publish_on_main_portal !== undefined
+          ? publish_on_main_portal === true || publish_on_main_portal === "true"
+          : news.publish_on_main_portal,
+        id,
+      ],
+    );
+
     res.status(200).json({
       success: true,
       message: "News updated successfully",
+      slug: finalSlug,
     });
   } catch (error) {
     console.error("Update news error:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to update news",
@@ -197,12 +236,21 @@ const updateNews = async (req, res) => {
   }
 };
 
-// DELETE NEWS
 const deleteNews = async (req, res) => {
   try {
     const { id } = req.params;
+    const { orgId, scoped } = getOrgFilter(req);
 
-    const [result] = await db.query("DELETE FROM news WHERE id = ?", [id]);
+    let query, params;
+    if (scoped) {
+      query = `DELETE FROM news WHERE id = ? AND organization_id = ?`;
+      params = [id, orgId];
+    } else {
+      query = `DELETE FROM news WHERE id = ?`;
+      params = [id];
+    }
+
+    const [result] = await db.query(query, params);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -217,7 +265,6 @@ const deleteNews = async (req, res) => {
     });
   } catch (error) {
     console.error("Delete news error:", error);
-
     res.status(500).json({
       success: false,
       message: "Failed to delete news",
