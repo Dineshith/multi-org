@@ -12,6 +12,7 @@ import staffRoutes from "./src/routes/staffRoutes.js";
 import pageRoutes from "./src/routes/pageRoutes.js";
 import newsRoutes from "./src/routes/newsRoutes.js";
 import eventRoutes from "./src/routes/eventRoutes.js";
+import dashboardRoute from "./src/routes/admin/dashboardRoute.js";
 
 dotenv.config();
 
@@ -21,8 +22,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// AUTH ROUTES
-// Super Admin authentication
+// AUTH and resource routes
 app.use("/api/auth", authRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/notices", noticeRoutes);
@@ -30,10 +30,11 @@ app.use("/api/admin/organizations", organizationRoute);
 app.use("/api/users", userRoutes);
 app.use("/api/settings", settingRoutes);
 app.use("/api/staff", staffRoutes);
-app.use("/api/page", pageRoutes);
+app.use("/api/pages", pageRoutes);
 app.use("/api/news", newsRoutes);
-app.use("/api/event", eventRoutes);
-// Test route
+app.use("/api/events", eventRoutes);
+app.use("/api/admin/dashboard", dashboardRoute);
+// Health check
 app.get("/", (req, res) => {
     res.send("Backend server is running");
 });

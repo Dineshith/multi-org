@@ -2,9 +2,7 @@ import db from "../config/db.js";
 import fs from "fs";
 import path from "path";
 
-// =====================================
-// GET ALL NOTICES
-// =====================================
+// GET all notices
 
 const getAllNotices = async (req, res) => {
     try {
@@ -29,9 +27,7 @@ const getAllNotices = async (req, res) => {
 };
 
 
-// =====================================
-// GET SINGLE NOTICE
-// =====================================
+// GET single notice
 
 const getNoticeById = async (req, res) => {
     try {
@@ -66,9 +62,7 @@ const getNoticeById = async (req, res) => {
 };
 
 
-// =====================================
-// CREATE NOTICE
-// =====================================
+// CREATE notice
 
 const createNotice = async (req, res) => {
     try {
@@ -157,9 +151,7 @@ const createNotice = async (req, res) => {
 };
 
 
-// =====================================
-// UPDATE NOTICE
-// =====================================
+// UPDATE notice
 
 const updateNotice = async (req, res) => {
     try {
@@ -341,9 +333,7 @@ const updateNotice = async (req, res) => {
 };
 
 
-// =====================================
-// DELETE NOTICE
-// =====================================
+// DELETE notice
 
 const deleteNotice = async (req, res) => {
     try {
@@ -407,9 +397,7 @@ const deleteNotice = async (req, res) => {
 };
 
 
-// =====================================
 // EXPORT
-// =====================================
 
 export {
     getAllNotices,

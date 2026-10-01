@@ -104,7 +104,7 @@ const createNews = async (req, res) => {
 
     let finalSlug = slug;
     if (!finalSlug) {
-      finalSlug = generateSlug(title, pool);
+      finalSlug = await generateSlug(title, db);;
     }
 
     const isPublished = published === true || published === "true";

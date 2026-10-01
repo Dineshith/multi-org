@@ -2,9 +2,7 @@ import db from "../config/db.js";
 import fs from "fs";
 import path from "path";
 
-// =====================================
-// GET BANNER
-// =====================================
+// GET banner
 export const getBanner = async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -28,9 +26,7 @@ export const getBanner = async (req, res) => {
   }
 };
 
-// =====================================
-// UPDATE / CREATE BANNER
-// =====================================
+// UPDATE or CREATE banner
 export const updateBanner = async (req, res) => {
   try {
     const { name } = req.body;

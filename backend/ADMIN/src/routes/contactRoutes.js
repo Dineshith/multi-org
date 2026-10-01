@@ -12,16 +12,11 @@ import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
-// =====================================
-// PUBLIC ROUTE
-// User can send contact message
-// =====================================
+// Public route: users can send a contact message
 router.post("/", createContact);
 
 
-// =====================================
-// ADMIN ROUTES
-// =====================================
+// Admin routes
 
 // Get all contact messages
 router.get(

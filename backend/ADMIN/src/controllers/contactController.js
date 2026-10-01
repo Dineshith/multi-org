@@ -1,8 +1,6 @@
 import db from "../config/db.js";
 
-// =====================================
-// CREATE CONTACT MESSAGE
-// =====================================
+// CREATE contact message
 const createContact = async (req, res) => {
     try {
         const {
@@ -58,9 +56,7 @@ const createContact = async (req, res) => {
 };
 
 
-// =====================================
-// GET ALL CONTACT MESSAGES - ADMIN
-// =====================================
+// GET all contact messages (admin)
 const getAllContacts = async (req, res) => {
     try {
         const [contacts] = await db.query(
@@ -86,9 +82,7 @@ const getAllContacts = async (req, res) => {
 };
 
 
-// =====================================
-// GET SINGLE CONTACT - ADMIN
-// =====================================
+// GET single contact (admin)
 const getContactById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -122,9 +116,7 @@ const getContactById = async (req, res) => {
 };
 
 
-// =====================================
-// DELETE CONTACT - ADMIN
-// =====================================
+// DELETE contact (admin)
 const deleteContact = async (req, res) => {
     try {
         const { id } = req.params;
@@ -158,9 +150,7 @@ const deleteContact = async (req, res) => {
 };
 
 
-// =====================================
 // EXPORT
-// =====================================
 export {
     createContact,
     getAllContacts,
