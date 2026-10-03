@@ -13,13 +13,15 @@ import pageRoutes from "./src/routes/pageRoutes.js";
 import newsRoutes from "./src/routes/newsRoutes.js";
 import eventRoutes from "./src/routes/eventRoutes.js";
 import dashboardRoute from "./src/routes/admin/dashboardRoute.js";
+import passwordResetRequestRoute from "./src/routes/admin/passwordResetRequestRoute.js";
+import publicRoutes from "./src/routes/publicRoutes.js";
 
 dotenv.config();
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors("http://localhost:5173")); //full frontend access, empty-give access to all
 app.use(express.json());
 
 // AUTH and resource routes
@@ -34,6 +36,11 @@ app.use("/api/pages", pageRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/admin/dashboard", dashboardRoute);
+app.use("/api/admin/password-requests", passwordResetRequestRoute);
+
+// Public (unauthenticated) tenant site routes
+app.use("/api/public", publicRoutes);
+
 // Health check
 app.get("/", (req, res) => {
     res.send("Backend server is running");

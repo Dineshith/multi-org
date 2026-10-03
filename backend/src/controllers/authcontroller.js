@@ -7,7 +7,6 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validation
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -15,7 +14,6 @@ const login = async (req, res) => {
             });
         }
 
-        // Find user
         const [users] = await db.query(
             `
             SELECT
@@ -44,7 +42,6 @@ const login = async (req, res) => {
             [email]
         );
 
-        // User not found
         if (users.length === 0) {
             return res.status(401).json({
                 success: false,
@@ -54,7 +51,7 @@ const login = async (req, res) => {
 
         const user = users[0];
 
-        // Org Admin can login only if organization is active
+        // ORG_ADMIN can only log in while their org is active.
         if (
             user.role === "ORG_ADMIN" &&
             user.organization_status !== "ACTIVE"
@@ -65,7 +62,6 @@ const login = async (req, res) => {
             });
         }
 
-        // Check password
         const isPasswordValid = await bcrypt.compare(
             password,
             user.password_hash
@@ -78,7 +74,6 @@ const login = async (req, res) => {
             });
         }
 
-        // Create JWT
         const token = jwt.sign(
             {
                 id: user.id,
@@ -180,12 +175,17 @@ const forgotPassword = async (req, res) => {
             });
         }
 
-        // Find user
         const [users] = await db.query(
             `
-            SELECT id
-            FROM users
-            WHERE email = ?
+            SELECT
+                u.id,
+                u.organization_id,
+                u.name,
+                o.name AS organization_name
+            FROM users u
+            LEFT JOIN organizations o
+                ON u.organization_id = o.id
+            WHERE u.email = ?
             LIMIT 1
             `,
             [email]
@@ -202,15 +202,9 @@ const forgotPassword = async (req, res) => {
 
         const user = users[0];
 
-        // Generate reset token
         const resetToken = crypto.randomBytes(32).toString("hex");
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-        // Token expires in 15 minutes
-        const expiresAt = new Date(
-            Date.now() + 15 * 60 * 1000
-        );
-
-        // Save token
         await db.query(
             `
             INSERT INTO password_reset_tokens
@@ -220,8 +214,24 @@ const forgotPassword = async (req, res) => {
             [user.id, resetToken, expiresAt]
         );
 
-        // Temporary:
-        console.log("PASSWORD RESET TOKEN:", resetToken);
+        // Queued for super admin approval; token stays hidden until accepted.
+        await db.query(
+            `
+            INSERT INTO password_reset_requests
+            (user_id, organization_id, org_name, admin_name, admin_email, status, token)
+            VALUES (?, ?, ?, ?, ?, 'PENDING', ?)
+            `,
+            [
+                user.id,
+                user.organization_id,
+                user.organization_name || null,
+                user.name,
+                user.email,
+                resetToken,
+            ]
+        );
+
+        console.log("PASSWORD RESET REQUEST QUEUED FOR:", email);
 
         return res.status(200).json({
             success: true,
@@ -258,7 +268,6 @@ const resetPassword = async (req, res) => {
             });
         }
 
-        // Find valid reset token
         const [tokens] = await db.query(
             `
             SELECT
@@ -282,13 +291,12 @@ const resetPassword = async (req, res) => {
 
         const resetToken = tokens[0];
 
-        // Hash new password
+        // token_version bump invalidates existing JWTs.
         const passwordHash = await bcrypt.hash(
             newPassword,
             10
         );
 
-        // Update password
         await db.query(
             `
             UPDATE users
@@ -300,7 +308,6 @@ const resetPassword = async (req, res) => {
             [passwordHash, resetToken.user_id]
         );
 
-        // Mark reset token as used
         await db.query(
             `
             UPDATE password_reset_tokens
@@ -327,8 +334,7 @@ const resetPassword = async (req, res) => {
 // LOGOUT
 const logout = async (req, res) => {
     try {
-        // Increase token version
-        // This will invalidate the current JWT
+        // Bump token version to invalidate the current JWT
         await db.query(
             `
             UPDATE users

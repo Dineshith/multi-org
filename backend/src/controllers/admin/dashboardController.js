@@ -16,7 +16,7 @@ export const getDashboardData = async (req, res) => {
   try {
     const { orgId, scoped, isSuperAdmin } = getOrgFilter(req);
 
-    // If super admin and no org requested, provide super-admin dashboard view
+    // Super admin without an org gets the platform-wide view.
     if (!scoped && isSuperAdmin) {
       return await getSuperAdminDashboard(req, res);
     }
@@ -28,7 +28,6 @@ export const getDashboardData = async (req, res) => {
       });
     }
 
-    // 1. Fetch organization details
     const [orgRows] = await db.query(
       `
       SELECT 
@@ -50,7 +49,6 @@ export const getDashboardData = async (req, res) => {
 
     const organization = orgRows[0];
 
-    // Notices
     const [noticeStats] = await db.query(
       `
       SELECT 
@@ -63,7 +61,6 @@ export const getDashboardData = async (req, res) => {
       [orgId]
     );
 
-    // Events
     const [eventStats] = await db.query(
       `
       SELECT 
@@ -76,19 +73,16 @@ export const getDashboardData = async (req, res) => {
       [orgId]
     );
 
-    // Staff
     const [staffStats] = await db.query(
       `SELECT COUNT(*) AS total FROM staff WHERE organization_id = ?`,
       [orgId]
     );
 
-    // Pages
     const [pageStats] = await db.query(
       `SELECT COUNT(*) AS total FROM pages WHERE organization_id = ?`,
       [orgId]
     );
 
-    // News
     const [newsStats] = await db.query(
       `
       SELECT 
@@ -100,7 +94,7 @@ export const getDashboardData = async (req, res) => {
       [orgId]
     );
 
-    // Students (safe check)
+    // Students table is optional
     let totalStudents = 0;
     try {
       const [studentStats] = await db.query(
@@ -112,7 +106,7 @@ export const getDashboardData = async (req, res) => {
       totalStudents = 0;
     }
 
-    // Courses (safe check)
+    // Courses table is optional
     let totalCourses = 0;
     let distinctDisciplines = 0;
     try {
@@ -139,7 +133,6 @@ export const getDashboardData = async (req, res) => {
     const totalPages = Number(pageStats[0]?.total) || 0;
     const totalNews = Number(newsStats[0]?.total) || 0;
 
-    // 3. Recent Notices (latest 5)
     const [recentNotices] = await db.query(
       `
       SELECT 
@@ -153,7 +146,6 @@ export const getDashboardData = async (req, res) => {
       [orgId]
     );
 
-    // 4. Upcoming Events (latest 5 upcoming or recent)
     const [upcomingEvents] = await db.query(
       `
       SELECT 
@@ -170,7 +162,6 @@ export const getDashboardData = async (req, res) => {
       [orgId]
     );
 
-    // 5. Recent Staff (latest 5)
     const [recentStaff] = await db.query(
       `
       SELECT 
@@ -184,7 +175,6 @@ export const getDashboardData = async (req, res) => {
       [orgId]
     );
 
-    // 6. Recent Pages (latest 5)
     const [recentPages] = await db.query(
       `
       SELECT id, organization_id, title, slug, created_at, updated_at
@@ -196,7 +186,7 @@ export const getDashboardData = async (req, res) => {
       [orgId]
     );
 
-    // 7. Combined Activity Stream
+    // Merge recent items into one feed, newest first.
     const activities = [
       ...recentNotices.map((n) => ({
         id: `notice-${n.id}`,
@@ -224,7 +214,6 @@ export const getDashboardData = async (req, res) => {
       })),
     ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 8);
 
-    // 8. Stat Cards (formatted for OrgAdmin Dashboard cards)
     const statCards = [
       {
         id: "notices",
@@ -303,7 +292,6 @@ export const getDashboardData = async (req, res) => {
 
 const getSuperAdminDashboard = async (req, res) => {
   try {
-    // Organizations stats
     const [orgStats] = await db.query(`
       SELECT 
         COUNT(*) AS total,
@@ -312,7 +300,6 @@ const getSuperAdminDashboard = async (req, res) => {
       FROM organizations
     `);
 
-    // Users stats
     const [userStats] = await db.query(`
       SELECT 
         COUNT(*) AS total,
@@ -321,13 +308,11 @@ const getSuperAdminDashboard = async (req, res) => {
       FROM users
     `);
 
-    // Global counts
     const [noticeStats] = await db.query(`SELECT COUNT(*) AS total FROM notices`);
     const [eventStats] = await db.query(`SELECT COUNT(*) AS total FROM events`);
     const [staffStats] = await db.query(`SELECT COUNT(*) AS total FROM staff`);
     const [pageStats] = await db.query(`SELECT COUNT(*) AS total FROM pages`);
 
-    // Recent organizations
     const [recentOrgs] = await db.query(`
       SELECT id, name, type, slug, email, phone, logo_url, status, created_at
       FROM organizations
@@ -402,7 +387,7 @@ const getSuperAdminDashboard = async (req, res) => {
 };
 
 
-//  Quick summary of cards and key numbers.
+// Quick summary of cards and key numbers.
 export const getDashboardStats = async (req, res) => {
   try {
     const { orgId, scoped, isSuperAdmin } = getOrgFilter(req);
@@ -445,7 +430,7 @@ export const getDashboardStats = async (req, res) => {
     return res.status(500).json({ success: false, message: "Failed to fetch stats", error: error.message });
   }
 };
-// Returns latest notices scoped to the organization for the dashboard widget.
+// Latest notices scoped to the organization.
 export const getDashboardNotices = async (req, res) => {
   try {
     const { orgId } = getOrgFilter(req);

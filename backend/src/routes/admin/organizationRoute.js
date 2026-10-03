@@ -16,8 +16,8 @@ const organizationRoute = express.Router();
 // Create organization
 organizationRoute.post(
     "/create-organization",
-    // authMiddleware,
-    // roleMiddleware("SUPER_ADMIN"),
+    authMiddleware,
+    roleMiddleware("SUPER_ADMIN"),
     createOrganization
 );
 
@@ -37,11 +37,11 @@ organizationRoute.get(
     getOrganizationBySlug
 );
 
-// Update organization
+// Update organization (ORG_ADMIN limited to their own org by the controller).
 organizationRoute.put(
     "/update-organization/:slug",
     authMiddleware,
-    roleMiddleware("SUPER_ADMIN"),
+    roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"),
     updateOrganization
 );
 
