@@ -13,6 +13,7 @@ import pageRoutes from "./src/routes/pageRoutes.js";
 import newsRoutes from "./src/routes/newsRoutes.js";
 import eventRoutes from "./src/routes/eventRoutes.js";
 import dashboardRoute from "./src/routes/admin/dashboardRoute.js";
+import publicRoutes from "./src/routes/publicRoutes.js";
 
 dotenv.config();
 
@@ -34,6 +35,10 @@ app.use("/api/pages", pageRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/admin/dashboard", dashboardRoute);
+
+// Public (unauthenticated) tenant site routes
+app.use("/api/public", publicRoutes);
+
 // Health check
 app.get("/", (req, res) => {
     res.send("Backend server is running");
