@@ -1,8 +1,4 @@
 import db from "../config/db.js";
-
-// The reset token is created up-front by /api/auth/forgot-password but is only
-// ever revealed once a super admin approves the request, so the queue can hold
-// pending rows without leaking a working token.
 const LIST_COLUMNS = `id, user_id, organization_id, org_name, admin_name,
       admin_email, status, handled_by, handled_at, created_at`;
 
@@ -67,7 +63,6 @@ const getPasswordResetRequestById = async (req, res) => {
   }
 };
 
-// Approving or rejecting a request is a one-way transition out of PENDING.
 const updatePasswordResetRequest = async (req, res) => {
   try {
     const { id } = req.params;
@@ -107,8 +102,7 @@ const updatePasswordResetRequest = async (req, res) => {
       [normalized, req.user.id, id],
     );
 
-    if (normalized === "ACCEPTED") {
-      // Surface the token so it can be emailed; resetPassword() consumes it.
+    if (normalized === "ACCEPTED") {        // Expose token for emailing; resetPassword() consumes it.
       const [approved] = await db.query(
         `SELECT token FROM password_reset_requests WHERE id = ? LIMIT 1`,
         [id],
@@ -121,7 +115,7 @@ const updatePasswordResetRequest = async (req, res) => {
         approved[0]?.token,
       );
     } else {
-      // A rejected request must not stay usable.
+
       await db.query(
         `UPDATE password_reset_tokens
          SET used = TRUE

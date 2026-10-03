@@ -21,7 +21,7 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors("http://localhost:5173")); //full frontend access, empty-give access to all
 app.use(express.json());
 
 // AUTH and resource routes

@@ -11,8 +11,7 @@ const parseJson = (value, fallback) => {
   }
 };
 
-// Keeps the API response shape stable for the frontend regardless of whether
-// mysql2 returned JSON columns as parsed values or raw strings.
+// Normalizes page sections/dropdowns for a stable API shape.
 const shapePage = (page) => ({
   ...page,
   sections: parseJson(page.sections, []),

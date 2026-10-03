@@ -1,9 +1,7 @@
 import pool from "../../config/db.js";
 import generateSlug from "../../utils/generateSlug.js";
 
-// --- helpers -------------------------------------------------------------
-// JSON columns come back from mysql2 as parsed objects, but a hand-inserted
-// row (or a MySQL build that keeps them as strings) can still yield text.
+// JSON columns may arrive as raw strings, so parse defensively.
 const parseJsonColumn = (value, fallback) => {
   if (value === null || value === undefined) return fallback;
   if (typeof value !== "string") return value;
@@ -17,7 +15,7 @@ const parseJsonColumn = (value, fallback) => {
 const serializeJsonColumn = (value, fallback) =>
   JSON.stringify(value ?? fallback);
 
-// Keeps the frontend's nested branding/footer/stats objects in one place.
+// Shapes branding/footer/stats for the frontend.
 const shapeOrganization = (row) => {
   const branding = parseJsonColumn(row.branding, null);
   const footerConfig = parseJsonColumn(row.footer_config, null);
@@ -44,10 +42,9 @@ const shapeOrganization = (row) => {
   };
 };
 
-// Accepted keys of the `branding` object. `logo` is accepted for convenience
-// but the canonical column is organizations.logo_url.
-const BRANDING_FIELDS = ["primaryColor", "secondaryColor", "logo"];// A brand new organization would otherwise have no public site at all, so
-// create the same starter pages the previous localStorage flow generated.
+// Accepted keys of the `branding` object (`logo` maps to organizations.logo_url).
+const BRANDING_FIELDS = ["primaryColor", "secondaryColor", "logo"];
+
 const DEFAULT_MAP_URL =
   "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.8142900902094!2d85.31694677617478!3d27.69213407619131!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19b19295555f%3A0xabfe5f4b310f97de!2sThe%20British%20College%2C%20Kathmandu!5e0!3m2!1sen!2snp";
 
@@ -173,80 +170,75 @@ const seedStarterPages = async (organizationId, name, type) => {
         page.slug,
         JSON.stringify(page.sections),
         JSON.stringify([]),
-      ]
+      ],
     );
   }
 };
 
 // CREATE ORGANIZATION
 export const createOrganization = async (req, res) => {
-    try {
-        const {
-            name,
-            type,
-            email,
-            phone,
-            logo_url,
-            address,
-            map_link,
-            status,
-            footer_description,
-            copyright_text,
-            branding,
-            stats_banner,
-            sister_organizations,
-            footer_config
-        } = req.body;
+  try {
+    const {
+      name,
+      type,
+      email,
+      phone,
+      logo_url,
+      address,
+      map_link,
+      status,
+      footer_description,
+      copyright_text,
+      branding,
+      stats_banner,
+      sister_organizations,
+      footer_config,
+    } = req.body;
 
-        // Required fields
-        if (!name || !type || !email) {
-            return res.status(400).json({
-                message: "Name, type and email are required"
-            });
-        }
+    if (!name || !type || !email) {
+      return res.status(400).json({
+        message: "Name, type and email are required",
+      });
+    }
 
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({
-                message: "Invalid email address"
-            });
-        }
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Invalid email address",
+      });
+    }
 
-        // Nepal phone validation
-        if (phone) {
-            const phoneRegex = /^(?:\+977|977)?9[6-8]\d{8}$/;
+    // Nepal mobile format: +977 98XXXXXXXX
+    if (phone) {
+      const phoneRegex = /^(?:\+977|977)?9[6-8]\d{8}$/;
 
-            if (!phoneRegex.test(phone)) {
-                return res.status(400).json({
-                    message: "Invalid Nepal phone number"
-                });
-            }
-        }
+      if (!phoneRegex.test(phone)) {
+        return res.status(400).json({
+          message: "Invalid Nepal phone number",
+        });
+      }
+    }
 
-        // Status validation
-        if (status && !["ACTIVE", "INACTIVE"].includes(status)) {
-            return res.status(400).json({
-                message: "Status must be ACTIVE or INACTIVE"
-            });
-        }
+    if (status && !["ACTIVE", "INACTIVE"].includes(status)) {
+      return res.status(400).json({
+        message: "Status must be ACTIVE or INACTIVE",
+      });
+    }
 
-        // Validate branding object
-        if (
-            branding &&
-            typeof branding === "object" &&
-            Object.keys(branding).some((key) => !BRANDING_FIELDS.includes(key))
-        ) {
-            return res.status(400).json({
-                message: `Invalid branding fields. Allowed: ${BRANDING_FIELDS.join(", ")}`
-            });
-        }
+    if (
+      branding &&
+      typeof branding === "object" &&
+      Object.keys(branding).some((key) => !BRANDING_FIELDS.includes(key))
+    ) {
+      return res.status(400).json({
+        message: `Invalid branding fields. Allowed: ${BRANDING_FIELDS.join(", ")}`,
+      });
+    }
 
-        // Generate unique slug
-        const slug = await generateSlug(name, pool);
+    const slug = await generateSlug(name, pool);
 
-        const sql = `
+    const sql = `
             INSERT INTO organizations
             (
                 name,
@@ -268,198 +260,191 @@ export const createOrganization = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        const values = [
-            name,
-            type,
-            slug,
-            email,
-            phone || null,
-            logo_url || null,
-            address || null,
-            map_link || null,
-            status || "ACTIVE",
-            footer_description || null,
-            copyright_text || null,
-            serializeJsonColumn(branding, null),
-            serializeJsonColumn(stats_banner, []),
-            serializeJsonColumn(sister_organizations, []),
-            serializeJsonColumn(footer_config, null)
-        ];
+    const values = [
+      name,
+      type,
+      slug,
+      email,
+      phone || null,
+      logo_url || null,
+      address || null,
+      map_link || null,
+      status || "ACTIVE",
+      footer_description || null,
+      copyright_text || null,
+      serializeJsonColumn(branding, null),
+      serializeJsonColumn(stats_banner, []),
+      serializeJsonColumn(sister_organizations, []),
+      serializeJsonColumn(footer_config, null),
+    ];
 
-        const [result] = await pool.execute(sql, values);
+    const [result] = await pool.execute(sql, values);
 
-        // Give the new tenant a usable starting site instead of a blank one.
-        await seedStarterPages(result.insertId, name, type);
+    // Seed starter pages so the tenant site isn't empty.
+    await seedStarterPages(result.insertId, name, type);
 
-        return res.status(201).json({
-            message: "Organization created successfully",
-            organizationId: result.insertId,
-            slug
-        });
+    return res.status(201).json({
+      message: "Organization created successfully",
+      organizationId: result.insertId,
+      slug,
+    });
+  } catch (error) {
+    console.error("Create organization error:", error);
 
-    } catch (error) {
-        console.error("Create organization error:", error);
-
-        return res.status(500).json({
-            message: "Failed to create organization"
-        });
-    }
+    return res.status(500).json({
+      message: "Failed to create organization",
+    });
+  }
 };
 // GET ALL ORGANIZATIONS
 export const getAllOrganizations = async (req, res) => {
-    try {
-        const [rows] = await pool.execute(`
+  try {
+    const [rows] = await pool.execute(`
             SELECT *
             FROM organizations
             ORDER BY id DESC
         `);
 
-        return res.status(200).json({
-            message: "Organizations fetched successfully",
-            data: rows.map(shapeOrganization)
-        });
+    return res.status(200).json({
+      message: "Organizations fetched successfully",
+      data: rows.map(shapeOrganization),
+    });
+  } catch (error) {
+    console.error("Get all organizations error:", error);
 
-    } catch (error) {
-        console.error("Get all organizations error:", error);
-
-        return res.status(500).json({
-            message: "Failed to fetch organizations"
-        });
-    }
+    return res.status(500).json({
+      message: "Failed to fetch organizations",
+    });
+  }
 };
 // GET ORGANIZATION BY SLUG
 export const getOrganizationBySlug = async (req, res) => {
-    try {
-        const { slug } = req.params;
+  try {
+    const { slug } = req.params;
 
-        const [rows] = await pool.execute(
-            `
+    const [rows] = await pool.execute(
+      `
                 SELECT *
                 FROM organizations
                 WHERE slug = ?
                 LIMIT 1
             `,
-            [slug]
-        );
+      [slug],
+    );
 
-        if (rows.length === 0) {
-            return res.status(404).json({
-                message: "Organization not found"
-            });
-        }
-
-        return res.status(200).json({
-            message: "Organization fetched successfully",
-            data: shapeOrganization(rows[0])
-        });
-
-    } catch (error) {
-        console.error("Get organization by slug error:", error);
-
-        return res.status(500).json({
-            message: "Failed to fetch organization"
-        });
+    if (rows.length === 0) {
+      return res.status(404).json({
+        message: "Organization not found",
+      });
     }
+
+    return res.status(200).json({
+      message: "Organization fetched successfully",
+      data: shapeOrganization(rows[0]),
+    });
+  } catch (error) {
+    console.error("Get organization by slug error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch organization",
+    });
+  }
 };
 // UPDATE ORGANIZATION
 export const updateOrganization = async (req, res) => {
-    try {
-        const { slug } = req.params;
+  try {
+    const { slug } = req.params;
 
-        const {
-            name,
-            type,
-            email,
-            phone,
-            logo_url,
-            address,
-            map_link,
-            status,
-            footer_description,
-            copyright_text,
-            branding,
-            stats_banner,
-            sister_organizations,
-            footer_config
-        } = req.body;
+    const {
+      name,
+      type,
+      email,
+      phone,
+      logo_url,
+      address,
+      map_link,
+      status,
+      footer_description,
+      copyright_text,
+      branding,
+      stats_banner,
+      sister_organizations,
+      footer_config,
+    } = req.body;
 
-        // Validate branding object
-        if (
-            branding &&
-            typeof branding === "object" &&
-            Object.keys(branding).some((key) => !BRANDING_FIELDS.includes(key))
-        ) {
-            return res.status(400).json({
-                message: `Invalid branding fields. Allowed: ${BRANDING_FIELDS.join(", ")}`
-            });
-        }
+    if (
+      branding &&
+      typeof branding === "object" &&
+      Object.keys(branding).some((key) => !BRANDING_FIELDS.includes(key))
+    ) {
+      return res.status(400).json({
+        message: `Invalid branding fields. Allowed: ${BRANDING_FIELDS.join(", ")}`,
+      });
+    }
 
-        // Check organization exists
-        const [existing] = await pool.execute(
-            `
+    const [existing] = await pool.execute(
+      `
                 SELECT *
                 FROM organizations
                 WHERE slug = ?
                 LIMIT 1
             `,
-            [slug]
-        );
+      [slug],
+    );
 
-        if (existing.length === 0) {
-            return res.status(404).json({
-                message: "Organization not found"
-            });
-        }
+    if (existing.length === 0) {
+      return res.status(404).json({
+        message: "Organization not found",
+      });
+    }
 
-        const organization = existing[0];
+    const organization = existing[0];
 
-        // ORG_ADMIN may only edit their own organization
-        if (
-            req.user.role !== "SUPER_ADMIN" &&
-            organization.id !== req.user.organization_id
-        ) {
-            return res.status(403).json({
-                message: "You can only update your own organization"
-            });
-        }
+    // ORG_ADMIN may only edit their own organization
+    if (
+      req.user.role !== "SUPER_ADMIN" &&
+      organization.id !== req.user.organization_id
+    ) {
+      return res.status(403).json({
+        message: "You can only update your own organization",
+      });
+    }
 
-        // Email validation
-        if (email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (!emailRegex.test(email)) {
-                return res.status(400).json({
-                    message: "Invalid email address"
-                });
-            }
-        }
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          message: "Invalid email address",
+        });
+      }
+    }
 
-        // Nepal phone validation
-        if (phone) {
-            const phoneRegex = /^(?:\+977|977)?9[6-8]\d{8}$/;
+    // Nepal mobile format: +977 98XXXXXXXX
+    if (phone) {
+      const phoneRegex = /^(?:\+977|977)?9[6-8]\d{8}$/;
 
-            if (!phoneRegex.test(phone)) {
-                return res.status(400).json({
-                    message: "Invalid Nepal phone number"
-                });
-            }
-        }
+      if (!phoneRegex.test(phone)) {
+        return res.status(400).json({
+          message: "Invalid Nepal phone number",
+        });
+      }
+    }
 
-        // Status validation
-        if (status && !["ACTIVE", "INACTIVE"].includes(status)) {
-            return res.status(400).json({
-                message: "Status must be ACTIVE or INACTIVE"
-            });
-        }
+    if (status && !["ACTIVE", "INACTIVE"].includes(status)) {
+      return res.status(400).json({
+        message: "Status must be ACTIVE or INACTIVE",
+      });
+    }
 
-        // Generate new slug if name changes
-        let newSlug = organization.slug;
+    // Regenerate slug when the name changes.
+    let newSlug = organization.slug;
 
-        if (name && name !== organization.name) {
-            newSlug = await generateSlug(name, pool);
-        }
+    if (name && name !== organization.name) {
+      newSlug = await generateSlug(name, pool);
+    }
 
-        const sql = `
+    const sql = `
             UPDATE organizations
             SET
                 name = ?,
@@ -480,87 +465,96 @@ export const updateOrganization = async (req, res) => {
             WHERE slug = ?
         `;
 
-        const values = [
-            name ?? organization.name,
-            type ?? organization.type,
-            newSlug,
-            email ?? organization.email,
-            phone ?? organization.phone,
-            logo_url ?? organization.logo_url,
-            address ?? organization.address,
-            map_link ?? organization.map_link,
-            status ?? organization.status,
-            footer_description ?? organization.footer_description,
-            copyright_text ?? organization.copyright_text,
-            branding !== undefined
-                ? serializeJsonColumn(branding, null)
-                : serializeJsonColumn(parseJsonColumn(organization.branding, null), null),
-            stats_banner !== undefined
-                ? serializeJsonColumn(stats_banner, [])
-                : serializeJsonColumn(parseJsonColumn(organization.stats_banner, []), []),
-            sister_organizations !== undefined
-                ? serializeJsonColumn(sister_organizations, [])
-                : serializeJsonColumn(parseJsonColumn(organization.sister_organizations, []), []),
-            footer_config !== undefined
-                ? serializeJsonColumn(footer_config, null)
-                : serializeJsonColumn(parseJsonColumn(organization.footer_config, null), null),
-            slug
-        ];
+    const values = [
+      name ?? organization.name,
+      type ?? organization.type,
+      newSlug,
+      email ?? organization.email,
+      phone ?? organization.phone,
+      logo_url ?? organization.logo_url,
+      address ?? organization.address,
+      map_link ?? organization.map_link,
+      status ?? organization.status,
+      footer_description ?? organization.footer_description,
+      copyright_text ?? organization.copyright_text,
+      branding !== undefined
+        ? serializeJsonColumn(branding, null)
+        : serializeJsonColumn(
+            parseJsonColumn(organization.branding, null),
+            null,
+          ),
+      stats_banner !== undefined
+        ? serializeJsonColumn(stats_banner, [])
+        : serializeJsonColumn(
+            parseJsonColumn(organization.stats_banner, []),
+            [],
+          ),
+      sister_organizations !== undefined
+        ? serializeJsonColumn(sister_organizations, [])
+        : serializeJsonColumn(
+            parseJsonColumn(organization.sister_organizations, []),
+            [],
+          ),
+      footer_config !== undefined
+        ? serializeJsonColumn(footer_config, null)
+        : serializeJsonColumn(
+            parseJsonColumn(organization.footer_config, null),
+            null,
+          ),
+      slug,
+    ];
 
-        await pool.execute(sql, values);
+    await pool.execute(sql, values);
 
-        return res.status(200).json({
-            message: "Organization updated successfully",
-            slug: newSlug
-        });
+    return res.status(200).json({
+      message: "Organization updated successfully",
+      slug: newSlug,
+    });
+  } catch (error) {
+    console.error("Update organization error:", error);
 
-    } catch (error) {
-        console.error("Update organization error:", error);
-
-        return res.status(500).json({
-            message: "Failed to update organization"
-        });
-    }
+    return res.status(500).json({
+      message: "Failed to update organization",
+    });
+  }
 };
 // DELETE ORGANIZATION
 export const deleteOrganization = async (req, res) => {
-    try {
-        const { slug } = req.params;
+  try {
+    const { slug } = req.params;
 
-        // Check organization exists
-        const [existing] = await pool.execute(
-            `
+    const [existing] = await pool.execute(
+      `
                 SELECT id
                 FROM organizations
                 WHERE slug = ?
                 LIMIT 1
             `,
-            [slug]
-        );
+      [slug],
+    );
 
-        if (existing.length === 0) {
-            return res.status(404).json({
-                message: "Organization not found"
-            });
-        }
+    if (existing.length === 0) {
+      return res.status(404).json({
+        message: "Organization not found",
+      });
+    }
 
-        await pool.execute(
-            `
+    await pool.execute(
+      `
                 DELETE FROM organizations
                 WHERE slug = ?
             `,
-            [slug]
-        );
+      [slug],
+    );
 
-        return res.status(200).json({
-            message: "Organization deleted successfully"
-        });
+    return res.status(200).json({
+      message: "Organization deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete organization error:", error);
 
-    } catch (error) {
-        console.error("Delete organization error:", error);
-
-        return res.status(500).json({
-            message: "Failed to delete organization"
-        });
-    }
+    return res.status(500).json({
+      message: "Failed to delete organization",
+    });
+  }
 };

@@ -142,7 +142,6 @@ const createStaff = async (req, res) => {
     });
   }
 };
-
 const updateStaff = async (req, res) => {
   try {
     const { id } = req.params;

@@ -74,7 +74,6 @@ const createUser = async (req, res) => {
       });
     }
 
-    // Validate role
     const userRole = role || "ORG_ADMIN";
 
     if (!["SUPER_ADMIN", "ORG_ADMIN"].includes(userRole)) {
@@ -83,16 +82,12 @@ const createUser = async (req, res) => {
         message: "Invalid user role",
       });
     }
-
-    // SUPER_ADMIN should not belong to an organization
     if (userRole === "SUPER_ADMIN" && organization_id) {
       return res.status(400).json({
         success: false,
         message: "Super Admin cannot belong to an organization",
       });
     }
-
-    // ORG_ADMIN must belong to an organization
     if (userRole === "ORG_ADMIN" && !organization_id) {
       return res.status(400).json({
         success: false,
@@ -100,7 +95,6 @@ const createUser = async (req, res) => {
       });
     }
 
-    // Check organization exists
     if (userRole === "ORG_ADMIN") {
       const [organizations] = await db.query(
         `SELECT id FROM organizations WHERE id = ? LIMIT 1`,
@@ -115,7 +109,6 @@ const createUser = async (req, res) => {
       }
     }
 
-    // Check email
     const [existing] = await db.query(
       `SELECT id FROM users WHERE email = ? LIMIT 1`,
       [email]
@@ -213,7 +206,7 @@ const updateUser = async (req, res) => {
         });
       }
       password_hash = await bcrypt.hash(password, 10);
-      // Bump the version so JWTs issued before the change stop working.
+      // Invalidate existing JWTs.
       token_version = Number(user.token_version) + 1;
     }
 

@@ -37,8 +37,7 @@ organizationRoute.get(
     getOrganizationBySlug
 );
 
-// Update organization. ORG_ADMIN is allowed, but the controller restricts them
-// to the organization they belong to.
+// Update organization (ORG_ADMIN limited to their own org by the controller).
 organizationRoute.put(
     "/update-organization/:slug",
     authMiddleware,
