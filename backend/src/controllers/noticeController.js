@@ -76,7 +76,7 @@ const getNoticeById = async (req, res) => {
 const createNotice = async (req, res) => {
   try {
     const { orgId, scoped } = getOrgFilter(req);
-    const { title, content, published, publish_on_main_portal } = req.body;
+    const { title, content, image_url, published, publish_on_main_portal } = req.body;
 
     if (!title) {
       return res.status(400).json({
@@ -99,12 +99,13 @@ const createNotice = async (req, res) => {
 
     const [result] = await db.query(
       `INSERT INTO notices
-        (organization_id, title, content, published, published_at, publish_on_main_portal)
-        VALUES (?, ?, ?, ?, ?, ?)`,
+        (organization_id, title, content, image_url, published, published_at, publish_on_main_portal)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         organization_id,
         title,
         content || null,
+        image_url || null,
         isPublished,
         published_at,
         publish_on_main_portal === true || publish_on_main_portal === "true",
@@ -150,7 +151,7 @@ const updateNotice = async (req, res) => {
 
     const notice = existing[0];
 
-    const { title, content, published, publish_on_main_portal } = req.body;
+    const { title, content, image_url, published, publish_on_main_portal } = req.body;
 
     const isPublished =
       published !== undefined
@@ -168,6 +169,7 @@ const updateNotice = async (req, res) => {
       `UPDATE notices SET
         title = ?,
         content = ?,
+        image_url = ?,
         published = ?,
         published_at = ?,
         publish_on_main_portal = ?
@@ -175,6 +177,7 @@ const updateNotice = async (req, res) => {
       [
         title ?? notice.title,
         content ?? notice.content,
+        image_url !== undefined ? image_url : notice.image_url,
         isPublished,
         published_at,
         publish_on_main_portal !== undefined

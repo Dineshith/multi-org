@@ -183,9 +183,15 @@ const forgotPassword = async (req, res) => {
         // Find user
         const [users] = await db.query(
             `
-            SELECT id
-            FROM users
-            WHERE email = ?
+            SELECT
+                u.id,
+                u.organization_id,
+                u.name,
+                o.name AS organization_name
+            FROM users u
+            LEFT JOIN organizations o
+                ON u.organization_id = o.id
+            WHERE u.email = ?
             LIMIT 1
             `,
             [email]
@@ -220,8 +226,26 @@ const forgotPassword = async (req, res) => {
             [user.id, resetToken, expiresAt]
         );
 
+        // Queue the request for super admin approval. The token stays hidden
+        // until a super admin accepts the request.
+        await db.query(
+            `
+            INSERT INTO password_reset_requests
+            (user_id, organization_id, org_name, admin_name, admin_email, status, token)
+            VALUES (?, ?, ?, ?, ?, 'PENDING', ?)
+            `,
+            [
+                user.id,
+                user.organization_id,
+                user.organization_name || null,
+                user.name,
+                user.email,
+                resetToken,
+            ]
+        );
+
         // Temporary:
-        console.log("PASSWORD RESET TOKEN:", resetToken);
+        console.log("PASSWORD RESET REQUEST QUEUED FOR:", email);
 
         return res.status(200).json({
             success: true,

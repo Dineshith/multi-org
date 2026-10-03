@@ -204,6 +204,7 @@ const updateUser = async (req, res) => {
     }
 
     let password_hash = user.password_hash;
+    let token_version = user.token_version;
     if (password) {
       if (password.length < 6) {
         return res.status(400).json({
@@ -212,6 +213,8 @@ const updateUser = async (req, res) => {
         });
       }
       password_hash = await bcrypt.hash(password, 10);
+      // Bump the version so JWTs issued before the change stop working.
+      token_version = Number(user.token_version) + 1;
     }
 
     await db.query(
@@ -221,7 +224,8 @@ const updateUser = async (req, res) => {
         email = ?,
         password_hash = ?,
         profile_photo_url = ?,
-        role = ?
+        role = ?,
+        token_version = ?
       WHERE id = ?`,
       [
         organization_id !== undefined ? organization_id : user.organization_id,
@@ -232,6 +236,7 @@ const updateUser = async (req, res) => {
           ? profile_photo_url
           : user.profile_photo_url,
         role ?? user.role,
+        token_version,
         id,
       ],
     );

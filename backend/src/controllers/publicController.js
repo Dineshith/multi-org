@@ -2,7 +2,8 @@ import db from "../config/db.js";
 const getActiveOrgBySlug = async (slug) => {
   const [rows] = await db.query(
     `SELECT id, name, type, slug, email, phone, logo_url, address, map_link,
-            footer_description, copyright_text
+            footer_description, copyright_text, branding, stats_banner,
+            sister_organizations, footer_config
      FROM organizations
      WHERE slug = ? AND status = 'ACTIVE'
      LIMIT 1`,
@@ -11,32 +12,39 @@ const getActiveOrgBySlug = async (slug) => {
   return rows.length > 0 ? rows[0] : null;
 };
 
-const shapeOrganization = (org) => ({
-  id: org.id,
-  name: org.name,
-  type: org.type,
-  slug: org.slug,
-  email: org.email,
-  phone: org.phone,
-  address: org.address,
-  branding: {
-    logo: org.logo_url,
-    primaryColor: "#4f46e5",
-    secondaryColor: "#f8fafc",
-  },
-  footer: {
-    logo: org.logo_url,
-    description: org.footer_description || "",
-    facultyTitle: "Faculty",
-    facultyDetails: "",
-    contactTitle: "Contact Us",
-    contactInfo: [org.email, org.phone].filter(Boolean).join("\n"),
-    mapUrl: org.map_link || "",
-    copyrightText: org.copyright_text || "",
-  },
-  statsBanner: [],
-  sisterOrganizations: [],
-});
+const shapeOrganization = (org) => {
+  const branding = parseJson(org.branding) || {};
+  const footerConfig = parseJson(org.footer_config) || {};
+
+  return {
+    id: org.id,
+    name: org.name,
+    type: org.type,
+    slug: org.slug,
+    email: org.email,
+    phone: org.phone,
+    address: org.address,
+    branding: {
+      logo: org.logo_url || "",
+      primaryColor: branding.primaryColor || "#4f46e5",
+      secondaryColor: branding.secondaryColor || "#f8fafc",
+    },
+    footer: {
+      logo: org.logo_url || "",
+      description: org.footer_description || "",
+      facultyTitle: footerConfig.facultyTitle || "Faculty",
+      facultyDetails: footerConfig.facultyDetails || "",
+      contactTitle: footerConfig.contactTitle || "Contact Us",
+      contactInfo:
+        footerConfig.contactInfo ||
+        [org.email, org.phone].filter(Boolean).join("\n"),
+      mapUrl: org.map_link || "",
+      copyrightText: org.copyright_text || "",
+    },
+    statsBanner: parseJson(org.stats_banner) || [],
+    sisterOrganizations: parseJson(org.sister_organizations) || [],
+  };
+};
 
 const parseJson = (value) => {
   if (value === null || value === undefined) return null;
@@ -83,35 +91,39 @@ const getPublicPages = async (req, res) => {
     }
 
     const [pages] = await db.query(
-      `SELECT id, title, slug
+      `SELECT id, title, slug, dropdown_items
        FROM pages
        WHERE organization_id = ?
        ORDER BY created_at ASC`,
       [org.id],
     );
 
-    res.status(200).json({ success: true, pages });
+    res.status(200).json({
+      success: true,
+      pages: pages.map((page) => ({
+        id: page.id,
+        title: page.title,
+        slug: page.slug,
+        dropdownItems: parseJson(page.dropdown_items) || [],
+      })),
+    });
   } catch (error) {
     console.error("Get public pages error:", error);
     res
       .status(500)
       .json({ success: false, message: "Failed to fetch pages" });
   }
-};
-
-const getPublicPageBySlug = async (req, res) => {
+};const getPublicPageBySlug = async (req, res) => {
   try {
     const { slug, pageSlug } = req.params;
     const org = await getActiveOrgBySlug(slug);
 
     if (!org) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Organization not found" });
+      return res.status(404).json({ success: false, message: "Organization not found" });
     }
 
     const [pages] = await db.query(
-      `SELECT id, title, slug, sections
+      `SELECT id, title, slug, sections, dropdown_items
        FROM pages
        WHERE organization_id = ? AND slug = ?
        LIMIT 1`,
@@ -132,6 +144,7 @@ const getPublicPageBySlug = async (req, res) => {
         title: page.title,
         slug: page.slug,
         sections: parseJson(page.sections) || [],
+        dropdownItems: parseJson(page.dropdown_items) || [],
       },
     });
   } catch (error) {
@@ -154,7 +167,7 @@ const getPublicNotices = async (req, res) => {
     }
 
     const [notices] = await db.query(
-      `SELECT id, organization_id, title, content, published_at
+      `SELECT id, organization_id, title, content, image_url, published_at
        FROM notices
        WHERE organization_id = ?
          AND published = TRUE
@@ -170,6 +183,7 @@ const getPublicNotices = async (req, res) => {
         organizationId: notice.organization_id,
         title: notice.title,
         content: notice.content,
+        image: notice.image_url || "",
         publishedAt: notice.published_at,
       })),
     });
@@ -193,7 +207,7 @@ const getPublicEvents = async (req, res) => {
     }
 
     const [events] = await db.query(
-      `SELECT id, organization_id, title, description, event_date
+      `SELECT id, organization_id, title, description, image_url, event_date
        FROM events
        WHERE organization_id = ?
        ORDER BY event_date ASC`,
@@ -207,6 +221,7 @@ const getPublicEvents = async (req, res) => {
         organizationId: event.organization_id,
         title: event.title,
         description: event.description,
+        image: event.image_url || "",
         date: event.event_date,
       })),
     });
@@ -218,10 +233,49 @@ const getPublicEvents = async (req, res) => {
   }
 };
 
+const getPublicNews = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const org = await getActiveOrgBySlug(slug);
+
+    if (!org) {
+      return res.status(404).json({ success: false, message: "Organization not found" });
+    }
+
+    const [news] = await db.query(
+      `SELECT id, organization_id, title, slug, excerpt, content, featured_image, published_at
+       FROM news
+       WHERE organization_id = ?
+         AND published = TRUE
+         AND published_at IS NOT NULL
+       ORDER BY published_at DESC`,
+      [org.id],
+    );
+
+    res.status(200).json({
+      success: true,
+      news: news.map((item) => ({
+        id: item.id,
+        organizationId: item.organization_id,
+        title: item.title,
+        slug: item.slug,
+        excerpt: item.excerpt,
+        content: item.content,
+        image: item.featured_image || "",
+        publishedAt: item.published_at,
+      })),
+    });
+  } catch (error) {
+    console.error("Get public news error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch news" });
+  }
+};
+
 export {
   getPublicOrganization,
   getPublicPages,
   getPublicPageBySlug,
   getPublicNotices,
   getPublicEvents,
+  getPublicNews,
 };

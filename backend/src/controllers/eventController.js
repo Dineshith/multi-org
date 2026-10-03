@@ -51,7 +51,7 @@ const getEventById = async (req, res) => {
 const createEvent = async (req, res) => {
   try {
     const { orgId, scoped } = getOrgFilter(req);
-    const { title, description, event_date, publish_on_main_portal } = req.body;
+    const { title, description, image_url, event_date, publish_on_main_portal } = req.body;
     if (!title) {
       return res.status(400).json({ success: false, message: "Title is required" });
     }
@@ -60,12 +60,13 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ success: false, message: "Organization is required" });
     }
     const [result] = await db.query(
-      `INSERT INTO events (organization_id, title, description, event_date, publish_on_main_portal)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO events (organization_id, title, description, image_url, event_date, publish_on_main_portal)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         organization_id,
         title,
         description || null,
+        image_url || null,
         event_date || null,
         publish_on_main_portal === true || publish_on_main_portal === "true",
       ]
@@ -94,12 +95,13 @@ const updateEvent = async (req, res) => {
       return res.status(404).json({ success: false, message: "Event not found" });
     }
     const event = existing[0];
-    const { title, description, event_date, publish_on_main_portal } = req.body;
+    const { title, description, image_url, event_date, publish_on_main_portal } = req.body;
     await db.query(
-      `UPDATE events SET title = ?, description = ?, event_date = ?, publish_on_main_portal = ? WHERE id = ?`,
+      `UPDATE events SET title = ?, description = ?, image_url = ?, event_date = ?, publish_on_main_portal = ? WHERE id = ?`,
       [
         title ?? event.title,
         description ?? event.description,
+        image_url !== undefined ? image_url : event.image_url,
         event_date ?? event.event_date,
         publish_on_main_portal !== undefined
           ? (publish_on_main_portal === true || publish_on_main_portal === "true")

@@ -1,6 +1,24 @@
 import db from "../config/db.js";
 import generateSlug from "../utils/generateSlug.js";
 
+const parseJson = (value, fallback) => {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+};
+
+// Keeps the API response shape stable for the frontend regardless of whether
+// mysql2 returned JSON columns as parsed values or raw strings.
+const shapePage = (page) => ({
+  ...page,
+  sections: parseJson(page.sections, []),
+  dropdownItems: parseJson(page.dropdown_items, []),
+});
+
 const getOrgFilter = (req) => {
   const user = req.user;
   if (user.role === "SUPER_ADMIN") return { orgId: null, scoped: false };
@@ -19,7 +37,7 @@ const getAllPages = async (req, res) => {
       params = [];
     }
     const [pages] = await db.query(query, params);
-    res.status(200).json({ success: true, pages });
+    res.status(200).json({ success: true, pages: pages.map(shapePage) });
   } catch (error) {
     console.error("Get pages error:", error);
     res.status(500).json({ success: false, message: "Failed to fetch pages" });
@@ -44,7 +62,7 @@ const getPageById = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Page not found" });
     }
-    res.status(200).json({ success: true, page: pages[0] });
+    res.status(200).json({ success: true, page: shapePage(pages[0]) });
   } catch (error) {
     console.error("Get page error:", error);
     res.status(500).json({ success: false, message: "Failed to fetch page" });
@@ -54,7 +72,7 @@ const getPageById = async (req, res) => {
 const createPage = async (req, res) => {
   try {
     const { orgId, scoped } = getOrgFilter(req);
-    const { title, slug, sections } = req.body;
+    const { title, slug, sections, dropdown_items } = req.body;
     if (!title) {
       return res
         .status(400)
@@ -68,12 +86,13 @@ const createPage = async (req, res) => {
     }
     let finalSlug = slug || (await generateSlug(title, db));
     const [result] = await db.query(
-      `INSERT INTO pages (organization_id, title, slug, sections) VALUES (?, ?, ?, ?)`,
+      `INSERT INTO pages (organization_id, title, slug, sections, dropdown_items) VALUES (?, ?, ?, ?, ?)`,
       [
         organization_id,
         title,
         finalSlug,
         sections ? JSON.stringify(sections) : null,
+        JSON.stringify(dropdown_items || []),
       ],
     );
     res.status(201).json({
@@ -140,17 +159,24 @@ const updatePage = async (req, res) => {
     if (req.body.sections !== undefined) {
       sectionsValue = JSON.stringify(req.body.sections);
     } else if (page.sections !== null) {
-      sectionsValue = JSON.stringify(page.sections);
+      sectionsValue = JSON.stringify(parseJson(page.sections, []));
     }
+
+    let dropdownItemsValue = JSON.stringify(
+      req.body.dropdown_items !== undefined
+        ? req.body.dropdown_items
+        : parseJson(page.dropdown_items, [])
+    );
 
     await db.query(
       `UPDATE pages
-       SET title = ?, slug = ?, sections = ?
+       SET title = ?, slug = ?, sections = ?, dropdown_items = ?
        WHERE id = ?`,
       [
         title,
         finalSlug,
         sectionsValue,
+        dropdownItemsValue,
         id,
       ]
     );
