@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getNotices, getEvents } from '../../services/mockDbService';
+import { getNotices, getEvents } from '../../services/apiService';
 import { FileText, Calendar, Users as UsersIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -10,8 +10,13 @@ const Dashboard = () => {
   const [myEvents, setMyEvents] = useState([]);
   
   useEffect(() => {
-    setMyNotices(getNotices(user.organizationId));
-    setMyEvents(getEvents(user.organizationId));
+    const fetchData = async () => {
+      const notices = await getNotices(user.organizationId);
+      const events = await getEvents(user.organizationId);
+      setMyNotices(notices);
+      setMyEvents(events);
+    };
+    fetchData();
   }, [user.organizationId]);
 
   return (

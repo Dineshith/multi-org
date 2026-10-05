@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getNotices, createNotice, updateNotice, deleteNotice } from '../../services/mockDbService';
+import { getNotices, createNotice, updateNotice, deleteNotice } from '../../services/apiService';
 import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
 import Modal from '../../components/shared/Modal';
 
@@ -16,18 +16,19 @@ const Notices = () => {
     loadNotices();
   }, [user.organizationId]);
 
-  const loadNotices = () => {
-    setNotices(getNotices(user.organizationId));
+  const loadNotices = async () => {
+    const data = await getNotices(user.organizationId);
+    setNotices(data);
   };
 
-  const handleCreateNotice = (e) => {
+  const handleCreateNotice = async (e) => {
     e.preventDefault();
     if (editingId) {
-      updateNotice(editingId, newNotice);
+      await updateNotice(editingId, newNotice);
     } else {
-      createNotice(user.organizationId, newNotice);
+      await createNotice(user.organizationId, newNotice);
     }
-    loadNotices();
+    await loadNotices();
     setIsModalOpen(false);
     setNewNotice({ title: '', content: '', image: '', published: true, publishOnMainPortal: false });
     setEditingId(null);
@@ -54,10 +55,10 @@ const Notices = () => {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this notice?')) {
-      deleteNotice(id);
-      loadNotices();
+      await deleteNotice(id);
+      await loadNotices();
     }
   };
   

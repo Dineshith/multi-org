@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, FileText, Calendar, Image as ImageIcon, Settings, LogOut, Users, Newspaper } from 'lucide-react';
-import { getOrganization } from '../services/mockDbService';
+import apiClient from '../services/apiClient';
 
 const OrgAdminLayout = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -11,9 +11,22 @@ const OrgAdminLayout = () => {
   const [organization, setOrganization] = useState(null);
 
   useEffect(() => {
-    if (user && user.organizationId) {
-      setOrganization(getOrganization(user.organizationId));
-    }
+    const fetchOrg = async () => {
+      if (user && user.organizationId) {
+        try {
+          const res = await apiClient.get('/admin/dashboard');
+          if (res && res.data && res.data.organization) {
+            setOrganization(res.data.organization);
+          } else {
+            setOrganization({ name: user.organization_name });
+          }
+        } catch (e) {
+          console.error(e);
+          setOrganization({ name: user.organization_name });
+        }
+      }
+    };
+    fetchOrg();
   }, [user]);
 
   if (!isAuthenticated) {
@@ -44,16 +57,16 @@ const OrgAdminLayout = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-200 flex items-center space-x-3">
-          {organization?.branding?.logo ? (
-            <img src={organization.branding.logo} alt="Logo" className="w-10 h-10 rounded-md object-cover" />
+          {organization?.logo_url ? (
+            <img src={organization.logo_url} alt="Logo" className="w-10 h-10 rounded-md object-contain bg-white shadow-sm p-0.5" />
           ) : (
             <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-md flex items-center justify-center font-bold text-xl">
               {organization?.name?.charAt(0) || 'O'}
             </div>
           )}
           <div>
-            <h1 className="font-bold text-gray-900 leading-tight line-clamp-1">{organization?.name || 'Organization'}</h1>
-            <p className="text-xs text-gray-500">Admin Portal</p>
+            <h1 className="font-bold text-gray-900 leading-tight line-clamp-1" title={organization?.name || 'Organization'}>{organization?.name || 'Organization'}</h1>
+            <p className="text-xs text-gray-500 capitalize">{organization?.type ? `${organization.type} Admin Portal` : 'Admin Portal'}</p>
           </div>
         </div>
         

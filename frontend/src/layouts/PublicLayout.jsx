@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTenant } from '../context/TenantContext';
-import { getPages } from '../services/mockDbService';
+import { getPages } from '../services/apiService';
 import { Loader2, Menu, X } from 'lucide-react';
 
 const PublicLayout = () => {
@@ -13,9 +13,13 @@ const PublicLayout = () => {
   const [expandedMobileMenus, setExpandedMobileMenus] = useState({});
 
   useEffect(() => {
-    if (tenant) {
-      setPages(getPages(tenant.id));
-    }
+    const fetchPages = async () => {
+      if (tenant) {
+        const fetched = await getPages(tenant.id);
+        setPages([...fetched].sort((a, b) => a.id - b.id));
+      }
+    };
+    fetchPages();
   }, [tenant]);
 
   const toggleMobileMenu = (id) => {
@@ -107,8 +111,8 @@ const PublicLayout = () => {
 
             {/* Left: Logo/Name */}
             <Link to={`/org/${tenant.slug}`} className="flex items-center flex-shrink-0 space-x-2 sm:space-x-3">
-              {tenant.branding?.logo ? (
-                <img src={tenant.branding.logo} alt={tenant.name} className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-full bg-white p-0.5 shadow-sm" />
+              {tenant.logo_url ? (
+                <img src={tenant.logo_url} alt={tenant.name} className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-full bg-white p-0.5 shadow-sm" />
               ) : (
                 <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-lg sm:text-xl shadow-sm">
                   {tenant.name.charAt(0)}
@@ -276,8 +280,8 @@ const PublicLayout = () => {
 
             {/* Column 1: Logo and Name */}
             <div className="lg:col-span-5 flex items-center space-x-4">
-              {tenant.footer?.logo ? (
-                <img src={tenant.footer.logo} alt={tenant.name} className="w-20 h-20 rounded-full object-contain bg-white shadow-md p-1" />
+              {tenant.logo_url ? (
+                <img src={tenant.logo_url} alt={tenant.name} className="w-20 h-20 rounded-full object-contain bg-white shadow-md p-1" />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-2xl shadow-md">
                   {tenant.name.charAt(0)}
@@ -286,7 +290,7 @@ const PublicLayout = () => {
               <div className="flex flex-col">
                 <h3 className="text-3xl font-bold tracking-wide font-serif leading-tight">{tenant.name}</h3>
                 <p className="text-gray-300 text-sm mt-1">
-                  {tenant.footer?.description || tenant.address || 'Empowering education.'}
+                  {tenant.footer_description || tenant.address || 'Empowering education.'}
                 </p>
               </div>
             </div>
@@ -323,9 +327,9 @@ const PublicLayout = () => {
             <div className="lg:col-span-3 flex flex-col items-start lg:items-center">
               <div>
                 <h4 className="text-base font-semibold mb-4 tracking-wide text-left lg:text-center">Location</h4>
-                {tenant.footer?.mapUrl ? (
+                {(tenant.map_link || tenant.footer?.mapUrl) ? (
                   <iframe
-                    src={tenant.footer.mapUrl}
+                    src={tenant.map_link || tenant.footer?.mapUrl}
                     title="Location Map"
                     className="w-48 h-32 border-2 border-green-600 rounded-sm shadow-sm bg-gray-200"
                     loading="lazy"
@@ -339,9 +343,9 @@ const PublicLayout = () => {
             </div>
 
           </div>
-          {tenant.footer?.copyrightText && (
+          {(tenant.copyright_text || tenant.footer?.copyrightText) && (
             <div className="border-t border-white/20 pt-6 text-center text-gray-400 text-sm">
-              <p>{tenant.footer.copyrightText}</p>
+              <p>{tenant.copyright_text || tenant.footer?.copyrightText}</p>
             </div>
           )}
         </div>

@@ -1,11 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Lock, Building, Mail, Save, AlertCircle, Camera } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { updateUser } from '../../services/apiService';
+import { toast } from 'react-toastify';
 
 const Setting = () => {
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [profileImage, setProfileImage] = useState(null);
+  
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+  
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+    }
+  }, [user]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -17,6 +36,70 @@ const Setting = () => {
 
   const handleRemoveImage = () => {
     setProfileImage(null);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!user || !user.id) return;
+    setIsSaving(true);
+    const res = await updateUser(user.id, { name, email });
+    if (res && res.success) {
+      toast.success('Profile updated successfully!');
+      window.location.reload(); 
+    } else {
+      toast.error('Failed to update profile. Email might be in use.');
+    }
+    setIsSaving(false);
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!user || !user.id) return;
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+    setIsSavingPassword(true);
+    const res = await updateUser(user.id, { password });
+    if (res && res.success) {
+      toast.success('Password updated successfully!');
+      setPassword('');
+      setConfirmPassword('');
+    } else {
+      toast.error('Failed to update password.');
+    }
+    setIsSavingPassword(false);
+  };
+
+  const handleResetOrgPassword = async () => {
+    if (!resetEmail) {
+      toast.error("Please enter the organization admin's email.");
+      return;
+    }
+    setIsResetting(true);
+    // Find user by email
+    const { getUserByEmail } = await import('../../services/apiService');
+    const targetUser = await getUserByEmail(resetEmail);
+    
+    if (!targetUser) {
+      toast.error("No user found with that email address.");
+      setIsResetting(false);
+      return;
+    }
+
+    // Generate random 8 character password
+    const tempPassword = Math.random().toString(36).slice(-8);
+    
+    const res = await updateUser(targetUser.id, { password: tempPassword });
+    if (res && res.success) {
+      toast.success(`Password reset to: ${tempPassword}`, { autoClose: false });
+      setResetEmail('');
+    } else {
+      toast.error("Failed to reset password.");
+    }
+    setIsResetting(false);
   };
 
   return (
@@ -117,8 +200,9 @@ const Setting = () => {
                     </div>
                     <input
                       type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      defaultValue={user?.name || 'Super Admin'}
                     />
                   </div>
                 </div>
@@ -130,15 +214,20 @@ const Setting = () => {
                     </div>
                     <input
                       type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      defaultValue={user?.email || 'admin@educms.com'}
                     />
                   </div>
                 </div>
                 <div className="pt-4">
-                  <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                  <button 
+                    onClick={handleSaveProfile} 
+                    disabled={isSaving}
+                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:bg-blue-400"
+                  >
                     <Save size={18} />
-                    <span>Save Changes</span>
+                    <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
                   </button>
                 </div>
               </div>
@@ -164,6 +253,8 @@ const Setting = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
                   <input
                     type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
                     placeholder="••••••••"
                   />
@@ -172,13 +263,19 @@ const Setting = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
                   <input
                     type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
                     placeholder="••••••••"
                   />
                 </div>
                 <div className="pt-4">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                    Update Password
+                  <button 
+                    onClick={handleUpdatePassword}
+                    disabled={isSavingPassword || !password || !confirmPassword}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:bg-blue-400"
+                  >
+                    {isSavingPassword ? 'Updating...' : 'Update Password'}
                   </button>
                 </div>
               </div>
@@ -221,14 +318,20 @@ const Setting = () => {
                     </div>
                     <input
                       type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
                       placeholder="admin@kathmanducollege.edu.np"
                     />
                   </div>
                 </div>
                 <div className="pt-4">
-                  <button className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                    Reset Organization Password
+                  <button 
+                    onClick={handleResetOrgPassword}
+                    disabled={isResetting || !resetEmail}
+                    className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:bg-amber-300"
+                  >
+                    {isResetting ? 'Resetting...' : 'Reset Organization Password'}
                   </button>
                 </div>
               </div>

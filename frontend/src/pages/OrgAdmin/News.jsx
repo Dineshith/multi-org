@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, Calendar, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { getNews, createNews, updateNews, deleteNews } from '../../services/apiService';
 
 const News = () => {
   const { user } = useAuth();
   
-  const [newsList, setNewsList] = useState(() => {
-    try {
-      const allNews = JSON.parse(localStorage.getItem('orgNews') || '[]');
-      return allNews.filter(n => n.organizationId === user.organizationId);
-    } catch (e) {
-      return [];
-    }
-  });
+  const [newsList, setNewsList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNews, setEditingNews] = useState(null);
   
@@ -23,45 +17,37 @@ const News = () => {
   const [status, setStatus] = useState('published');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Save to localStorage whenever newsList changes
-  useEffect(() => {
-    try {
-      const allNews = JSON.parse(localStorage.getItem('orgNews') || '[]');
-      const otherOrgsNews = allNews.filter(n => n.organizationId !== user.organizationId);
-      localStorage.setItem('orgNews', JSON.stringify([...otherOrgsNews, ...newsList]));
-    } catch (e) {
-      console.error("Error saving news", e);
+  const loadNews = async () => {
+    if (user && user.organizationId) {
+      const data = await getNews(user.organizationId);
+      setNewsList(data);
     }
-  }, [newsList, user.organizationId]);
+  };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    loadNews();
+  }, [user.organizationId]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const payload = { title, content, image, status, published: status === 'published' };
+    
     if (editingNews) {
       // Update
-      const updatedNews = newsList.map(n => 
-        n.id === editingNews.id ? { ...n, title, content, image, status, updatedAt: new Date().toISOString() } : n
-      );
-      setNewsList(updatedNews);
+      await updateNews(editingNews.id, payload);
     } else {
       // Create
-      const newNews = {
-        id: Date.now().toString(),
-        organizationId: user.organizationId,
-        title,
-        content,
-        image,
-        status,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setNewsList([newNews, ...newsList]);
+      await createNews(user.organizationId, payload);
     }
+    await loadNews();
     closeModal();
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this news item?')) {
-      setNewsList(newsList.filter(n => n.id !== id));
+      await deleteNews(id);
+      await loadNews();
     }
   };
 

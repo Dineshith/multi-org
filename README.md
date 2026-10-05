@@ -92,7 +92,7 @@ Frontend runs on `http://localhost:5173`.
 | Backend | Node.js, Express.js |
 | Database | MongoDB (Mongoose) |
 | Auth | JWT (JSON Web Tokens) |
-| Storage | localStorage (admin panel CRUD) |
+| Storage | sessionStorage (admin panel CRUD) |
 
 ---
 
@@ -100,7 +100,7 @@ Frontend runs on `http://localhost:5173`.
 
 - URL: `/admin/login`
 - Credentials stored in backend `.env` / MongoDB
-- JWT token saved to `localStorage` as `adminToken`
+- JWT token saved to `sessionStorage` as `adminToken`
 - Protected routes redirect to login if no token present
 
 ---
@@ -116,7 +116,7 @@ Frontend runs on `http://localhost:5173`.
 - **Notice** (`/bachelor/notice`) — Searchable/filterable notice board with pinned notices and expandable content
 - **Gallery** (`/bachelor/gallery`) — Masonry photo grid with lightbox; reads images from Admin Gallery
 - **Contact** (`/bachelor/contact`) — Full contact form (connected to `/api/contact` backend), Google Maps embed
-- **Results** (`/bachelor/results`) — Exam results viewer; reads from Admin Results localStorage
+- **Results** (`/bachelor/results`) — Exam results viewer; reads from Admin Results sessionStorage
 
 #### 🧭 Bachelor Navbar — Updated
 - All nav links now use React Router `NavLink` for proper routing
@@ -134,7 +134,7 @@ Frontend runs on `http://localhost:5173`.
 - Grid and List view toggle
 - Bulk delete with checkboxes
 - Toast notifications
-- Images persisted to localStorage
+- Images persisted to sessionStorage
 
 #### 🔒 Admin Auth Guard — Enabled
 - Protected route now active (was temporarily disabled)

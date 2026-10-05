@@ -4,7 +4,7 @@ import { Check, X, Clock, Key } from 'lucide-react';
 const PasswordRequests = () => {
   // Mock data for password reset requests (Frontend only as requested)
   const [requests, setRequests] = useState(() => {
-    return JSON.parse(localStorage.getItem('passwordRequests') || '[]');
+    return JSON.parse(sessionStorage.getItem('passwordRequests') || '[]');
   });
 
   const handleAction = (id, action) => {
@@ -15,7 +15,7 @@ const PasswordRequests = () => {
       return req;
     });
     setRequests(updatedRequests);
-    localStorage.setItem('passwordRequests', JSON.stringify(updatedRequests));
+    sessionStorage.setItem('passwordRequests', JSON.stringify(updatedRequests));
   };
 
   return (
