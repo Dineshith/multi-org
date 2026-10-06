@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getUsers, initDB } from '../services/mockDbService';
+import apiClient from '../services/apiClient';
 
 const AuthContext = createContext();
 
@@ -12,42 +12,69 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    initDB(); // Ensure DB is initialized
-    const storedUserStr = localStorage.getItem('user');
-    if (storedUserStr) {
-      let storedUser = JSON.parse(storedUserStr);
-      // Auto-migration for cached super admin
-      if (storedUser.role === 'SUPER_ADMIN' && storedUser.organizationId === null) {
-        storedUser.organizationId = 0;
-        localStorage.setItem('user', JSON.stringify(storedUser));
+    const checkAuth = async () => {
+      const storedUserStr = sessionStorage.getItem('user');
+      const token = sessionStorage.getItem('adminToken');
+      
+      if (storedUserStr && token) {
+        try {
+          // Fetch fresh profile from backend to verify token is valid
+          const res = await apiClient.get('/auth/profile');
+          if (res.success && res.user) {
+            // Backend schema uses organization_id, frontend expects organizationId
+            const mappedUser = {
+                ...res.user,
+                organizationId: res.user.organization_id || res.user.organizationId
+            };
+            setUser(mappedUser);
+            sessionStorage.setItem('user', JSON.stringify(mappedUser));
+          } else {
+             setUser(null);
+             sessionStorage.removeItem('user');
+             sessionStorage.removeItem('adminToken');
+          }
+        } catch(e) {
+          console.error(e);
+          setUser(null);
+          sessionStorage.removeItem('user');
+          sessionStorage.removeItem('adminToken');
+        }
       }
-      setUser(storedUser);
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    
+    checkAuth();
   }, []);
 
-  const login = (email, password) => {
-    const users = getUsers();
-    const foundUser = users.find(u => u.email === email && u.password === password);
-    if (foundUser) {
-      // Don't store password in context/localstorage in real app
-      const userPayload = {
-        id: foundUser.id,
-        name: foundUser.name,
-        email: foundUser.email,
-        role: foundUser.role,
-        organizationId: foundUser.organizationId
-      };
-      setUser(userPayload);
-      localStorage.setItem('user', JSON.stringify(userPayload));
-      return { success: true, user: userPayload };
+  const login = async (email, password) => {
+    try {
+      const res = await apiClient.post('/auth/login', { email, password });
+      if (res.success && res.token) {
+        const mappedUser = {
+            ...res.user,
+            organizationId: res.user.organization_id || res.user.organizationId
+        };
+        setUser(mappedUser);
+        sessionStorage.setItem('user', JSON.stringify(mappedUser));
+        sessionStorage.setItem('adminToken', res.token); localStorage.setItem('adminToken', res.token);
+        return { success: true, user: mappedUser };
+      }
+      return { success: false, message: res.message || 'Invalid credentials' };
+    } catch(e) {
+      console.error(e);
+      return { success: false, message: e.response?.data?.message || 'An error occurred during login' };
     }
-    return { success: false, message: 'Invalid credentials' };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch(e) {
+      console.error(e);
+    }
     setUser(null);
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('adminToken');
   };
 
   const value = {

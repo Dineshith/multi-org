@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
-import { getPages, getNotices, getEvents, getAllNotices, getAllEvents } from '../../services/mockDbService';
+import { getPages, getNotices, getEvents, getAllNotices, getAllEvents } from '../../services/apiService';
 import { useParams, Link } from 'react-router-dom';
 import { LayoutTemplate, ArrowRight, MapPin, Mail, Phone, Users, Info, CheckCircle, Star, X } from 'lucide-react';
 
@@ -18,93 +18,87 @@ const DynamicPage = () => {
   const [isNoticeVisible, setIsNoticeVisible] = useState(true);
 
   useEffect(() => {
-    if (tenant) {
-      const orgPages = getPages(tenant.id);
-      let foundPage = orgPages.find(p => p.slug === pageSlug);
+    const loadData = async () => {
+      if (tenant) {
+        const orgPages = await getPages(tenant.id);
+        let foundPage = orgPages.find(p => p.slug === pageSlug);
 
-      const reservedSlugs = ['events', 'news', 'notice', 'notices'];
+        const reservedSlugs = ['events', 'news', 'notice', 'notices'];
 
-      // Smart Feature: If a page exists but is empty (no sections), OR doesn't exist,
-      // try to find a section on the Home page that matches this page's slug/name.
-      let injectedSections = null;
-      if ((!foundPage || !foundPage.sections || foundPage.sections.length === 0) && pageSlug !== 'home') {
-        if (!reservedSlugs.includes(pageSlug)) {
-          const homePage = orgPages.find(p => p.slug === 'home');
-          if (homePage && homePage.sections) {
-            const searchSlug = pageSlug.replace(/-/g, ' ');
-            const matchingSections = homePage.sections.filter(s => {
-              if (!s.data || !s.data.title) return false;
-              const titleLower = s.data.title.toLowerCase();
-              return titleLower.includes(searchSlug) || (searchSlug.endsWith('s') && titleLower.includes(searchSlug.slice(0, -1)));
-            });
+        let injectedSections = null;
+        if ((!foundPage || !foundPage.sections || foundPage.sections.length === 0) && pageSlug !== 'home') {
+          if (!reservedSlugs.includes(pageSlug)) {
+            const homePage = orgPages.find(p => p.slug === 'home');
+            if (homePage && homePage.sections) {
+              const searchSlug = pageSlug.replace(/-/g, ' ');
+              const matchingSections = homePage.sections.filter(s => {
+                if (!s.data || !s.data.title) return false;
+                const titleLower = s.data.title.toLowerCase();
+                return titleLower.includes(searchSlug) || (searchSlug.endsWith('s') && titleLower.includes(searchSlug.slice(0, -1)));
+              });
 
-            if (matchingSections.length > 0) {
-              injectedSections = matchingSections;
+              if (matchingSections.length > 0) {
+                injectedSections = matchingSections;
+              }
             }
           }
         }
-      }
 
-      // Fallback: If STILL no page/sections found, check if it's a dropdown item of a parent page.
-      if (!foundPage && !injectedSections) {
-        if (!reservedSlugs.includes(pageSlug)) {
-          foundPage = orgPages.find(p => {
-            const subItems = p.dropdownItems || p.menuGroups || [];
-            const subSlugs = subItems.filter(i => i && i.trim() !== '').map(sub => sub.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
-            return subSlugs.includes(pageSlug);
+        if (!foundPage && !injectedSections) {
+          if (!reservedSlugs.includes(pageSlug)) {
+            foundPage = orgPages.find(p => {
+              const subItems = p.dropdownItems || p.menuGroups || [];
+              const subSlugs = subItems.filter(i => i && i.trim() !== '').map(sub => sub.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+              return subSlugs.includes(pageSlug);
+            });
+          }
+        }
+
+        if (injectedSections) {
+          setPage({
+            id: foundPage ? foundPage.id : `virtual-${pageSlug}`,
+            organizationId: tenant.id,
+            slug: pageSlug,
+            title: foundPage ? foundPage.title : pageSlug,
+            sections: injectedSections
           });
+        } else {
+          setPage(foundPage || null);
+        }
+
+        let tenantNotices = [];
+        let tenantEvents = [];
+
+        if (tenant.slug === 'main-portal') {
+          tenantNotices = (await getAllNotices()).filter(n => (n.organizationId === 0 && n.published !== false) || n.publishOnMainPortal);
+          tenantEvents = (await getAllEvents()).filter(e => e.organizationId === 0 || e.publishOnMainPortal);
+        } else {
+          tenantNotices = (await getNotices(tenant.id)).filter(n => n.published !== false);
+          tenantEvents = await getEvents(tenant.id);
+        }
+
+        let platformNotices = [];
+        let platformEvents = [];
+        if (tenant.id !== 0) {
+          platformNotices = (await getNotices(0)).filter(n => n.published !== false);
+          platformEvents = await getEvents(0);
+        }
+
+        const combinedNotices = [...tenantNotices, ...platformNotices].sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
+        const combinedEvents = [...tenantEvents, ...platformEvents].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+
+        setNotices(combinedNotices);
+        setEvents(combinedEvents);
+
+        try {
+          const storedNews = JSON.parse(sessionStorage.getItem('orgNews') || '[]');
+          setClientNews(storedNews.filter(n => n.status === 'published' && n.organizationId === tenant.id));
+        } catch (e) {
+          setClientNews([]);
         }
       }
-
-      if (injectedSections) {
-        setPage({
-          id: foundPage ? foundPage.id : `virtual-${pageSlug}`,
-          organizationId: tenant.id,
-          slug: pageSlug,
-          title: foundPage ? foundPage.title : pageSlug,
-          sections: injectedSections
-        });
-      } else {
-        setPage(foundPage || null);
-      }
-
-      // Fetch Tenant specific notices and events
-      let tenantNotices = [];
-      let tenantEvents = [];
-
-      if (tenant.id === 0) {
-        // Main portal: fetch its own notices + global notices
-        tenantNotices = getAllNotices().filter(n => (n.organizationId === 0 && n.published !== false) || n.publishOnMainPortal);
-        tenantEvents = getAllEvents().filter(e => e.organizationId === 0 || e.publishOnMainPortal);
-      } else {
-        // Org portal: fetch its own notices unconditionally
-        tenantNotices = getNotices(tenant.id).filter(n => n.published !== false);
-        tenantEvents = getEvents(tenant.id);
-      }
-
-      // Fetch Super Admin (Platform) specific, if current tenant is not super admin
-      let platformNotices = [];
-      let platformEvents = [];
-      if (tenant.id !== 0) {
-        platformNotices = getNotices(0).filter(n => n.published !== false);
-        platformEvents = getEvents(0);
-      }
-
-      // Combine and sort
-      const combinedNotices = [...tenantNotices, ...platformNotices].sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
-      const combinedEvents = [...tenantEvents, ...platformEvents].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
-
-      setNotices(combinedNotices);
-      setEvents(combinedEvents);
-
-      // Fetch News from localStorage for demo purposes
-      try {
-        const storedNews = JSON.parse(localStorage.getItem('orgNews') || '[]');
-        setClientNews(storedNews.filter(n => n.status === 'published' && n.organizationId === tenant.id));
-      } catch (e) {
-        setClientNews([]);
-      }
-    }
+    };
+    loadData();
   }, [tenant, pageSlug]);
 
   useEffect(() => {
@@ -174,7 +168,7 @@ const DynamicPage = () => {
     switch (section.type) {
       case 'hero': {
         const allUpdates = [];
-        if (tenant.id === 0) {
+        if (tenant.slug === 'main-portal') {
           events.forEach(e => allUpdates.push({ ...e, _type: 'event', _date: new Date(e.date || 0) }));
           notices.forEach(n => allUpdates.push({ ...n, _type: 'notice', _date: new Date(n.publishedAt || 0) }));
           allUpdates.sort((a, b) => b._date - a._date);
@@ -265,7 +259,7 @@ const DynamicPage = () => {
         );
 
       case 'notice_list':
-        if (tenant.id === 0 || notices.length === 0) return null;
+        if (tenant.slug === 'main-portal' || notices.length === 0) return null;
         return (
           <section key={index} className={`py-16 ${bgClass}`}>
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -306,7 +300,7 @@ const DynamicPage = () => {
         );
 
       case 'news_list':
-        if (tenant.id === 0 || clientNews.length === 0) return null;
+        if (tenant.slug === 'main-portal' || clientNews.length === 0) return null;
         return (
           <section key={index} className={`py-16 ${bgClass}`}>
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -347,7 +341,7 @@ const DynamicPage = () => {
         );
 
       case 'event_list':
-        if (tenant.id === 0 || events.length === 0) return null;
+        if (tenant.slug === 'main-portal' || events.length === 0) return null;
         return (
           <section key={index} className={`py-16 ${bgClass}`}>
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -732,7 +726,7 @@ const DynamicPage = () => {
       }
 
       case 'combined_events_notices':
-        if (tenant.id === 0 || (events.length === 0 && notices.length === 0)) return null;
+        if (tenant.slug === 'main-portal' || (events.length === 0 && notices.length === 0)) return null;
         return (
           <section key={index} className={`py-16 ${bgClass}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -907,7 +901,7 @@ const DynamicPage = () => {
   }
 
   const allUpdates = [];
-  if (tenant && tenant.id === 0) {
+  if (tenant && tenant.slug === 'main-portal') {
     events.forEach(e => allUpdates.push({ ...e, _type: 'event', _date: new Date(e.date || 0) }));
     notices.forEach(n => allUpdates.push({ ...n, _type: 'notice', _date: new Date(n.publishedAt || 0) }));
     allUpdates.sort((a, b) => b._date - a._date);
@@ -925,7 +919,7 @@ const DynamicPage = () => {
       )}
 
       {/* Floating Global Updates Section for Main Portal */}
-      {tenant && tenant.id === 0 && isNoticeVisible && pageSlug === 'home' && (
+      {tenant && tenant.slug === 'main-portal' && isNoticeVisible && pageSlug === 'home' && (
         <div className="flex flex-col fixed bottom-4 left-4 right-4 lg:bottom-auto lg:left-auto lg:top-32 lg:right-8 z-[90] lg:w-[400px] bg-black/70 backdrop-blur-lg rounded-2xl border border-white/20 shadow-2xl overflow-hidden min-h-[150px] lg:min-h-[250px] transition-all">
           {/* Header */}
           <div className="relative text-center py-2 lg:py-3 border-b border-white/20 bg-white/5 shrink-0">

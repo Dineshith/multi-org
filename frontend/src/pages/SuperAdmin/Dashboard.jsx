@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getOrganizations, getUsers, getAllNotices, getAllEvents } from '../../services/mockDbService';
+import { getOrganizations, getUsers, getAllNotices, getAllEvents } from '../../services/apiService';
 import { Building2, Activity, FileText, Calendar, Bell } from 'lucide-react';
 import Modal from '../../components/shared/Modal';
 
@@ -10,15 +10,16 @@ const Dashboard = () => {
   const [modalData, setModalData] = useState({ isOpen: false, title: '', items: [] });
 
   useEffect(() => {
-    const orgs = getOrganizations();
-    setOrganizations(orgs);
-    setUsers(getUsers());
+    const loadData = async () => {
+      const orgs = await getOrganizations();
+      setOrganizations(orgs);
+      setUsers(await getUsers());
 
-    const notices = getAllNotices();
-    const events = getAllEvents();
+      const notices = await getAllNotices();
+      const events = await getAllEvents();
     let news = [];
     try {
-      news = JSON.parse(localStorage.getItem('orgNews') || '[]');
+      news = JSON.parse(sessionStorage.getItem('orgNews') || '[]');
     } catch (e) {}
 
     const stats = orgs.filter(o => o.id !== 0).map(org => {
@@ -29,7 +30,7 @@ const Dashboard = () => {
       return {
         id: org.id,
         name: org.name,
-        logo: org.branding?.logo,
+        logo: org.logo_url || org.branding?.logo,
         noticeCount: orgNotices.length,
         noticeList: orgNotices.map(n => {
           const d = n.publishedAt ? new Date(n.publishedAt).toLocaleDateString() : 'N/A';
@@ -48,9 +49,11 @@ const Dashboard = () => {
       };
     });
     setOrgStats(stats);
+    };
+    loadData();
   }, []);
 
-  const activeOrgs = organizations.filter(o => o.status === 'active').length;
+  const activeOrgs = organizations.filter(o => o.status?.toLowerCase() === 'active').length;
   const orgAdmins = users.filter(u => u.role === 'ORG_ADMIN').length;
 
   return (
@@ -84,8 +87,8 @@ const Dashboard = () => {
           {organizations.map(org => (
             <div key={org.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
               <div className="flex items-center space-x-4">
-                {org.branding?.logo ? (
-                  <img src={org.branding.logo} alt="" className="w-12 h-12 rounded object-cover" />
+                {org.logo_url || org.branding?.logo ? (
+                  <img src={org.logo_url || org.branding?.logo} alt="" className="w-12 h-12 rounded object-cover bg-white shadow-sm" />
                 ) : (
                   <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center font-bold text-gray-500">
                     {org.name.charAt(0)}

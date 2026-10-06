@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getEvents, createEvent, updateEvent, deleteEvent } from '../../services/mockDbService';
+import { getEvents, createEvent, updateEvent, deleteEvent } from '../../services/apiService';
 import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
 import Modal from '../../components/shared/Modal';
 
@@ -16,24 +16,25 @@ const Events = () => {
     loadEvents();
   }, [user.organizationId]);
 
-  const loadEvents = () => {
-    setEvents(getEvents(user.organizationId));
+  const loadEvents = async () => {
+    const data = await getEvents(user.organizationId);
+    setEvents(data);
   };
 
-  const handleCreateEvent = (e) => {
+  const handleCreateEvent = async (e) => {
     e.preventDefault();
     if (editingId) {
-      updateEvent(editingId, {
+      await updateEvent(editingId, {
         ...newEvent,
         date: new Date(newEvent.date).toISOString()
       });
     } else {
-      createEvent(user.organizationId, {
+      await createEvent(user.organizationId, {
         ...newEvent,
         date: new Date(newEvent.date).toISOString()
       });
     }
-    loadEvents();
+    await loadEvents();
     setIsModalOpen(false);
     setNewEvent({ title: '', description: '', image: '', date: '', publishOnMainPortal: false });
     setEditingId(null);
@@ -61,10 +62,10 @@ const Events = () => {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
-      deleteEvent(id);
-      loadEvents();
+      await deleteEvent(id);
+      await loadEvents();
     }
   };
   

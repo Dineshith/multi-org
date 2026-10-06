@@ -10,8 +10,8 @@ const ForgetPassword = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Save to localStorage to mock backend behavior
-    const existingRequests = JSON.parse(localStorage.getItem('passwordRequests') || '[]');
+    // Save to sessionStorage to mock backend behavior
+    const existingRequests = JSON.parse(sessionStorage.getItem('passwordRequests') || '[]');
     const newRequest = {
       id: Date.now(),
       orgName: orgName,
@@ -20,7 +20,7 @@ const ForgetPassword = () => {
       requestDate: new Date().toLocaleString(),
       status: 'pending'
     };
-    localStorage.setItem('passwordRequests', JSON.stringify([newRequest, ...existingRequests]));
+    sessionStorage.setItem('passwordRequests', JSON.stringify([newRequest, ...existingRequests]));
 
     setTimeout(() => {
       setIsSubmitted(true);

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getOrganizationBySlug, initDB } from '../services/mockDbService';
+import { getOrganizationBySlug } from '../services/apiService';
 import { useLocation } from 'react-router-dom';
 
 const TenantContext = createContext();
@@ -16,8 +16,7 @@ export const TenantProvider = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const checkTenant = () => {
-      initDB();
+    const checkTenant = async () => {
       setLoading(true);
       setError(null);
       
@@ -25,18 +24,24 @@ export const TenantProvider = ({ children }) => {
       
       if (pathParts[1] === 'org' && pathParts[2]) {
         const slug = pathParts[2];
-        const foundOrg = getOrganizationBySlug(slug);
-        
-        if (foundOrg) {
-          setTenant(foundOrg);
-          // Apply branding colors to CSS variables
-          if (foundOrg.branding) {
-            document.documentElement.style.setProperty('--primary-color', foundOrg.branding.primaryColor);
-            document.documentElement.style.setProperty('--secondary-color', foundOrg.branding.secondaryColor);
+        try {
+          const foundOrg = await getOrganizationBySlug(slug);
+          
+          if (foundOrg) {
+            setTenant(foundOrg);
+            // Apply branding colors to CSS variables
+            if (foundOrg.branding) {
+              document.documentElement.style.setProperty('--primary-color', foundOrg.branding.primaryColor);
+              document.documentElement.style.setProperty('--secondary-color', foundOrg.branding.secondaryColor);
+            }
+          } else {
+            setTenant(null);
+            setError('Organization not found');
           }
-        } else {
-          setTenant(null);
-          setError('Organization not found');
+        } catch(e) {
+            console.error(e);
+            setTenant(null);
+            setError('Failed to fetch organization');
         }
       } else {
         setTenant(null);

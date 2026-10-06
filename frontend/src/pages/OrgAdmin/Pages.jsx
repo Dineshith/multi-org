@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getPages, createPage, updatePage, deletePage } from '../../services/mockDbService';
+import { getPages, createPage, updatePage, deletePage, getOrganizationBySlug } from '../../services/apiService';
 import { Plus, Search, Edit2, Trash2, LayoutTemplate, List } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../../components/shared/Modal';
@@ -12,31 +12,45 @@ const Pages = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPage, setNewPage] = useState({ title: '', slug: '', dropdownItems: [] });
   const [editingId, setEditingId] = useState(null);
+  const [platformOrgId, setPlatformOrgId] = useState(null);
 
   useEffect(() => {
-    loadPages();
+    const init = async () => {
+      let resolvedId = user.organizationId;
+      if (!resolvedId) {
+        const platformOrg = await getOrganizationBySlug('main-portal');
+        if (platformOrg) {
+          resolvedId = platformOrg.id;
+          setPlatformOrgId(platformOrg.id);
+        }
+      }
+      loadPages(resolvedId || "0");
+    };
+    init();
   }, [user.organizationId]);
 
-  const loadPages = () => {
-    setPages(getPages(user.organizationId));
+  const loadPages = async (orgId) => {
+    const fetchedPages = await getPages(orgId);
+    setPages(fetchedPages);
   };
 
-  const handleCreatePage = (e) => {
+  const handleCreatePage = async (e) => {
     e.preventDefault();
+    const targetOrgId = user.organizationId || platformOrgId || "0";
     if (editingId) {
-      updatePage(editingId, {
+      await updatePage(editingId, {
         title: newPage.title,
         slug: newPage.slug,
         dropdownItems: newPage.dropdownItems.filter(g => g.trim() !== '')
       });
     } else {
-      createPage(user.organizationId, {
+      await createPage(targetOrgId, {
         ...newPage,
         dropdownItems: newPage.dropdownItems.filter(g => g.trim() !== ''),
         sections: []
       });
     }
-    loadPages();
+    await loadPages(targetOrgId);
     setIsModalOpen(false);
     setNewPage({ title: '', slug: '', dropdownItems: [] });
     setEditingId(null);
@@ -56,13 +70,13 @@ const Pages = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this page? This cannot be undone.')) {
-      deletePage(id);
-      loadPages();
+      await deletePage(id);
+      await loadPages(user.organizationId || platformOrgId || "0");
     }
   };
-  
+
   const filteredPages = pages.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
@@ -80,7 +94,7 @@ const Pages = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button 
+        <button
           onClick={() => {
             setEditingId(null);
             setNewPage({ title: '', slug: '', dropdownItems: [] });
@@ -112,7 +126,7 @@ const Pages = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-1">{page.title}</h3>
               <p className="text-sm text-gray-500">/{page.slug}</p>
-              
+
               {page.dropdownItems && page.dropdownItems.length > 0 ? (
                 <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-sm">
                   <span className="text-gray-500 italic flex items-center"><List size={14} className="mr-1" /> Dropdown Menu</span>
@@ -142,43 +156,43 @@ const Pages = () => {
         <form onSubmit={handleCreatePage} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Page Title</label>
-            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
-                   value={newPage.title} onChange={e => setNewPage({...newPage, title: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-')})} />
+            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+              value={newPage.title} onChange={e => setNewPage({ ...newPage, title: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-') })} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">URL Slug</label>
-            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
-                   value={newPage.slug} onChange={e => setNewPage({...newPage, slug: e.target.value})} />
+            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+              value={newPage.slug} onChange={e => setNewPage({ ...newPage, slug: e.target.value })} />
             <p className="mt-1 text-xs text-gray-500">Will be accessible at /org/your-org/{newPage.slug || 'slug'}</p>
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="block text-sm font-medium text-gray-700">Dropdown Sub-menus (Optional)</label>
-              <button 
-                type="button" 
-                onClick={() => setNewPage({...newPage, dropdownItems: [...newPage.dropdownItems, '']})}
+              <button
+                type="button"
+                onClick={() => setNewPage({ ...newPage, dropdownItems: [...newPage.dropdownItems, ''] })}
                 className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
               >
                 <Plus size={14} className="mr-1" /> Add Sub-menu
               </button>
             </div>
-            
+
             {newPage.dropdownItems.map((item, index) => (
               <div key={index} className="flex items-center space-x-2 mt-2">
-                <input type="text" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
-                       value={item} 
-                       onChange={e => {
-                         const updated = [...newPage.dropdownItems];
-                         updated[index] = e.target.value;
-                         setNewPage({...newPage, dropdownItems: updated});
-                       }} 
-                       placeholder="e.g. Teachers" />
-                <button 
-                  type="button" 
+                <input type="text" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                  value={item}
+                  onChange={e => {
+                    const updated = [...newPage.dropdownItems];
+                    updated[index] = e.target.value;
+                    setNewPage({ ...newPage, dropdownItems: updated });
+                  }}
+                  placeholder="e.g. Teachers" />
+                <button
+                  type="button"
                   onClick={() => {
                     const updated = [...newPage.dropdownItems];
                     updated.splice(index, 1);
-                    setNewPage({...newPage, dropdownItems: updated});
+                    setNewPage({ ...newPage, dropdownItems: updated });
                   }}
                   className="p-2 text-red-500 hover:bg-red-50 rounded"
                 >
@@ -186,17 +200,17 @@ const Pages = () => {
                 </button>
               </div>
             ))}
-            
+
             {newPage.dropdownItems.length === 0 && (
-              <button 
-                type="button" 
-                onClick={() => setNewPage({...newPage, dropdownItems: ['']})}
+              <button
+                type="button"
+                onClick={() => setNewPage({ ...newPage, dropdownItems: [''] })}
                 className="mt-1 w-full p-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
               >
                 + Add a Sub-menu Item
               </button>
             )}
-            
+
             <p className="mt-2 text-xs text-gray-500">Adding sub-menus will turn this page into a dropdown menu in the navbar (e.g. {newPage.title || 'About Us'} +).</p>
           </div>
           <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
@@ -210,5 +224,4 @@ const Pages = () => {
     </div>
   );
 };
-
 export default Pages;
