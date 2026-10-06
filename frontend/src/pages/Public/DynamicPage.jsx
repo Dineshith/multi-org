@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTenant } from '../../context/TenantContext';
-import { getPages, getNotices, getEvents, getAllNotices, getAllEvents } from '../../services/mockDbService';
+import { getPages, getNotices, getEvents, getAllNotices, getAllEvents } from '../../services/apiService';
 import { useParams, Link } from 'react-router-dom';
-import { LayoutTemplate, ArrowRight, MapPin, Mail, Phone, Users, Info, CheckCircle, Star } from 'lucide-react';
+import { LayoutTemplate, ArrowRight, MapPin, Mail, Phone, Users, Info, CheckCircle, Star, X } from 'lucide-react';
 
 const DynamicPage = () => {
   const { tenant } = useTenant();
@@ -13,88 +13,92 @@ const DynamicPage = () => {
   const [page, setPage] = useState(null);
   const [notices, setNotices] = useState([]);
   const [events, setEvents] = useState([]);
+  const [clientNews, setClientNews] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isNoticeVisible, setIsNoticeVisible] = useState(true);
 
   useEffect(() => {
-    if (tenant) {
-      const orgPages = getPages(tenant.id);
-      let foundPage = orgPages.find(p => p.slug === pageSlug);
+    const loadData = async () => {
+      if (tenant) {
+        const orgPages = await getPages(tenant.id);
+        let foundPage = orgPages.find(p => p.slug === pageSlug);
 
-      const reservedSlugs = ['events', 'news', 'notice', 'notices'];
+        const reservedSlugs = ['events', 'news', 'notice', 'notices'];
 
-      // Smart Feature: If a page exists but is empty (no sections), OR doesn't exist,
-      // try to find a section on the Home page that matches this page's slug/name.
-      let injectedSections = null;
-      if ((!foundPage || !foundPage.sections || foundPage.sections.length === 0) && pageSlug !== 'home') {
-        if (!reservedSlugs.includes(pageSlug)) {
-          const homePage = orgPages.find(p => p.slug === 'home');
-          if (homePage && homePage.sections) {
-            const searchSlug = pageSlug.replace(/-/g, ' ');
-            const matchingSections = homePage.sections.filter(s => {
-              if (!s.data || !s.data.title) return false;
-              const titleLower = s.data.title.toLowerCase();
-              return titleLower.includes(searchSlug) || (searchSlug.endsWith('s') && titleLower.includes(searchSlug.slice(0, -1)));
-            });
+        let injectedSections = null;
+        if ((!foundPage || !foundPage.sections || foundPage.sections.length === 0) && pageSlug !== 'home') {
+          if (!reservedSlugs.includes(pageSlug)) {
+            const homePage = orgPages.find(p => p.slug === 'home');
+            if (homePage && homePage.sections) {
+              const searchSlug = pageSlug.replace(/-/g, ' ');
+              const matchingSections = homePage.sections.filter(s => {
+                if (!s.data || !s.data.title) return false;
+                const titleLower = s.data.title.toLowerCase();
+                return titleLower.includes(searchSlug) || (searchSlug.endsWith('s') && titleLower.includes(searchSlug.slice(0, -1)));
+              });
 
-            if (matchingSections.length > 0) {
-              injectedSections = matchingSections;
+              if (matchingSections.length > 0) {
+                injectedSections = matchingSections;
+              }
             }
           }
         }
-      }
 
-      // Fallback: If STILL no page/sections found, check if it's a dropdown item of a parent page.
-      if (!foundPage && !injectedSections) {
-        if (!reservedSlugs.includes(pageSlug)) {
-          foundPage = orgPages.find(p => {
-            const subItems = p.dropdownItems || p.menuGroups || [];
-            const subSlugs = subItems.filter(i => i && i.trim() !== '').map(sub => sub.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
-            return subSlugs.includes(pageSlug);
+        if (!foundPage && !injectedSections) {
+          if (!reservedSlugs.includes(pageSlug)) {
+            foundPage = orgPages.find(p => {
+              const subItems = p.dropdownItems || p.menuGroups || [];
+              const subSlugs = subItems.filter(i => i && i.trim() !== '').map(sub => sub.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+              return subSlugs.includes(pageSlug);
+            });
+          }
+        }
+
+        if (injectedSections) {
+          setPage({
+            id: foundPage ? foundPage.id : `virtual-${pageSlug}`,
+            organizationId: tenant.id,
+            slug: pageSlug,
+            title: foundPage ? foundPage.title : pageSlug,
+            sections: injectedSections
           });
+        } else {
+          setPage(foundPage || null);
+        }
+
+        let tenantNotices = [];
+        let tenantEvents = [];
+
+        if (tenant.slug === 'main-portal') {
+          tenantNotices = (await getAllNotices()).filter(n => (n.organizationId === 0 && n.published !== false) || n.publishOnMainPortal);
+          tenantEvents = (await getAllEvents()).filter(e => e.organizationId === 0 || e.publishOnMainPortal);
+        } else {
+          tenantNotices = (await getNotices(tenant.id)).filter(n => n.published !== false);
+          tenantEvents = await getEvents(tenant.id);
+        }
+
+        let platformNotices = [];
+        let platformEvents = [];
+        if (tenant.id !== 0) {
+          platformNotices = (await getNotices(0)).filter(n => n.published !== false);
+          platformEvents = await getEvents(0);
+        }
+
+        const combinedNotices = [...tenantNotices, ...platformNotices].sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
+        const combinedEvents = [...tenantEvents, ...platformEvents].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+
+        setNotices(combinedNotices);
+        setEvents(combinedEvents);
+
+        try {
+          const storedNews = JSON.parse(sessionStorage.getItem('orgNews') || '[]');
+          setClientNews(storedNews.filter(n => n.status === 'published' && n.organizationId === tenant.id));
+        } catch (e) {
+          setClientNews([]);
         }
       }
-
-      if (injectedSections) {
-        setPage({
-          id: foundPage ? foundPage.id : `virtual-${pageSlug}`,
-          organizationId: tenant.id,
-          slug: pageSlug,
-          title: foundPage ? foundPage.title : pageSlug,
-          sections: injectedSections
-        });
-      } else {
-        setPage(foundPage || null);
-      }
-
-      // Fetch Tenant specific notices and events
-      let tenantNotices = [];
-      let tenantEvents = [];
-
-      if (tenant.id === 0) {
-        // Main portal: fetch its own notices + global notices
-        tenantNotices = getAllNotices().filter(n => (n.organizationId === 0 && n.published !== false) || n.publishOnMainPortal);
-        tenantEvents = getAllEvents().filter(e => e.organizationId === 0 || e.publishOnMainPortal);
-      } else {
-        // Org portal: fetch its own notices unconditionally
-        tenantNotices = getNotices(tenant.id).filter(n => n.published !== false);
-        tenantEvents = getEvents(tenant.id);
-      }
-
-      // Fetch Super Admin (Platform) specific, if current tenant is not super admin
-      let platformNotices = [];
-      let platformEvents = [];
-      if (tenant.id !== 0) {
-        platformNotices = getNotices(0).filter(n => n.published !== false);
-        platformEvents = getEvents(0);
-      }
-
-      // Combine and sort
-      const combinedNotices = [...tenantNotices, ...platformNotices].sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
-      const combinedEvents = [...tenantEvents, ...platformEvents].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
-
-      setNotices(combinedNotices);
-      setEvents(combinedEvents);
-    }
+    };
+    loadData();
   }, [tenant, pageSlug]);
 
   useEffect(() => {
@@ -164,7 +168,7 @@ const DynamicPage = () => {
     switch (section.type) {
       case 'hero': {
         const allUpdates = [];
-        if (tenant.id === 0) {
+        if (tenant.slug === 'main-portal') {
           events.forEach(e => allUpdates.push({ ...e, _type: 'event', _date: new Date(e.date || 0) }));
           notices.forEach(n => allUpdates.push({ ...n, _type: 'notice', _date: new Date(n.publishedAt || 0) }));
           allUpdates.sort((a, b) => b._date - a._date);
@@ -181,56 +185,23 @@ const DynamicPage = () => {
                 </div>
               )}
               <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full z-10 text-white">
-                <div className={`grid grid-cols-1 ${tenant.id === 0 ? 'lg:grid-cols-12 gap-12' : ''}`}>
-                  <div className={`flex flex-col justify-center ${tenant.id === 0 ? 'lg:col-span-7' : ''}`}>
+                  <div className="flex flex-col justify-center">
                     {section.data.title && (
                       <div
-                        className={`text-4xl md:text-5xl font-extrabold tracking-tight mb-4 ${tenant.id !== 0 ? 'max-w-3xl' : ''} ${section.data.titleColor && section.data.titleColor !== 'default' ? getTextColorClass(section.data.titleColor) : ''}`}
+                        className={`text-4xl md:text-5xl font-extrabold tracking-tight mb-4 max-w-3xl ${section.data.titleColor && section.data.titleColor !== 'default' ? getTextColorClass(section.data.titleColor) : ''}`}
                         dangerouslySetInnerHTML={{ __html: section.data.title }}
                       />
                     )}
                     <div
-                      className={`text-xl text-gray-300 ${tenant.id !== 0 ? 'max-w-2xl' : ''}`}
+                      className="text-xl text-gray-300 max-w-2xl"
                       dangerouslySetInnerHTML={{ __html: section.data.subtitle }}
                     />
                   </div>
-
-                  {/* Global Updates Section for Main Portal */}
-                  {tenant.id === 0 && (
-                    <div className="hidden lg:flex flex-col lg:col-span-5 bg-white/20 backdrop-blur-md rounded-2xl border border-white/40 shadow-xl overflow-hidden self-center min-h-[300px]">
-                      {/* Header */}
-                      <div className="text-center py-4 border-b border-white/40 bg-white/10 shrink-0">
-                        <h3 className="text-3xl font-bold text-white tracking-wide">Notice</h3>
-                      </div>
-                      
-                      {/* Single Latest Content Area */}
-                      {latestUpdate ? (
-                        <div className="p-8 flex flex-col justify-center flex-1 cursor-pointer hover:bg-white/10 transition-colors"
-                             onClick={() => setSelectedItem({ type: latestUpdate._type, data: latestUpdate })}>
-                          <div className="flex justify-between items-start mb-6">
-                            <span className="text-sm font-bold text-white/90 uppercase tracking-widest">{latestUpdate._type}</span>
-                            <span className="text-sm text-white/90 font-medium">
-                              {latestUpdate._date.toLocaleString('default', { month: 'short' })} {latestUpdate._date.getDate()}
-                            </span>
-                          </div>
-                          <h4 className="text-2xl font-bold text-white mb-4 line-clamp-2 leading-tight">{latestUpdate.title}</h4>
-                          <p className="text-base text-white/90 line-clamp-4 leading-relaxed">
-                            {latestUpdate._type === 'notice' ? latestUpdate.content : latestUpdate.description}
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="flex-1 p-8 flex flex-col items-center justify-center text-center opacity-70">
-                          <p className="text-white text-lg font-medium">No recent updates.</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
-              </div>
             </section>
 
             {/* Stats Banner Below Hero */}
-            {tenant.statsBanner && tenant.statsBanner.length > 0 && (
+            {tenant.statsBanner && tenant.statsBanner.length > 0 && pageSlug === 'home' && (
               <section className="bg-white border-b border-gray-100 py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-200 text-center">
@@ -288,7 +259,7 @@ const DynamicPage = () => {
         );
 
       case 'notice_list':
-        if (tenant.id === 0 || notices.length === 0) return null;
+        if (tenant.slug === 'main-portal' || notices.length === 0) return null;
         return (
           <section key={index} className={`py-16 ${bgClass}`}>
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -328,8 +299,49 @@ const DynamicPage = () => {
           </section>
         );
 
+      case 'news_list':
+        if (tenant.slug === 'main-portal' || clientNews.length === 0) return null;
+        return (
+          <section key={index} className={`py-16 ${bgClass}`}>
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              {section.data.title && (
+                <div
+                  className={`text-3xl font-bold mb-8 text-center ${section.data.titleColor && section.data.titleColor !== 'default' ? getTextColorClass(section.data.titleColor) : ''}`}
+                  dangerouslySetInnerHTML={{ __html: section.data.title }}
+                />
+              )}
+              <div className="space-y-4">
+                {clientNews.length > 0 ? (
+                  clientNews.map(news => (
+                    <div key={news.id}
+                      className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow flex flex-col md:flex-row gap-6 cursor-pointer"
+                      onClick={() => setSelectedItem({ type: 'news', data: news })}>
+                      {news.image && (
+                        <div className="w-full md:w-48 h-32 flex-shrink-0">
+                          <img src={news.image} alt={news.title} className="w-full h-full object-cover rounded-lg border border-gray-100" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-xl font-semibold text-gray-900">{news.title}</h3>
+                          <span className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                            {new Date(news.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 whitespace-pre-wrap line-clamp-3 text-justify">{news.content}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 opacity-60">No news available.</div>
+                )}
+              </div>
+            </div>
+          </section>
+        );
+
       case 'event_list':
-        if (tenant.id === 0 || events.length === 0) return null;
+        if (tenant.slug === 'main-portal' || events.length === 0) return null;
         return (
           <section key={index} className={`py-16 ${bgClass}`}>
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -630,7 +642,7 @@ const DynamicPage = () => {
         return (
           <section key={index} className={`py-24 ${bgClass}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className={`flex flex-col md:flex-row gap-12 lg:gap-20 ${section.data.imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
+              <div className={`flex flex-col-reverse md:flex-row gap-12 lg:gap-20 ${section.data.imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
 
                 {/* Images Column */}
                 <div className="w-full md:w-1/2">
@@ -714,7 +726,7 @@ const DynamicPage = () => {
       }
 
       case 'combined_events_notices':
-        if (tenant.id === 0 || (events.length === 0 && notices.length === 0)) return null;
+        if (tenant.slug === 'main-portal' || (events.length === 0 && notices.length === 0)) return null;
         return (
           <section key={index} className={`py-16 ${bgClass}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -836,8 +848,13 @@ const DynamicPage = () => {
                 Published: {new Date(selectedItem.data.publishedAt).toLocaleDateString()}
               </p>
             )}
+            {selectedItem.type === 'news' && (
+              <p className="mb-6 text-sm font-bold text-gray-600 bg-gray-50 inline-block px-3 py-1 rounded">
+                Published: {new Date(selectedItem.data.createdAt).toLocaleDateString()}
+              </p>
+            )}
             <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-lg">
-              {selectedItem.type === 'notice' ? selectedItem.data.content : selectedItem.data.description}
+              {selectedItem.type === 'notice' ? selectedItem.data.content : selectedItem.type === 'news' ? selectedItem.data.content : selectedItem.data.description}
             </p>
           </div>
         </div>
@@ -854,10 +871,18 @@ const DynamicPage = () => {
         </div>
       );
     }
-    if (pageSlug === 'news' || pageSlug === 'notice' || pageSlug === 'notices') {
+    if (pageSlug === 'notice' || pageSlug === 'notices') {
       return (
         <div className="min-h-screen bg-white pb-20 pt-8">
-          {renderSection({ type: 'notice_list', data: { title: 'News & Notices' }, background: 'default' }, 'standalone-notices')}
+          {renderSection({ type: 'notice_list', data: { title: 'Notices' }, background: 'default' }, 'standalone-notices')}
+          {renderModal()}
+        </div>
+      );
+    }
+    if (pageSlug === 'news') {
+      return (
+        <div className="min-h-screen bg-white pb-20 pt-8">
+          {renderSection({ type: 'news_list', data: { title: 'Latest News' }, background: 'default' }, 'standalone-news')}
           {renderModal()}
         </div>
       );
@@ -875,6 +900,14 @@ const DynamicPage = () => {
     );
   }
 
+  const allUpdates = [];
+  if (tenant && tenant.slug === 'main-portal') {
+    events.forEach(e => allUpdates.push({ ...e, _type: 'event', _date: new Date(e.date || 0) }));
+    notices.forEach(n => allUpdates.push({ ...n, _type: 'notice', _date: new Date(n.publishedAt || 0) }));
+    allUpdates.sort((a, b) => b._date - a._date);
+  }
+  const latestUpdate = allUpdates[0];
+
   return (
     <div className="min-h-screen bg-white relative">
       {page.sections?.length > 0 ? (
@@ -884,6 +917,45 @@ const DynamicPage = () => {
           This page has no content yet.
         </div>
       )}
+
+      {/* Floating Global Updates Section for Main Portal */}
+      {tenant && tenant.slug === 'main-portal' && isNoticeVisible && pageSlug === 'home' && (
+        <div className="flex flex-col fixed bottom-4 left-4 right-4 lg:bottom-auto lg:left-auto lg:top-32 lg:right-8 z-[90] lg:w-[400px] bg-black/70 backdrop-blur-lg rounded-2xl border border-white/20 shadow-2xl overflow-hidden min-h-[150px] lg:min-h-[250px] transition-all">
+          {/* Header */}
+          <div className="relative text-center py-2 lg:py-3 border-b border-white/20 bg-white/5 shrink-0">
+            <h3 className="text-lg lg:text-2xl font-bold text-white tracking-wide">Notice</h3>
+            <button 
+              onClick={() => setIsNoticeVisible(false)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+              aria-label="Close Notice"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          
+          {/* Single Latest Content Area */}
+          {latestUpdate ? (
+            <div className="p-4 lg:p-6 flex flex-col justify-center flex-1 cursor-pointer hover:bg-white/10 transition-colors"
+                 onClick={() => setSelectedItem({ type: latestUpdate._type, data: latestUpdate })}>
+              <div className="flex justify-between items-start mb-2 lg:mb-4">
+                <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">{latestUpdate._type}</span>
+                <span className="text-xs text-gray-300 font-medium bg-white/10 px-2 py-1 rounded">
+                  {latestUpdate._date.toLocaleString('default', { month: 'short' })} {latestUpdate._date.getDate()}
+                </span>
+              </div>
+              <h4 className="text-base lg:text-xl font-bold text-white mb-2 lg:mb-3 line-clamp-2 leading-tight">{latestUpdate.title}</h4>
+              <p className="text-xs lg:text-sm text-gray-200 line-clamp-2 lg:line-clamp-3 leading-relaxed">
+                {latestUpdate._type === 'notice' ? latestUpdate.content : latestUpdate.description}
+              </p>
+            </div>
+          ) : (
+            <div className="flex-1 p-4 lg:p-6 flex flex-col items-center justify-center text-center opacity-70">
+              <p className="text-white text-sm lg:text-base font-medium">No recent updates.</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {renderModal()}
     </div>
   );

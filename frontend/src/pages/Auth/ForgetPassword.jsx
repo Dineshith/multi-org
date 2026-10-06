@@ -9,7 +9,19 @@ const ForgetPassword = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Dummy submit action
+    
+    // Save to sessionStorage to mock backend behavior
+    const existingRequests = JSON.parse(sessionStorage.getItem('passwordRequests') || '[]');
+    const newRequest = {
+      id: Date.now(),
+      orgName: orgName,
+      adminEmail: email,
+      adminName: 'Organization Admin', // Name isn't in form, so we use a placeholder
+      requestDate: new Date().toLocaleString(),
+      status: 'pending'
+    };
+    sessionStorage.setItem('passwordRequests', JSON.stringify([newRequest, ...existingRequests]));
+
     setTimeout(() => {
       setIsSubmitted(true);
     }, 500);

@@ -20,20 +20,18 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
-    // Simulate API delay
-    setTimeout(() => {
-      const result = login(email, password);
-      if (result.success) {
-        if (result.user.role === 'SUPER_ADMIN') {
-          navigate('/platform-admin');
-        } else {
-          navigate('/admin/dashboard');
-        }
+    // Call the async login from AuthContext
+    const result = await login(email, password);
+    if (result.success) {
+      if (result.user.role === 'SUPER_ADMIN') {
+        navigate('/platform-admin');
       } else {
-        setError(result.message);
+        navigate('/admin/dashboard');
       }
-      setIsLoading(false);
-    }, 800);
+    } else {
+      setError(result.message);
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -128,13 +126,6 @@ const Login = () => {
                   <span>super@admin.com</span>
                 </div>
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Platform</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => { setEmail('ram@abc.edu.np'); setPassword('password123'); }}>
-                <div>
-                  <span className="font-semibold text-gray-900 block">ABC College Admin</span>
-                  <span>ram@abc.edu.np</span>
-                </div>
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Org 1</span>
               </div>
             </div>
           </div>

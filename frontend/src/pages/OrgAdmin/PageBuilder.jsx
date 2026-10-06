@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPage, updatePage, getOrganization } from '../../services/mockDbService';
+import { getPage, updatePage, getOrganization } from '../../services/apiService';
 import { Save, ArrowLeft, Plus, Image as ImageIcon, Type, LayoutTemplate, Trash2, ArrowUp, ArrowDown, List, Calendar, LayoutGrid, Megaphone, Eye, Table, MapPin } from 'lucide-react';
 
 const PageBuilder = () => {
@@ -12,20 +12,22 @@ const PageBuilder = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const loadedPage = getPage(pageId);
-    if (loadedPage) {
-      setPage(loadedPage);
-      setSections(loadedPage.sections || []);
-      setOrg(getOrganization(loadedPage.organizationId));
-    }
+    const loadData = async () => {
+      const loadedPage = await getPage(pageId);
+      if (loadedPage) {
+        setPage(loadedPage);
+        setSections(loadedPage.sections ? (typeof loadedPage.sections === 'string' ? JSON.parse(loadedPage.sections) : loadedPage.sections) : []);
+        const loadedOrg = await getOrganization(loadedPage.organization_id || loadedPage.organizationId);
+        setOrg(loadedOrg);
+      }
+    };
+    loadData();
   }, [pageId]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    updatePage(pageId, { sections });
-    setTimeout(() => {
-      setIsSaving(false);
-    }, 500);
+    await updatePage(pageId, { sections });
+    setIsSaving(false);
   };
 
   const addSection = (type) => {
@@ -64,9 +66,9 @@ const PageBuilder = () => {
         newSection.data = { title: 'Ready to join?', description: 'Sign up today and get started.', buttonText: 'Click Here', buttonLink: '#', fields: [] };
         break;
       case 'contact_form':
-        newSection.data = { 
-          title: 'Contact Us', 
-          subtitle: '', 
+        newSection.data = {
+          title: 'Contact Us',
+          subtitle: '',
           email: 'admin@organization.com',
           contactInfo: '<p><strong>📍 ADDRESS:</strong><br/>123 Education Lane, City, Country</p><p><strong>📞 PHONE:</strong><br/>+1 234 567 8900</p><p><strong>✉️ EMAIL:</strong><br/>info@school.edu</p><p><strong>🕒 SCHOOL HOURS:</strong><br/>Mon-Fri: 8:00 AM - 4:00 PM</p>',
           mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.8142900902094!2d85.31694677617478!3d27.69213407619131!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19b19295555f%3A0xabfe5f4b310f97de!2sThe%20British%20College%2C%20Kathmandu!5e0!3m2!1sen!2snp!4v1709623862218!5m2!1sen!2snp'
@@ -183,9 +185,9 @@ const PageBuilder = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Editor Area */}
-        <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-4 lg:p-8">
           <div className="max-w-4xl mx-auto space-y-6 pb-32">
             {sections.length === 0 && (
               <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300 shadow-sm">
@@ -443,46 +445,46 @@ const PageBuilder = () => {
                           </select>
                         </div>
                       </div>
-                      
+
                       <div className="mt-6 space-y-4">
-                         <div className="flex justify-between items-center mb-2 border-b pb-2">
-                           <label className="block text-xs font-medium text-gray-700 uppercase">Form Fields (Optional)</label>
-                           <button onClick={() => {
-                             const fields = [...(section.data.fields || [])];
-                             fields.push({ placeholder: 'New Field', type: 'text' });
-                             updateSection(index, 'fields', fields);
-                           }} className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center bg-indigo-50 px-2 py-1 rounded">
-                             <Plus size={14} className="mr-1" /> Add Field
-                           </button>
-                         </div>
-                         <div className="space-y-3 max-h-60 overflow-y-auto">
-                           {section.data.fields?.map((field, fIndex) => (
-                             <div key={fIndex} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
-                               <input type="text" className="flex-1 text-sm border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500 p-2" value={field.placeholder || ''} onChange={e => {
-                                 const fields = [...section.data.fields];
-                                 fields[fIndex].placeholder = e.target.value;
-                                 updateSection(index, 'fields', fields);
-                               }} placeholder="Placeholder (e.g. Name)" />
-                               <select className="w-28 text-sm border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" value={field.type || 'text'} onChange={e => {
-                                 const fields = [...section.data.fields];
-                                 fields[fIndex].type = e.target.value;
-                                 updateSection(index, 'fields', fields);
-                               }}>
-                                 <option value="text">Text</option>
-                                 <option value="email">Email</option>
-                                 <option value="number">Number</option>
-                                 <option value="textarea">Long Text</option>
-                               </select>
-                               <button onClick={() => {
-                                 const fields = [...section.data.fields];
-                                 fields.splice(fIndex, 1);
-                                 updateSection(index, 'fields', fields);
-                               }} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded bg-white border border-gray-200" title="Remove Field">
-                                 <Trash2 size={16} />
-                               </button>
-                             </div>
-                           ))}
-                         </div>
+                        <div className="flex justify-between items-center mb-2 border-b pb-2">
+                          <label className="block text-xs font-medium text-gray-700 uppercase">Form Fields (Optional)</label>
+                          <button onClick={() => {
+                            const fields = [...(section.data.fields || [])];
+                            fields.push({ placeholder: 'New Field', type: 'text' });
+                            updateSection(index, 'fields', fields);
+                          }} className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center bg-indigo-50 px-2 py-1 rounded">
+                            <Plus size={14} className="mr-1" /> Add Field
+                          </button>
+                        </div>
+                        <div className="space-y-3 max-h-60 overflow-y-auto">
+                          {section.data.fields?.map((field, fIndex) => (
+                            <div key={fIndex} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                              <input type="text" className="flex-1 text-sm border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500 p-2" value={field.placeholder || ''} onChange={e => {
+                                const fields = [...section.data.fields];
+                                fields[fIndex].placeholder = e.target.value;
+                                updateSection(index, 'fields', fields);
+                              }} placeholder="Placeholder (e.g. Name)" />
+                              <select className="w-28 text-sm border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" value={field.type || 'text'} onChange={e => {
+                                const fields = [...section.data.fields];
+                                fields[fIndex].type = e.target.value;
+                                updateSection(index, 'fields', fields);
+                              }}>
+                                <option value="text">Text</option>
+                                <option value="email">Email</option>
+                                <option value="number">Number</option>
+                                <option value="textarea">Long Text</option>
+                              </select>
+                              <button onClick={() => {
+                                const fields = [...section.data.fields];
+                                fields.splice(fIndex, 1);
+                                updateSection(index, 'fields', fields);
+                              }} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded bg-white border border-gray-200" title="Remove Field">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </>
                   )}
@@ -515,7 +517,7 @@ const PageBuilder = () => {
                           <ReactQuill theme="snow" modules={quillModules} value={section.data.subtitle} onChange={(val) => updateSection(index, 'subtitle', val)} className="bg-white text-gray-700" />
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         <div className="space-y-4">
                           <h4 className="font-semibold text-sm text-gray-700 border-b pb-2">Left Column (Contact Info)</h4>
@@ -545,82 +547,82 @@ const PageBuilder = () => {
                   {section.type === 'image_text' && (() => {
                     const images = section.data.images || (section.data.image ? [section.data.image] : ['']);
                     return (
-                    <>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 uppercase mb-2">Images</label>
-                          {images.map((img, imgIndex) => (
-                            <div key={imgIndex} className="flex items-center space-x-2 mb-2">
-                              <input 
-                                type="text" 
-                                className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                value={img} 
-                                onChange={e => {
-                                  const newImages = [...images];
-                                  newImages[imgIndex] = e.target.value;
-                                  updateSection(index, 'images', newImages);
-                                }} 
-                                placeholder="Image URL"
-                              />
-                              <button 
-                                type="button"
-                                className="p-2 text-red-500 hover:bg-red-50 rounded"
-                                onClick={() => {
-                                  const newImages = [...images];
-                                  newImages.splice(imgIndex, 1);
-                                  updateSection(index, 'images', newImages);
-                                }}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          ))}
-                          <button 
-                            type="button"
-                            onClick={() => {
-                              const newImages = [...images, ''];
-                              updateSection(index, 'images', newImages);
-                            }}
-                            className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center mt-1"
-                          >
-                            <Plus size={14} className="mr-1"/> Add Image
-                          </button>
+                      <>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 uppercase mb-2">Images</label>
+                            {images.map((img, imgIndex) => (
+                              <div key={imgIndex} className="flex items-center space-x-2 mb-2">
+                                <input
+                                  type="text"
+                                  className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                  value={img}
+                                  onChange={e => {
+                                    const newImages = [...images];
+                                    newImages[imgIndex] = e.target.value;
+                                    updateSection(index, 'images', newImages);
+                                  }}
+                                  placeholder="Image URL"
+                                />
+                                <button
+                                  type="button"
+                                  className="p-2 text-red-500 hover:bg-red-50 rounded"
+                                  onClick={() => {
+                                    const newImages = [...images];
+                                    newImages.splice(imgIndex, 1);
+                                    updateSection(index, 'images', newImages);
+                                  }}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newImages = [...images, ''];
+                                updateSection(index, 'images', newImages);
+                              }}
+                              className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center mt-1"
+                            >
+                              <Plus size={14} className="mr-1" /> Add Image
+                            </button>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Image Position</label>
+                            <select className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" value={section.data.imagePosition} onChange={e => updateSection(index, 'imagePosition', e.target.value)}>
+                              <option value="left">Images on Left</option>
+                              <option value="right">Images on Right</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                          <div className="md:col-span-2">
+                            <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Title</label>
+                            <input type="text" className="w-full text-xl font-bold border-0 border-b border-gray-200 focus:ring-0 focus:border-indigo-600 px-0 py-2" value={section.data.title || ''} onChange={e => updateSection(index, 'title', e.target.value)} placeholder="Section Title" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Title Color</label>
+                            <select className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" value={section.data.titleColor || 'default'} onChange={e => updateSection(index, 'titleColor', e.target.value)}>
+                              <option value="default">Default</option>
+                              <option value="primary">Primary</option>
+                              <option value="red">Red</option>
+                              <option value="green">Green</option>
+                              <option value="blue">Blue</option>
+                              <option value="purple">Purple</option>
+                              <option value="orange">Orange</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="mt-4">
+                          <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Subtitle (Optional)</label>
+                          <input type="text" className="w-full text-sm border-0 border-b border-gray-200 focus:ring-0 focus:border-indigo-600 px-0 py-2" value={section.data.subtitle || ''} onChange={e => updateSection(index, 'subtitle', e.target.value)} placeholder="Add a subtitle..." />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Image Position</label>
-                          <select className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" value={section.data.imagePosition} onChange={e => updateSection(index, 'imagePosition', e.target.value)}>
-                            <option value="left">Images on Left</option>
-                            <option value="right">Images on Right</option>
-                          </select>
+                          <label className="block text-xs font-medium text-gray-700 uppercase mb-1 mt-4">Content</label>
+                          <textarea rows={5} className="w-full border border-gray-300 rounded p-3 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700" value={section.data.content || ''} onChange={e => updateSection(index, 'content', e.target.value)} placeholder="Type your paragraph here..." />
                         </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                        <div className="md:col-span-2">
-                          <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Title</label>
-                          <input type="text" className="w-full text-xl font-bold border-0 border-b border-gray-200 focus:ring-0 focus:border-indigo-600 px-0 py-2" value={section.data.title || ''} onChange={e => updateSection(index, 'title', e.target.value)} placeholder="Section Title" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Title Color</label>
-                          <select className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" value={section.data.titleColor || 'default'} onChange={e => updateSection(index, 'titleColor', e.target.value)}>
-                            <option value="default">Default</option>
-                            <option value="primary">Primary</option>
-                            <option value="red">Red</option>
-                            <option value="green">Green</option>
-                            <option value="blue">Blue</option>
-                            <option value="purple">Purple</option>
-                            <option value="orange">Orange</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Subtitle (Optional)</label>
-                        <input type="text" className="w-full text-sm border-0 border-b border-gray-200 focus:ring-0 focus:border-indigo-600 px-0 py-2" value={section.data.subtitle || ''} onChange={e => updateSection(index, 'subtitle', e.target.value)} placeholder="Add a subtitle..." />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 uppercase mb-1 mt-4">Content</label>
-                        <textarea rows={5} className="w-full border border-gray-300 rounded p-3 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700" value={section.data.content || ''} onChange={e => updateSection(index, 'content', e.target.value)} placeholder="Type your paragraph here..." />
-                      </div>
-                    </>
+                      </>
                     );
                   })()}
 
@@ -629,11 +631,11 @@ const PageBuilder = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="col-span-2 md:col-span-1">
                           <label className="block text-xs font-medium text-gray-700 uppercase mb-2">Map Embed Iframe</label>
-                          <textarea 
+                          <textarea
                             rows={4}
-                            className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                            value={section.data.mapIframe || ''} 
-                            onChange={e => updateSection(index, 'mapIframe', e.target.value)} 
+                            className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            value={section.data.mapIframe || ''}
+                            onChange={e => updateSection(index, 'mapIframe', e.target.value)}
                             placeholder='Paste Google Maps <iframe src="..."></iframe> code here...'
                           />
                         </div>
@@ -673,79 +675,79 @@ const PageBuilder = () => {
                         <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Subtitle (Optional)</label>
                         <input type="text" className="w-full text-sm border-0 border-b border-gray-200 focus:ring-0 focus:border-indigo-600 px-0 py-2" value={section.data.subtitle || ''} onChange={e => updateSection(index, 'subtitle', e.target.value)} placeholder="Add a subtitle..." />
                       </div>
-                      
-                      <div className="mt-6 space-y-4">
-                         <div className="flex justify-between items-center mb-2">
-                           <label className="block text-xs font-medium text-gray-700 uppercase">Table Columns</label>
-                           <button onClick={() => {
-                             const headers = [...(section.data.headers || [])];
-                             headers.push(`Column ${headers.length + 1}`);
-                             const rows = (section.data.rows || []).map(r => [...r, '']);
-                             updateSection(index, 'headers', headers);
-                             updateSection(index, 'rows', rows);
-                           }} className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center">
-                             <Plus size={14} className="mr-1" /> Add Column
-                           </button>
-                         </div>
-                         <div className="flex gap-2 overflow-x-auto pb-2">
-                           {section.data.headers?.map((header, hIndex) => (
-                             <div key={`header-${hIndex}`} className="flex-shrink-0 flex items-center bg-gray-100 rounded-lg p-1">
-                               <input type="text" className="text-sm font-semibold border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500 p-2 w-32 bg-white" value={header} onChange={e => {
-                                 const headers = [...section.data.headers];
-                                 headers[hIndex] = e.target.value;
-                                 updateSection(index, 'headers', headers);
-                               }} />
-                               <button onClick={() => {
-                                 const headers = [...section.data.headers];
-                                 headers.splice(hIndex, 1);
-                                 const rows = [...(section.data.rows || [])].map(r => {
-                                   const newRow = [...r];
-                                   newRow.splice(hIndex, 1);
-                                   return newRow;
-                                 });
-                                 updateSection(index, 'headers', headers);
-                                 updateSection(index, 'rows', rows);
-                               }} className="ml-1 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="Remove Column">
-                                 <Trash2 size={16} />
-                               </button>
-                             </div>
-                           ))}
-                         </div>
 
-                         <div className="flex justify-between items-center mb-2 mt-4">
-                           <label className="block text-xs font-medium text-gray-700 uppercase">Table Rows</label>
-                           <button onClick={() => {
-                             const rows = [...(section.data.rows || [])];
-                             const colsCount = (section.data.headers || []).length;
-                             rows.push(new Array(colsCount).fill(''));
-                             updateSection(index, 'rows', rows);
-                           }} className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center">
-                             <Plus size={14} className="mr-1" /> Add Row
-                           </button>
-                         </div>
-                         <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-                           {section.data.rows?.map((row, rIndex) => (
-                             <div key={`row-${rIndex}`} className="flex gap-2 items-center bg-gray-50 p-2 rounded-lg border border-gray-200 overflow-x-auto">
-                               <span className="text-xs font-medium text-gray-400 w-6 text-center">{rIndex + 1}</span>
-                               {row.map((cell, cIndex) => (
-                                 <input key={`cell-${rIndex}-${cIndex}`} type="text" className="text-sm border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500 p-2 w-32 flex-shrink-0" value={cell} onChange={e => {
-                                   const rows = [...section.data.rows];
-                                   const newRow = [...rows[rIndex]];
-                                   newRow[cIndex] = e.target.value;
-                                   rows[rIndex] = newRow;
-                                   updateSection(index, 'rows', rows);
-                                 }} placeholder={`Data`} />
-                               ))}
-                               <button onClick={() => {
-                                 const rows = [...section.data.rows];
-                                 rows.splice(rIndex, 1);
-                                 updateSection(index, 'rows', rows);
-                               }} className="p-2 flex-shrink-0 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded bg-white border border-gray-200" title="Remove Row">
-                                 <Trash2 size={16} />
-                               </button>
-                             </div>
-                           ))}
-                         </div>
+                      <div className="mt-6 space-y-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="block text-xs font-medium text-gray-700 uppercase">Table Columns</label>
+                          <button onClick={() => {
+                            const headers = [...(section.data.headers || [])];
+                            headers.push(`Column ${headers.length + 1}`);
+                            const rows = (section.data.rows || []).map(r => [...r, '']);
+                            updateSection(index, 'headers', headers);
+                            updateSection(index, 'rows', rows);
+                          }} className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center">
+                            <Plus size={14} className="mr-1" /> Add Column
+                          </button>
+                        </div>
+                        <div className="flex gap-2 overflow-x-auto pb-2">
+                          {section.data.headers?.map((header, hIndex) => (
+                            <div key={`header-${hIndex}`} className="flex-shrink-0 flex items-center bg-gray-100 rounded-lg p-1">
+                              <input type="text" className="text-sm font-semibold border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500 p-2 w-32 bg-white" value={header} onChange={e => {
+                                const headers = [...section.data.headers];
+                                headers[hIndex] = e.target.value;
+                                updateSection(index, 'headers', headers);
+                              }} />
+                              <button onClick={() => {
+                                const headers = [...section.data.headers];
+                                headers.splice(hIndex, 1);
+                                const rows = [...(section.data.rows || [])].map(r => {
+                                  const newRow = [...r];
+                                  newRow.splice(hIndex, 1);
+                                  return newRow;
+                                });
+                                updateSection(index, 'headers', headers);
+                                updateSection(index, 'rows', rows);
+                              }} className="ml-1 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="Remove Column">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-between items-center mb-2 mt-4">
+                          <label className="block text-xs font-medium text-gray-700 uppercase">Table Rows</label>
+                          <button onClick={() => {
+                            const rows = [...(section.data.rows || [])];
+                            const colsCount = (section.data.headers || []).length;
+                            rows.push(new Array(colsCount).fill(''));
+                            updateSection(index, 'rows', rows);
+                          }} className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center">
+                            <Plus size={14} className="mr-1" /> Add Row
+                          </button>
+                        </div>
+                        <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                          {section.data.rows?.map((row, rIndex) => (
+                            <div key={`row-${rIndex}`} className="flex gap-2 items-center bg-gray-50 p-2 rounded-lg border border-gray-200 overflow-x-auto">
+                              <span className="text-xs font-medium text-gray-400 w-6 text-center">{rIndex + 1}</span>
+                              {row.map((cell, cIndex) => (
+                                <input key={`cell-${rIndex}-${cIndex}`} type="text" className="text-sm border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500 p-2 w-32 flex-shrink-0" value={cell} onChange={e => {
+                                  const rows = [...section.data.rows];
+                                  const newRow = [...rows[rIndex]];
+                                  newRow[cIndex] = e.target.value;
+                                  rows[rIndex] = newRow;
+                                  updateSection(index, 'rows', rows);
+                                }} placeholder={`Data`} />
+                              ))}
+                              <button onClick={() => {
+                                const rows = [...section.data.rows];
+                                rows.splice(rIndex, 1);
+                                updateSection(index, 'rows', rows);
+                              }} className="p-2 flex-shrink-0 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded bg-white border border-gray-200" title="Remove Row">
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </>
                   )}
@@ -756,7 +758,7 @@ const PageBuilder = () => {
         </div>
 
         {/* Sidebar Blocks Palette */}
-        <div className="w-72 bg-white border-l border-gray-200 flex flex-col shadow-lg relative z-10 overflow-y-auto">
+        <div className="w-full lg:w-72 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 flex flex-col shadow-lg relative z-10 overflow-y-auto h-64 lg:h-auto flex-shrink-0">
           <div className="p-4 border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
             <h3 className="font-bold text-gray-900 flex items-center space-x-2">
               <Plus size={18} />
@@ -816,7 +818,7 @@ const PageBuilder = () => {
 
             <div className="border-t border-gray-100 pt-3 mt-3">
               <h5 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Dynamic</h5>
-              
+
               <button onClick={() => addSection('combined_events_notices')} className="w-full flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-sm transition-all text-left group mb-3">
                 <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
                   <LayoutGrid size={20} />
@@ -880,15 +882,7 @@ const PageBuilder = () => {
                 </div>
               </button>
 
-              <button onClick={() => addSection('contact_form')} className="w-full flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-sm transition-all text-left group mt-3">
-                <div className="p-2 bg-teal-50 text-teal-600 rounded-lg group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                  <Type size={20} />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm">Contact Form</h4>
-                  <p className="text-[10px] text-gray-500">Collect user messages</p>
-                </div>
-              </button>
+
             </div>
           </div>
         </div>

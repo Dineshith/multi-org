@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getOrganizations, createOrganization, createUser, updateOrganization, deleteOrganization } from '../../services/mockDbService';
+import { getOrganizations, createOrganization, createUser, updateOrganization, deleteOrganization } from '../../services/apiService';
 import { Plus, Search, MoreVertical, Shield, Edit, Trash2 } from 'lucide-react';
 import Modal from '../../components/shared/Modal';
+import { toast } from 'react-toastify';
 
 const Organizations = () => {
   const [organizations, setOrganizations] = useState([]);
@@ -29,14 +30,15 @@ const Organizations = () => {
     loadOrganizations();
   }, []);
 
-  const loadOrganizations = () => {
-    setOrganizations(getOrganizations());
+  const loadOrganizations = async () => {
+    const data = await getOrganizations();
+    setOrganizations(data);
   };
 
-  const handleCreateOrg = (e) => {
+  const handleCreateOrg = async (e) => {
     e.preventDefault();
-    createOrganization(newOrg);
-    loadOrganizations();
+    await createOrganization(newOrg);
+    await loadOrganizations();
     setIsOrgModalOpen(false);
     setNewOrg({ name: '', type: 'college', slug: '', email: '', phone: '', address: '', branding: { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6', logo: '' }, statsBanner: [], sisterOrganizations: [], footer: { logo: '', description: '', facultyTitle: 'Faculty', facultyDetails: '', contactTitle: 'Contact Us', contactInfo: '', mapUrl: '', copyrightText: '' } });
   };
@@ -47,22 +49,33 @@ const Organizations = () => {
       branding: org.branding || { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6', logo: '' },
       statsBanner: org.statsBanner || [],
       sisterOrganizations: org.sisterOrganizations || [],
-      footer: org.footer || { logo: '', description: '', facultyTitle: 'Faculty', facultyDetails: '', contactTitle: 'Contact Us', contactInfo: '', mapUrl: '', copyrightText: '' }
+      footer: {
+        ...(org.footer || {}),
+        logo: org.footer?.logo || '', 
+        description: org.footer?.description || org.footer_description || '', 
+        facultyTitle: org.footer?.facultyTitle || 'Faculty', 
+        facultyDetails: org.footer?.facultyDetails || '', 
+        contactTitle: org.footer?.contactTitle || 'Contact Us', 
+        contactInfo: org.footer?.contactInfo || '', 
+        mapUrl: org.footer?.mapUrl || org.map_link || '', 
+        copyrightText: org.footer?.copyrightText || org.copyright_text || '' 
+      }
     });
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteOrg = (id, slug) => {
+  const handleDeleteOrg = async (id, slug) => {
     if (slug === 'main-portal') {
-      alert("The main portal organization cannot be deleted.");
+      toast.error("The main portal organization cannot be deleted.");
       return;
     }
     if (window.confirm("Are you sure you want to delete this organization? All its pages, events, and notices will be permanently deleted. This action cannot be undone.")) {
-      const success = deleteOrganization(id);
+      const success = await deleteOrganization(id);
       if (success) {
-        loadOrganizations();
+        toast.success("Organization deleted successfully!");
+        await loadOrganizations();
       } else {
-        alert("Failed to delete organization.");
+        toast.error("Failed to delete organization.");
       }
     }
   };
@@ -109,24 +122,33 @@ const Organizations = () => {
     setEditOrg({...editOrg, sisterOrganizations: updated});
   };
 
-  const handleUpdateOrg = (e) => {
+  const handleUpdateOrg = async (e) => {
     e.preventDefault();
-    updateOrganization(editOrg.id, editOrg);
-    loadOrganizations();
+    const payload = {
+      ...editOrg,
+      map_link: editOrg.footer?.mapUrl || editOrg.map_link,
+      copyright_text: editOrg.footer?.copyrightText || editOrg.copyright_text
+    };
+    await updateOrganization(editOrg.id, payload);
+    await loadOrganizations();
     setIsEditModalOpen(false);
     setEditOrg(null);
   };
 
-  const handleCreateAdmin = (e) => {
+  const handleCreateAdmin = async (e) => {
     e.preventDefault();
-    createUser({
+    const res = await createUser({
       ...newAdmin,
       role: 'ORG_ADMIN',
-      organizationId: selectedOrgId
+      organization_id: selectedOrgId
     });
-    setIsAdminModalOpen(false);
-    setNewAdmin({ name: '', email: '', password: 'password123' });
-    alert('Admin created successfully! They can log in with password: password123');
+    if (res) {
+      setIsAdminModalOpen(false);
+      setNewAdmin({ name: '', email: '', password: 'password123' });
+      toast.success('Admin created successfully! They can log in with password: password123', { autoClose: false });
+    } else {
+      toast.error('Failed to create Admin. Please try again.');
+    }
   };
 
   return (
@@ -168,11 +190,11 @@ const Organizations = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
-                      {org.branding?.logo ? (
-                        <img className="h-10 w-10 rounded object-contain bg-white shadow-sm p-0.5" src={org.branding.logo} alt="" />
+                      {org.logo_url || org.branding?.logo ? (
+                        <img className="h-10 w-10 rounded object-contain bg-white shadow-sm p-0.5" src={org.logo_url || org.branding?.logo} alt="" />
                       ) : (
                         <div className="h-10 w-10 rounded bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                          {org.name.charAt(0)}
+                          {org.name ? org.name.charAt(0) : '?'}
                         </div>
                       )}
                     </div>
@@ -186,8 +208,8 @@ const Organizations = () => {
                   <span className="capitalize text-sm text-gray-900">{org.type}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{org.address.split(',')[0]}</div>
-                  <div className="text-sm text-gray-500">{org.phone}</div>
+                  <div className="text-sm text-gray-900">{org.address ? org.address.split(',')[0] : 'No address'}</div>
+                  <div className="text-sm text-gray-500">{org.phone || 'No phone'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -319,10 +341,10 @@ const Organizations = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Navbar Logo URL</label>
+              <label className="block text-sm font-medium text-gray-700">Logo URL (Navbar & Footer)</label>
               <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={editOrg.branding?.logo || ''} onChange={e => setEditOrg({...editOrg, branding: {...editOrg.branding, logo: e.target.value}})} 
-                     placeholder="https://example.com/nav-logo.png" />
+                     value={editOrg.logo_url || ''} onChange={e => setEditOrg({...editOrg, logo_url: e.target.value})} 
+                     placeholder="https://example.com/logo.png" />
             </div>
 
             {/* Stats Banner */}
@@ -375,14 +397,9 @@ const Organizations = () => {
             {/* Footer Settings */}
             <h4 className="font-medium text-gray-900 border-b pb-2 mt-6">Footer Settings</h4>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Footer Logo URL</label>
-              <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={editOrg.footer.logo} onChange={e => setEditOrg({...editOrg, footer: {...editOrg.footer, logo: e.target.value}})} placeholder="https://example.com/logo.png" />
-            </div>
-            <div>
               <label className="block text-sm font-medium text-gray-700">Footer Description</label>
               <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                        rows="2" value={editOrg.footer.description} onChange={e => setEditOrg({...editOrg, footer: {...editOrg.footer, description: e.target.value}})}></textarea>
+                        rows="2" value={editOrg.footer_description || ''} onChange={e => setEditOrg({...editOrg, footer_description: e.target.value})}></textarea>
             </div>
             
             <div className="grid grid-cols-2 gap-4 mt-2">
@@ -414,9 +431,15 @@ const Organizations = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Map Embed URL</label>
-              <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={editOrg.footer.mapUrl || ''} onChange={e => setEditOrg({...editOrg, footer: {...editOrg.footer, mapUrl: e.target.value}})} 
-                     placeholder="https://www.google.com/maps/embed?..." />
+              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
+                     value={editOrg.footer.mapUrl || ''} 
+                     onChange={e => {
+                       let val = e.target.value;
+                       const match = val.match(/src="([^"]+)"/);
+                       if (match) val = match[1];
+                       setEditOrg({...editOrg, footer: {...editOrg.footer, mapUrl: val}});
+                     }} 
+                     placeholder="Paste URL or <iframe> code..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Copyright Text</label>
