@@ -141,8 +141,12 @@ const SuperAdminLayout = () => {
 
         <div className="p-4 border-t border-slate-800">
           <Link to="/platform-admin/settings" onClick={() => setIsSidebarOpen(false)} className="flex items-center space-x-3 mb-4 px-2 hover:bg-slate-800 rounded-lg py-2 transition-colors cursor-pointer group">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold group-hover:bg-blue-600 transition-colors">
-              {user.name.charAt(0)}
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold group-hover:bg-blue-600 transition-colors overflow-hidden">
+              {user.profile_photo_url ? (
+                <img src={user.profile_photo_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                user.name.charAt(0)
+              )}
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-medium group-hover:text-white transition-colors truncate">{user.name}</p>
