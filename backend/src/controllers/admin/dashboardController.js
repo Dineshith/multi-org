@@ -30,9 +30,7 @@ export const getDashboardData = async (req, res) => {
 
     const [orgRows] = await db.query(
       `
-      SELECT 
-        id, name, type, slug, email, phone, logo_url, address, 
-        map_link, status, footer_description, copyright_text, created_at
+      SELECT *
       FROM organizations 
       WHERE id = ? 
       LIMIT 1
@@ -47,7 +45,34 @@ export const getDashboardData = async (req, res) => {
       });
     }
 
-    const organization = orgRows[0];
+    const rawOrg = orgRows[0];
+    let brandingObj = null;
+    let footerConfigObj = null;
+    try {
+      brandingObj = typeof rawOrg.branding === "string" ? JSON.parse(rawOrg.branding) : rawOrg.branding;
+    } catch {}
+    try {
+      footerConfigObj = typeof rawOrg.footer_config === "string" ? JSON.parse(rawOrg.footer_config) : rawOrg.footer_config;
+    } catch {}
+
+    const organization = {
+      ...rawOrg,
+      branding: {
+        logo: rawOrg.logo_url || "",
+        primaryColor: brandingObj?.primaryColor || "#4f46e5",
+        secondaryColor: brandingObj?.secondaryColor || "#f3f4f6",
+      },
+      footer: {
+        logo: rawOrg.logo_url || "",
+        description: rawOrg.footer_description || "",
+        facultyTitle: footerConfigObj?.facultyTitle || "Faculty",
+        facultyDetails: footerConfigObj?.facultyDetails || "",
+        contactTitle: footerConfigObj?.contactTitle || "Contact Us",
+        contactInfo: footerConfigObj?.contactInfo || "",
+        mapUrl: rawOrg.map_link || "",
+        copyrightText: rawOrg.copyright_text || "",
+      },
+    };
 
     const [noticeStats] = await db.query(
       `

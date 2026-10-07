@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   createNotice,
   deleteNotice,
@@ -6,21 +7,40 @@ import {
   getNoticeById,
   updateNotice,
 } from "../controllers/noticeController.js";
+
 import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.use(authMiddleware);
+// Get all notices - public
+router.get("/", getAllNotices);
 
-router.get("/", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), getAllNotices);
+// Get notice by ID - public
+router.get("/:id", getNoticeById);
 
-router.get("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), getNoticeById);
+// Create notice
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"),
+  createNotice
+);
 
-router.post("/", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), createNotice);
+// Update notice
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"),
+  updateNotice
+);
 
-router.put("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), updateNotice);
-
-router.delete("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), deleteNotice);
+// Delete notice
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"),
+  deleteNotice
+);
 
 export default router;

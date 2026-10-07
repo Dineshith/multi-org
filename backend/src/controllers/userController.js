@@ -163,6 +163,13 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
+    const isSuperAdmin = req.user?.role === "SUPER_ADMIN";
+    const isSelf = req.user && String(req.user.id) === String(id);
+
+    if (!isSuperAdmin && !isSelf) {
+      return res.status(403).json({ success: false, message: "Forbidden" });
+    }
+
     const { name, email, password, organization_id, role, profile_photo_url } =
       req.body;
 
@@ -221,14 +228,16 @@ const updateUser = async (req, res) => {
         token_version = ?
       WHERE id = ?`,
       [
-        organization_id !== undefined ? organization_id : user.organization_id,
+        isSuperAdmin && organization_id !== undefined
+          ? organization_id
+          : user.organization_id,
         name ?? user.name,
         email ?? user.email,
         password_hash,
         profile_photo_url !== undefined
           ? profile_photo_url
           : user.profile_photo_url,
-        role ?? user.role,
+        isSuperAdmin && role !== undefined ? role : user.role,
         token_version,
         id,
       ],

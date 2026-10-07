@@ -2,7 +2,7 @@ import db from "../config/db.js";
 
 const getOrgFilter = (req) => {
   const user = req.user;
-  if (user.role === "SUPER_ADMIN") {
+  if (!user || user.role === "SUPER_ADMIN") {
     return { orgId: null, scoped: false };
   }
   return { orgId: user.organization_id, scoped: true };
@@ -129,10 +129,13 @@ const createStaff = async (req, res) => {
       ],
     );
 
+    const [created] = await db.query(`SELECT * FROM staff WHERE id = ? LIMIT 1`, [result.insertId]);
+
     res.status(201).json({
       success: true,
       message: "Staff created successfully",
       staffId: result.insertId,
+      staff: created[0] || null,
     });
   } catch (error) {
     console.error("Create staff error:", error);
@@ -211,9 +214,12 @@ const updateStaff = async (req, res) => {
       ],
     );
 
+    const [updated] = await db.query(`SELECT * FROM staff WHERE id = ? LIMIT 1`, [id]);
+
     res.status(200).json({
       success: true,
       message: "Staff updated successfully",
+      staff: updated[0] || null,
     });
   } catch (error) {
     console.error("Update staff error:", error);

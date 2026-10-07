@@ -16,13 +16,23 @@ import dashboardRoute from "./src/routes/admin/dashboardRoute.js";
 import passwordResetRequestRoute from "./src/routes/admin/passwordResetRequestRoute.js";
 import publicRoutes from "./src/routes/publicRoutes.js";
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config();
 
 const app = express();
 
 // Middleware
-app.use(cors("http://localhost:5173")); //full frontend access, empty-give access to all
-app.use(express.json());
+app.use(cors({ origin: "http://localhost:5173", credentials: true })); // Allow frontend origin
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// Serve static uploads
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // AUTH and resource routes
 app.use("/api/auth", authRoutes);

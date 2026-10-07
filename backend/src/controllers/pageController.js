@@ -20,7 +20,7 @@ const shapePage = (page) => ({
 
 const getOrgFilter = (req) => {
   const user = req.user;
-  if (user.role === "SUPER_ADMIN") return { orgId: null, scoped: false };
+  if (!user || user.role === "SUPER_ADMIN") return { orgId: null, scoped: false };
   return { orgId: user.organization_id, scoped: true };
 };
 
@@ -94,11 +94,13 @@ const createPage = async (req, res) => {
         JSON.stringify(dropdown_items || []),
       ],
     );
+    const [created] = await db.query(`SELECT * FROM pages WHERE id = ? LIMIT 1`, [result.insertId]);
     res.status(201).json({
       success: true,
       message: "Page created successfully",
       pageId: result.insertId,
       slug: finalSlug,
+      page: created.length > 0 ? shapePage(created[0]) : null,
     });
   } catch (error) {
     console.error("Create page error:", error);
@@ -180,10 +182,13 @@ const updatePage = async (req, res) => {
       ]
     );
 
+    const [updatedRows] = await db.query(`SELECT * FROM pages WHERE id = ? LIMIT 1`, [id]);
+
     res.status(200).json({
       success: true,
       message: "Page updated successfully",
       slug: finalSlug,
+      page: updatedRows.length > 0 ? shapePage(updatedRows[0]) : null,
     });
 
   } catch (error) {

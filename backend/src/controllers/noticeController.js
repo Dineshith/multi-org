@@ -1,8 +1,16 @@
 import db from "../config/db.js";
+const shapeNotice = (notice) => {
+  if (!notice) return notice;
+  return {
+    ...notice,
+    image: notice.image_url || null,
+    image_url: notice.image_url || null,
+  };
+};
 
 const getOrgFilter = (req) => {
   const user = req.user;
-  if (user.role === "SUPER_ADMIN") {
+  if (!user || user.role === "SUPER_ADMIN") {
     return { orgId: null, scoped: false };
   }
   return { orgId: user.organization_id, scoped: true };
@@ -26,7 +34,7 @@ const getAllNotices = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      notices,
+      notices: notices.map(shapeNotice),
     });
   } catch (error) {
     console.error("Get notices error:", error);
@@ -62,7 +70,7 @@ const getNoticeById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      notice: notices[0],
+      notice: shapeNotice(notices[0]),
     });
   } catch (error) {
     console.error("Get notice error:", error);
@@ -76,7 +84,7 @@ const getNoticeById = async (req, res) => {
 const createNotice = async (req, res) => {
   try {
     const { orgId, scoped } = getOrgFilter(req);
-    const { title, content, image_url, published, publish_on_main_portal } = req.body;
+    const { title, content, image_url, image, published, publish_on_main_portal } = req.body;
 
     if (!title) {
       return res.status(400).json({
@@ -94,6 +102,8 @@ const createNotice = async (req, res) => {
       });
     }
 
+    const processedImageUrl = processImageInput(image_url || image, "notice");
+
     const isPublished = published === true || published === "true";
     const published_at = isPublished ? new Date() : null;
 
@@ -105,17 +115,20 @@ const createNotice = async (req, res) => {
         organization_id,
         title,
         content || null,
-        image_url || null,
+        processedImageUrl,
         isPublished,
         published_at,
         publish_on_main_portal === true || publish_on_main_portal === "true",
       ],
     );
 
+    const [created] = await db.query(`SELECT * FROM notices WHERE id = ? LIMIT 1`, [result.insertId]);
+
     res.status(201).json({
       success: true,
       message: "Notice created successfully",
       noticeId: result.insertId,
+      notice: shapeNotice(created[0]) || null,
     });
   } catch (error) {
     console.error("Create notice error:", error);
@@ -151,7 +164,13 @@ const updateNotice = async (req, res) => {
 
     const notice = existing[0];
 
-    const { title, content, image_url, published, publish_on_main_portal } = req.body;
+    const { title, content, image_url, image, published, publish_on_main_portal } = req.body;
+
+    const rawImage = image_url !== undefined ? image_url : image;
+    const processedImageUrl =
+      rawImage !== undefined
+        ? processImageInput(rawImage, "notice")
+        : notice.image_url;
 
     const isPublished =
       published !== undefined
@@ -177,7 +196,7 @@ const updateNotice = async (req, res) => {
       [
         title ?? notice.title,
         content ?? notice.content,
-        image_url !== undefined ? image_url : notice.image_url,
+        processedImageUrl,
         isPublished,
         published_at,
         publish_on_main_portal !== undefined
@@ -187,9 +206,12 @@ const updateNotice = async (req, res) => {
       ],
     );
 
+    const [updated] = await db.query(`SELECT * FROM notices WHERE id = ? LIMIT 1`, [id]);
+
     res.status(200).json({
       success: true,
       message: "Notice updated successfully",
+      notice: shapeNotice(updated[0]) || null,
     });
   } catch (error) {
     console.error("Update notice error:", error);

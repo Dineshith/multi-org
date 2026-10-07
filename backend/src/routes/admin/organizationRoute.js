@@ -4,6 +4,7 @@ import {
     createOrganization,
     deleteOrganization,
     getAllOrganizations,
+    getOrganizationById,
     getOrganizationBySlug,
     updateOrganization
 } from "../../controllers/admin/organizationController.js";
@@ -21,23 +22,25 @@ organizationRoute.post(
     createOrganization
 );
 
-// Get all organizations
+// Get all organizations - public
 organizationRoute.get(
     "/get-all-organization",
-    authMiddleware,
-    roleMiddleware("SUPER_ADMIN"),
     getAllOrganizations
 );
 
-// Get organization by slug
+// Get organization by ID - public
+organizationRoute.get(
+    "/get-organization-by-id/:id",
+    getOrganizationById
+);
+
+// Get organization by slug - public
 organizationRoute.get(
     "/get-organization-by-slug/:slug",
-    authMiddleware,
-    roleMiddleware("SUPER_ADMIN"),
     getOrganizationBySlug
 );
 
-// Update organization (ORG_ADMIN limited to their own org by the controller).
+// Update organization
 organizationRoute.put(
     "/update-organization/:slug",
     authMiddleware,

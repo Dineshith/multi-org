@@ -16,9 +16,19 @@ const serializeJsonColumn = (value, fallback) =>
   JSON.stringify(value ?? fallback);
 
 // Shapes branding/footer/stats for the frontend.
-const shapeOrganization = (row) => {
+const shapeOrganization = (row, allOrgs = []) => {
   const branding = parseJsonColumn(row.branding, null);
   const footerConfig = parseJsonColumn(row.footer_config, null);
+  let sisterOrgs = parseJsonColumn(row.sister_organizations, []) || [];
+
+  if (row.slug === "main-portal" && sisterOrgs.length === 0 && allOrgs.length > 0) {
+    sisterOrgs = allOrgs
+      .filter((o) => o.slug !== "main-portal" && (o.status || "ACTIVE").toUpperCase() === "ACTIVE")
+      .map((o) => ({
+        name: o.name,
+        link: `/org/${o.slug}`,
+      }));
+  }
 
   return {
     ...row,
@@ -28,7 +38,7 @@ const shapeOrganization = (row) => {
       secondaryColor: branding?.secondaryColor || "#f3f4f6",
     },
     statsBanner: parseJsonColumn(row.stats_banner, []) || [],
-    sisterOrganizations: parseJsonColumn(row.sister_organizations, []) || [],
+    sisterOrganizations: sisterOrgs,
     footer: {
       logo: row.logo_url || "",
       description: row.footer_description || "",
@@ -193,6 +203,10 @@ export const createOrganization = async (req, res) => {
       stats_banner,
       sister_organizations,
       footer_config,
+      footer,
+      statsBanner,
+      sisterOrganizations,
+      slug: customSlug,
     } = req.body;
 
     if (!name || !type || !email) {
@@ -209,34 +223,43 @@ export const createOrganization = async (req, res) => {
       });
     }
 
-    // Nepal mobile format: +977 98XXXXXXXX
-    if (phone) {
-      const phoneRegex = /^(?:\+977|977)?9[6-8]\d{8}$/;
+    // Flexible phone validation if provided (allows Nepali mobiles, landlines, spaces, dashes)
+    if (phone && String(phone).trim() !== "") {
+      const trimmedPhone = String(phone).trim();
+      const phoneRegex = /^[+]?[\d\s\-().]{6,25}$/;
 
-      if (!phoneRegex.test(phone)) {
+      if (!phoneRegex.test(trimmedPhone)) {
         return res.status(400).json({
-          message: "Invalid Nepal phone number",
+          message: "Invalid phone number format",
         });
       }
     }
 
-    if (status && !["ACTIVE", "INACTIVE"].includes(status)) {
+    const normalizedStatus = status ? status.toUpperCase() : "ACTIVE";
+    if (!["ACTIVE", "INACTIVE"].includes(normalizedStatus)) {
       return res.status(400).json({
         message: "Status must be ACTIVE or INACTIVE",
       });
     }
 
-    if (
-      branding &&
-      typeof branding === "object" &&
-      Object.keys(branding).some((key) => !BRANDING_FIELDS.includes(key))
-    ) {
-      return res.status(400).json({
-        message: `Invalid branding fields. Allowed: ${BRANDING_FIELDS.join(", ")}`,
-      });
-    }
+    const resolvedBranding = branding && typeof branding === "object" ? branding : null;
+    const resolvedStatsBanner = stats_banner ?? statsBanner ?? [];
+    const resolvedSisterOrgs = sister_organizations ?? sisterOrganizations ?? [];
+    const resolvedFooterConfig = footer_config ?? (footer ? {
+      facultyTitle: footer.facultyTitle || "Faculty",
+      facultyDetails: footer.facultyDetails || "",
+      contactTitle: footer.contactTitle || "Contact Us",
+      contactInfo: footer.contactInfo || "",
+    } : null);
+    const resolvedFooterDesc = footer_description || footer?.description || null;
+    const resolvedCopyright = copyright_text || footer?.copyrightText || null;
+    const resolvedMapLink = map_link || footer?.mapUrl || null;
+    const resolvedLogoUrl = logo_url || branding?.logo || footer?.logo || null;
 
-    const slug = await generateSlug(name, pool);
+    const baseSlug = (customSlug && typeof customSlug === "string" && customSlug.trim())
+      ? customSlug.trim()
+      : name;
+    const slug = await generateSlug(baseSlug, pool);
 
     const sql = `
             INSERT INTO organizations
@@ -265,17 +288,17 @@ export const createOrganization = async (req, res) => {
       type,
       slug,
       email,
-      phone || null,
-      logo_url || null,
+      phone && String(phone).trim() ? String(phone).trim() : null,
+      resolvedLogoUrl,
       address || null,
-      map_link || null,
-      status || "ACTIVE",
-      footer_description || null,
-      copyright_text || null,
-      serializeJsonColumn(branding, null),
-      serializeJsonColumn(stats_banner, []),
-      serializeJsonColumn(sister_organizations, []),
-      serializeJsonColumn(footer_config, null),
+      resolvedMapLink,
+      normalizedStatus,
+      resolvedFooterDesc,
+      resolvedCopyright,
+      serializeJsonColumn(resolvedBranding, null),
+      serializeJsonColumn(resolvedStatsBanner, []),
+      serializeJsonColumn(resolvedSisterOrgs, []),
+      serializeJsonColumn(resolvedFooterConfig, null),
     ];
 
     const [result] = await pool.execute(sql, values);
@@ -286,7 +309,15 @@ export const createOrganization = async (req, res) => {
     return res.status(201).json({
       message: "Organization created successfully",
       organizationId: result.insertId,
+      id: result.insertId,
       slug,
+      data: {
+        id: result.insertId,
+        name,
+        slug,
+        type,
+        email,
+      },
     });
   } catch (error) {
     console.error("Create organization error:", error);
@@ -307,7 +338,7 @@ export const getAllOrganizations = async (req, res) => {
 
     return res.status(200).json({
       message: "Organizations fetched successfully",
-      data: rows.map(shapeOrganization),
+      data: rows.map((row) => shapeOrganization(row, rows)),
     });
   } catch (error) {
     console.error("Get all organizations error:", error);
@@ -317,18 +348,58 @@ export const getAllOrganizations = async (req, res) => {
     });
   }
 };
-// GET ORGANIZATION BY SLUG
-export const getOrganizationBySlug = async (req, res) => {
+// GET ORGANIZATION BY ID
+export const getOrganizationById = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
 
     const [rows] = await pool.execute(
       `
-                SELECT *
-                FROM organizations
-                WHERE slug = ?
-                LIMIT 1
-            `,
+        SELECT *
+        FROM organizations
+        WHERE id = ?
+        LIMIT 1
+      `,
+      [id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        message: "Organization not found",
+      });
+    }
+
+    let allActiveOrgs = [];
+    if (rows[0].slug === "main-portal" || String(rows[0].id) === "0") {
+      const [activeRows] = await pool.execute(
+        "SELECT id, name, slug, status FROM organizations WHERE slug != 'main-portal' AND status = 'ACTIVE' ORDER BY name ASC"
+      );
+      allActiveOrgs = activeRows;
+    }
+
+    return res.status(200).json({
+      message: "Organization fetched successfully",
+      data: shapeOrganization(rows[0], allActiveOrgs),
+    });
+  } catch (error) {
+    console.error("Get organization by id error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch organization",
+    });
+  }
+};
+
+// GET ORGANIZATION BY SLUG (OR ID)
+export const getOrganizationBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const isId = /^\d+$/.test(slug);
+
+    const [rows] = await pool.execute(
+      isId
+        ? `SELECT * FROM organizations WHERE id = ? LIMIT 1`
+        : `SELECT * FROM organizations WHERE slug = ? LIMIT 1`,
       [slug],
     );
 
@@ -338,9 +409,17 @@ export const getOrganizationBySlug = async (req, res) => {
       });
     }
 
+    let allActiveOrgs = [];
+    if (rows[0].slug === "main-portal" || String(rows[0].id) === "0") {
+      const [activeRows] = await pool.execute(
+        "SELECT id, name, slug, status FROM organizations WHERE slug != 'main-portal' AND status = 'ACTIVE' ORDER BY name ASC"
+      );
+      allActiveOrgs = activeRows;
+    }
+
     return res.status(200).json({
       message: "Organization fetched successfully",
-      data: shapeOrganization(rows[0]),
+      data: shapeOrganization(rows[0], allActiveOrgs),
     });
   } catch (error) {
     console.error("Get organization by slug error:", error);
@@ -370,25 +449,17 @@ export const updateOrganization = async (req, res) => {
       stats_banner,
       sister_organizations,
       footer_config,
+      footer,
+      statsBanner,
+      sisterOrganizations,
+      slug: updatedSlug,
     } = req.body;
 
-    if (
-      branding &&
-      typeof branding === "object" &&
-      Object.keys(branding).some((key) => !BRANDING_FIELDS.includes(key))
-    ) {
-      return res.status(400).json({
-        message: `Invalid branding fields. Allowed: ${BRANDING_FIELDS.join(", ")}`,
-      });
-    }
-
+    const isId = /^\d+$/.test(slug);
     const [existing] = await pool.execute(
-      `
-                SELECT *
-                FROM organizations
-                WHERE slug = ?
-                LIMIT 1
-            `,
+      isId
+        ? `SELECT * FROM organizations WHERE id = ? LIMIT 1`
+        : `SELECT * FROM organizations WHERE slug = ? LIMIT 1`,
       [slug],
     );
 
@@ -403,7 +474,7 @@ export const updateOrganization = async (req, res) => {
     // ORG_ADMIN may only edit their own organization
     if (
       req.user.role !== "SUPER_ADMIN" &&
-      organization.id !== req.user.organization_id
+      Number(organization.id) !== Number(req.user.organization_id)
     ) {
       return res.status(403).json({
         message: "You can only update your own organization",
@@ -420,29 +491,78 @@ export const updateOrganization = async (req, res) => {
       }
     }
 
-    // Nepal mobile format: +977 98XXXXXXXX
-    if (phone) {
-      const phoneRegex = /^(?:\+977|977)?9[6-8]\d{8}$/;
+    if (phone && String(phone).trim() !== "") {
+      const phoneRegex = /^[+]?[\d\s\-().]{6,25}$/;
 
-      if (!phoneRegex.test(phone)) {
+      if (!phoneRegex.test(String(phone).trim())) {
         return res.status(400).json({
-          message: "Invalid Nepal phone number",
+          message: "Invalid phone number format",
         });
       }
     }
 
-    if (status && !["ACTIVE", "INACTIVE"].includes(status)) {
+    const normalizedStatus = status ? status.toUpperCase() : undefined;
+    if (normalizedStatus && !["ACTIVE", "INACTIVE"].includes(normalizedStatus)) {
       return res.status(400).json({
         message: "Status must be ACTIVE or INACTIVE",
       });
     }
 
-    // Regenerate slug when the name changes.
+    // Regenerate slug when updatedSlug or name changes (and not main-portal).
     let newSlug = organization.slug;
-
-    if (name && name !== organization.name) {
+    if (updatedSlug && updatedSlug !== organization.slug) {
+      newSlug = await generateSlug(updatedSlug, pool);
+    } else if (name && name !== organization.name && organization.slug !== "main-portal") {
       newSlug = await generateSlug(name, pool);
     }
+
+    const resolvedStatsBanner =
+      stats_banner !== undefined
+        ? stats_banner
+        : statsBanner !== undefined
+        ? statsBanner
+        : undefined;
+
+    const resolvedSisterOrgs =
+      sister_organizations !== undefined
+        ? sister_organizations
+        : sisterOrganizations !== undefined
+        ? sisterOrganizations
+        : undefined;
+
+    const resolvedFooterConfig =
+      footer_config !== undefined
+        ? footer_config
+        : footer
+        ? {
+            facultyTitle: footer.facultyTitle || "Faculty",
+            facultyDetails: footer.facultyDetails || "",
+            contactTitle: footer.contactTitle || "Contact Us",
+            contactInfo: footer.contactInfo || "",
+          }
+        : undefined;
+
+    const resolvedLogoUrl =
+      logo_url !== undefined
+        ? logo_url
+        : branding?.logo !== undefined
+        ? branding.logo
+        : footer?.logo;
+
+    const resolvedFooterDesc =
+      footer_description !== undefined
+        ? footer_description
+        : footer?.description;
+
+    const resolvedCopyright =
+      copyright_text !== undefined
+        ? copyright_text
+        : footer?.copyrightText;
+
+    const resolvedMapLink =
+      map_link !== undefined
+        ? map_link
+        : footer?.mapUrl;
 
     const sql = `
             UPDATE organizations
@@ -462,7 +582,7 @@ export const updateOrganization = async (req, res) => {
                 stats_banner = ?,
                 sister_organizations = ?,
                 footer_config = ?
-            WHERE slug = ?
+            WHERE id = ?
         `;
 
     const values = [
@@ -470,38 +590,38 @@ export const updateOrganization = async (req, res) => {
       type ?? organization.type,
       newSlug,
       email ?? organization.email,
-      phone ?? organization.phone,
-      logo_url ?? organization.logo_url,
+      phone !== undefined ? (phone && String(phone).trim() ? String(phone).trim() : null) : organization.phone,
+      resolvedLogoUrl !== undefined ? resolvedLogoUrl : organization.logo_url,
       address ?? organization.address,
-      map_link ?? organization.map_link,
-      status ?? organization.status,
-      footer_description ?? organization.footer_description,
-      copyright_text ?? organization.copyright_text,
+      resolvedMapLink !== undefined ? resolvedMapLink : organization.map_link,
+      normalizedStatus ?? organization.status,
+      resolvedFooterDesc !== undefined ? resolvedFooterDesc : organization.footer_description,
+      resolvedCopyright !== undefined ? resolvedCopyright : organization.copyright_text,
       branding !== undefined
         ? serializeJsonColumn(branding, null)
         : serializeJsonColumn(
             parseJsonColumn(organization.branding, null),
             null,
           ),
-      stats_banner !== undefined
-        ? serializeJsonColumn(stats_banner, [])
+      resolvedStatsBanner !== undefined
+        ? serializeJsonColumn(resolvedStatsBanner, [])
         : serializeJsonColumn(
             parseJsonColumn(organization.stats_banner, []),
             [],
           ),
-      sister_organizations !== undefined
-        ? serializeJsonColumn(sister_organizations, [])
+      resolvedSisterOrgs !== undefined
+        ? serializeJsonColumn(resolvedSisterOrgs, [])
         : serializeJsonColumn(
             parseJsonColumn(organization.sister_organizations, []),
             [],
           ),
-      footer_config !== undefined
-        ? serializeJsonColumn(footer_config, null)
+      resolvedFooterConfig !== undefined
+        ? serializeJsonColumn(resolvedFooterConfig, null)
         : serializeJsonColumn(
             parseJsonColumn(organization.footer_config, null),
             null,
           ),
-      slug,
+      organization.id,
     ];
 
     await pool.execute(sql, values);
@@ -509,6 +629,7 @@ export const updateOrganization = async (req, res) => {
     return res.status(200).json({
       message: "Organization updated successfully",
       slug: newSlug,
+      id: organization.id,
     });
   } catch (error) {
     console.error("Update organization error:", error);
@@ -523,38 +644,43 @@ export const deleteOrganization = async (req, res) => {
   try {
     const { slug } = req.params;
 
+    if (slug === 'main-portal' || slug === '0') {
+      return res.status(400).json({
+        message: 'The main portal organization cannot be deleted',
+      });
+    }
+
+    const isId = /^\d+$/.test(slug);
     const [existing] = await pool.execute(
-      `
-                SELECT id
-                FROM organizations
-                WHERE slug = ?
-                LIMIT 1
-            `,
+      isId
+        ? 'SELECT id, slug FROM organizations WHERE id = ? LIMIT 1'
+        : 'SELECT id, slug FROM organizations WHERE slug = ? LIMIT 1',
       [slug],
     );
 
     if (existing.length === 0) {
       return res.status(404).json({
-        message: "Organization not found",
+        message: 'Organization not found',
       });
     }
 
-    await pool.execute(
-      `
-                DELETE FROM organizations
-                WHERE slug = ?
-            `,
-      [slug],
-    );
+    const targetId = existing[0].id;
+    if (Number(targetId) === 0) {
+      return res.status(400).json({
+        message: 'The main portal organization cannot be deleted',
+      });
+    }
+
+    await pool.execute('DELETE FROM organizations WHERE id = ?', [targetId]);
 
     return res.status(200).json({
-      message: "Organization deleted successfully",
+      message: 'Organization deleted successfully',
     });
   } catch (error) {
-    console.error("Delete organization error:", error);
+    console.error('Delete organization error:', error);
 
     return res.status(500).json({
-      message: "Failed to delete organization",
+      message: 'Failed to delete organization',
     });
   }
 };
