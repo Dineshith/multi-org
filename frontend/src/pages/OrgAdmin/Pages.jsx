@@ -10,7 +10,7 @@ const Pages = () => {
   const [pages, setPages] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newPage, setNewPage] = useState({ title: '', slug: '', dropdownItems: [] });
+  const [newPage, setNewPage] = useState({ title: '', slug: '', dropdown_items: [] });
   const [editingId, setEditingId] = useState(null);
   const [platformOrgId, setPlatformOrgId] = useState(null);
 
@@ -41,31 +41,31 @@ const Pages = () => {
       await updatePage(editingId, {
         title: newPage.title,
         slug: newPage.slug,
-        dropdownItems: newPage.dropdownItems.filter(g => g.trim() !== '')
+        dropdown_items: newPage.dropdown_items.filter(g => g.trim() !== '')
       });
     } else {
       await createPage(targetOrgId, {
         ...newPage,
-        dropdownItems: newPage.dropdownItems.filter(g => g.trim() !== ''),
+        dropdown_items: newPage.dropdown_items.filter(g => g.trim() !== ''),
         sections: []
       });
     }
     await loadPages(targetOrgId);
     setIsModalOpen(false);
-    setNewPage({ title: '', slug: '', dropdownItems: [] });
+    setNewPage({ title: '', slug: '', dropdown_items: [] });
     setEditingId(null);
   };
 
   const handleEditMeta = (page) => {
     let dItems = [];
-    if (Array.isArray(page.dropdownItems)) {
-      dItems = page.dropdownItems;
+    if (Array.isArray(page.dropdown_items)) {
+      dItems = page.dropdown_items;
     } else if (Array.isArray(page.menuGroups)) {
       dItems = page.menuGroups; // migrate old data
     } else if (page.menuGroup) {
       dItems = [page.menuGroup];
     }
-    setNewPage({ title: page.title, slug: page.slug, dropdownItems: dItems });
+    setNewPage({ title: page.title, slug: page.slug, dropdown_items: dItems });
     setEditingId(page.id);
     setIsModalOpen(true);
   };
@@ -97,7 +97,7 @@ const Pages = () => {
         <button
           onClick={() => {
             setEditingId(null);
-            setNewPage({ title: '', slug: '', dropdownItems: [] });
+            setNewPage({ title: '', slug: '', dropdown_items: [] });
             setIsModalOpen(true);
           }}
           className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
@@ -127,7 +127,7 @@ const Pages = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-1">{page.title}</h3>
               <p className="text-sm text-gray-500">/{page.slug}</p>
 
-              {page.dropdownItems && page.dropdownItems.length > 0 ? (
+              {page.dropdown_items && page.dropdown_items.length > 0 ? (
                 <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-sm">
                   <span className="text-gray-500 italic flex items-center"><List size={14} className="mr-1" /> Dropdown Menu</span>
                 </div>
@@ -170,29 +170,29 @@ const Pages = () => {
               <label className="block text-sm font-medium text-gray-700">Dropdown Sub-menus (Optional)</label>
               <button
                 type="button"
-                onClick={() => setNewPage({ ...newPage, dropdownItems: [...newPage.dropdownItems, ''] })}
+                onClick={() => setNewPage({ ...newPage, dropdown_items: [...newPage.dropdown_items, ''] })}
                 className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
               >
                 <Plus size={14} className="mr-1" /> Add Sub-menu
               </button>
             </div>
 
-            {newPage.dropdownItems.map((item, index) => (
+            {newPage.dropdown_items.map((item, index) => (
               <div key={index} className="flex items-center space-x-2 mt-2">
                 <input type="text" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
                   value={item}
                   onChange={e => {
-                    const updated = [...newPage.dropdownItems];
+                    const updated = [...newPage.dropdown_items];
                     updated[index] = e.target.value;
-                    setNewPage({ ...newPage, dropdownItems: updated });
+                    setNewPage({ ...newPage, dropdown_items: updated });
                   }}
                   placeholder="e.g. Teachers" />
                 <button
                   type="button"
                   onClick={() => {
-                    const updated = [...newPage.dropdownItems];
+                    const updated = [...newPage.dropdown_items];
                     updated.splice(index, 1);
-                    setNewPage({ ...newPage, dropdownItems: updated });
+                    setNewPage({ ...newPage, dropdown_items: updated });
                   }}
                   className="p-2 text-red-500 hover:bg-red-50 rounded"
                 >
@@ -201,10 +201,10 @@ const Pages = () => {
               </div>
             ))}
 
-            {newPage.dropdownItems.length === 0 && (
+            {newPage.dropdown_items.length === 0 && (
               <button
                 type="button"
-                onClick={() => setNewPage({ ...newPage, dropdownItems: [''] })}
+                onClick={() => setNewPage({ ...newPage, dropdown_items: [''] })}
                 className="mt-1 w-full p-2 border border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
               >
                 + Add a Sub-menu Item
