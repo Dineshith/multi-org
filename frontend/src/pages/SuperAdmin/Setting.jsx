@@ -23,14 +23,20 @@ const Setting = () => {
     if (user) {
       setName(user.name);
       setEmail(user.email);
+      if (user.profile_photo_url) {
+        setProfileImage(user.profile_photo_url);
+      }
     }
   }, [user]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -41,9 +47,24 @@ const Setting = () => {
   const handleSaveProfile = async () => {
     if (!user || !user.id) return;
     setIsSaving(true);
-    const res = await updateUser(user.id, { name, email });
+    const payload = { name, email };
+    // Only send profile_photo_url if it has been updated
+    if (profileImage !== user.profile_photo_url) {
+      payload.profile_photo_url = profileImage;
+    }
+    const res = await updateUser(user.id, payload);
     if (res && res.success) {
       toast.success('Profile updated successfully!');
+      
+      // Update the user session with the new photo immediately
+      const sessionUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+      if (profileImage !== user.profile_photo_url) {
+         sessionUser.profile_photo_url = profileImage;
+      }
+      sessionUser.name = name;
+      sessionUser.email = email;
+      sessionStorage.setItem('user', JSON.stringify(sessionUser));
+      
       window.location.reload(); 
     } else {
       toast.error('Failed to update profile. Email might be in use.');
