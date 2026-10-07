@@ -1,9 +1,18 @@
 import db from "../config/db.js";
 import generateSlug from "../utils/generateSlug.js";
 
+const shapeNews = (item) => {
+  if (!item) return item;
+  return {
+    ...item,
+    image: item.featured_image || null,
+    featured_image: item.featured_image || null,
+  };
+};
+
 const getOrgFilter = (req) => {
   const user = req.user;
-  if (user.role === "SUPER_ADMIN") {
+  if (!user || user.role === "SUPER_ADMIN") {
     return { orgId: null, scoped: false };
   }
   return { orgId: user.organization_id, scoped: true };
@@ -26,7 +35,7 @@ const getAllNews = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      news,
+      news: news.map(shapeNews),
     });
   } catch (error) {
     console.error("Get news error:", error);
@@ -62,7 +71,7 @@ const getNewsById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      news: news[0],
+      news: shapeNews(news[0]),
     });
   } catch (error) {
     console.error("Get news error:", error);
@@ -82,6 +91,8 @@ const createNews = async (req, res) => {
       excerpt,
       content,
       featured_image,
+      image,
+      image_url,
       published,
       publish_on_main_portal,
     } = req.body;
@@ -104,8 +115,10 @@ const createNews = async (req, res) => {
 
     let finalSlug = slug;
     if (!finalSlug) {
-      finalSlug = await generateSlug(title, db);;
+      finalSlug = await generateSlug(title, db);
     }
+
+    const processedImageUrl = processImageInput(featured_image || image || image_url, "news");
 
     const isPublished = published === true || published === "true";
     const published_at = isPublished ? new Date() : null;
@@ -120,18 +133,21 @@ const createNews = async (req, res) => {
         finalSlug,
         excerpt || null,
         content || null,
-        featured_image || null,
+        processedImageUrl,
         isPublished,
         published_at,
         publish_on_main_portal === true || publish_on_main_portal === "true",
       ],
     );
 
+    const [created] = await db.query(`SELECT * FROM news WHERE id = ? LIMIT 1`, [result.insertId]);
+
     res.status(201).json({
       success: true,
       message: "News created successfully",
       newsId: result.insertId,
       slug: finalSlug,
+      news: shapeNews(created[0]) || null,
     });
   } catch (error) {
     console.error("Create news error:", error);
@@ -173,6 +189,8 @@ const updateNews = async (req, res) => {
       excerpt,
       content,
       featured_image,
+      image,
+      image_url,
       published,
       publish_on_main_portal,
     } = req.body;
@@ -183,6 +201,12 @@ const updateNews = async (req, res) => {
     } else if (!finalSlug) {
       finalSlug = news.slug;
     }
+
+    const rawImage = featured_image !== undefined ? featured_image : (image !== undefined ? image : image_url);
+    const processedImageUrl =
+      rawImage !== undefined
+        ? processImageInput(rawImage, "news")
+        : news.featured_image;
 
     const isPublished =
       published !== undefined
@@ -212,7 +236,7 @@ const updateNews = async (req, res) => {
         finalSlug,
         excerpt ?? news.excerpt,
         content ?? news.content,
-        featured_image ?? news.featured_image,
+        processedImageUrl,
         isPublished,
         published_at,
         publish_on_main_portal !== undefined
@@ -222,10 +246,13 @@ const updateNews = async (req, res) => {
       ],
     );
 
+    const [updated] = await db.query(`SELECT * FROM news WHERE id = ? LIMIT 1`, [id]);
+
     res.status(200).json({
       success: true,
       message: "News updated successfully",
       slug: finalSlug,
+      news: shapeNews(updated[0]) || null,
     });
   } catch (error) {
     console.error("Update news error:", error);

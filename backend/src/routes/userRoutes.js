@@ -16,7 +16,7 @@ router.use(authMiddleware);
 router.get("/get-all-user", roleMiddleware("SUPER_ADMIN"), getAllUsers);
 router.get("/:id", roleMiddleware("SUPER_ADMIN"), getUserById);
 router.post("/", roleMiddleware("SUPER_ADMIN"), createUser);
-router.put("/:id", roleMiddleware("SUPER_ADMIN"), updateUser);
+router.put("/:id", updateUser);
 router.delete("/:id", roleMiddleware("SUPER_ADMIN"), deleteUser);
 
 export default router;

@@ -4,6 +4,7 @@ import {
     createOrganization,
     deleteOrganization,
     getAllOrganizations,
+    getOrganizationById,
     getOrganizationBySlug,
     updateOrganization
 } from "../../controllers/admin/organizationController.js";
@@ -16,24 +17,26 @@ const organizationRoute = express.Router();
 // Create organization
 organizationRoute.post(
     "/create-organization",
-    // authMiddleware,
-    // roleMiddleware("SUPER_ADMIN"),
+    authMiddleware,
+    roleMiddleware("SUPER_ADMIN"),
     createOrganization
 );
 
-// Get all organizations
+// Get all organizations - public
 organizationRoute.get(
     "/get-all-organization",
-    authMiddleware,
-    roleMiddleware("SUPER_ADMIN"),
     getAllOrganizations
 );
 
-// Get organization by slug
+// Get organization by ID - public
+organizationRoute.get(
+    "/get-organization-by-id/:id",
+    getOrganizationById
+);
+
+// Get organization by slug - public
 organizationRoute.get(
     "/get-organization-by-slug/:slug",
-    authMiddleware,
-    roleMiddleware("SUPER_ADMIN"),
     getOrganizationBySlug
 );
 
@@ -41,7 +44,7 @@ organizationRoute.get(
 organizationRoute.put(
     "/update-organization/:slug",
     authMiddleware,
-    roleMiddleware("SUPER_ADMIN"),
+    roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"),
     updateOrganization
 );
 

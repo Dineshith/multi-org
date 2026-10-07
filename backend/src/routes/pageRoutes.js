@@ -11,12 +11,11 @@ import roleMiddleware from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.get("/", getAllPages);
+router.get("/:id", getPageById);
 
-router.get("/", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), getAllPages);
-router.get("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), getPageById);
-router.post("/", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), createPage);
-router.put("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), updatePage);
-router.delete("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), deletePage);
+router.post("/", authMiddleware, roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), createPage);
+router.put("/:id", authMiddleware, roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), updatePage);
+router.delete("/:id", authMiddleware, roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), deletePage);
 
 export default router;

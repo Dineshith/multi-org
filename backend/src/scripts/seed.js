@@ -1,16 +1,4 @@
-/**
- * Database seeder for the multi-org platform.
- *
- * Creates the database, applies the schema, and inserts a SUPER_ADMIN user so
- * you can sign in and use the API (and the Bruno collection).
- *
- * Usage:
- *   npm run seed
- *   npm run seed -- --email=super@admin.com --password=password123
- *   npm run seed -- --demo     # also create a sample organization + ORG_ADMIN
- *
- * Safe to re-run: existing rows are updated, never duplicated.
- */
+// Usage: npm run seed
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -23,7 +11,7 @@ dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BACKEND_DIR = path.resolve(__dirname, "..", "..");
 
-// ---------------------------------------------------------------- arguments
+// CLI arguments
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
@@ -44,7 +32,7 @@ const fail = (msg) => {
   process.exit(1);
 };
 
-// ------------------------------------------------------- schema from db.txt
+// schema from db.txt
 const loadSchemaStatements = () => {
   const schemaFile = path.join(BACKEND_DIR, "db.txt");
   if (!fs.existsSync(schemaFile)) fail(`db.txt not found at ${schemaFile}`);
@@ -60,13 +48,12 @@ const loadSchemaStatements = () => {
     .filter(Boolean);
 };
 
-// ------------------------------------------------------------------ seeding
+// seeding steps
 const run = async () => {
   log(`\n[seed] Connecting to MySQL as "${process.env.DB_USER}" ...`);
 
   let admin;
   try {
-    // Connect WITHOUT a database so we can create it if needed.
     admin = await mysql.createConnection({
       host: process.env.DB_HOST || "localhost",
       port: Number(process.env.DB_PORT) || 3306,
@@ -94,7 +81,6 @@ const run = async () => {
   );
   log(`[seed] Database "${DB_NAME}" ready`);
 
-  // Select it on this connection so the CREATE TABLE statements below resolve.
   await admin.query(`USE \`${DB_NAME}\``);
   const db = admin;
 
