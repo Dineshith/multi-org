@@ -19,7 +19,6 @@ const authMiddleware = async (req, res, next) => {
             process.env.JWT_SECRET
         );
 
-        // Check current user from database
         const [users] = await db.query(
             `
             SELECT
@@ -45,7 +44,7 @@ const authMiddleware = async (req, res, next) => {
 
         const user = users[0];
 
-        // Check if token has been invalidated
+        // Mismatched version means the token was invalidated (logout/password change).
         if (user.token_version !== decoded.token_version) {
             return res.status(401).json({
                 success: false,

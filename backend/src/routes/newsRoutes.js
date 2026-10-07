@@ -7,20 +7,19 @@ import {
   updateNews,
 } from "../controllers/newsController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+
 import roleMiddleware from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.get("/", getAllNews);
 
-router.get("/", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), getAllNews);
+router.get("/:id", getNewsById);
 
-router.get("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), getNewsById);
+router.post("/", authMiddleware, roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), createNews);
 
-router.post("/", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), createNews);
+router.put("/:id", authMiddleware, roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), updateNews);
 
-router.put("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), updateNews);
-
-router.delete("/:id", roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), deleteNews);
+router.delete("/:id", authMiddleware, roleMiddleware("SUPER_ADMIN", "ORG_ADMIN"), deleteNews);
 
 export default router;

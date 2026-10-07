@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "seed": "node src/scripts/seed.js",
     "seed:demo": "node src/scripts/seed.js --demo",
+    "migrate": "node src/scripts/migrate.js",
     "test": "node src/tests/testModules.js",
     "test:modules": "node src/tests/testModules.js"
   },

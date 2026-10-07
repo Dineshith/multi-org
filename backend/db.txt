@@ -32,6 +32,18 @@ CREATE TABLE IF NOT EXISTS organizations (
     footer_description TEXT,
     copyright_text VARCHAR(500),
 
+    -- Theme: { "primaryColor": "#4f46e5", "secondaryColor": "#f8fafc" }
+    branding JSON,
+
+    -- Hero stats: [{ "value": "27", "label": "INSTITUTIONS", "subLabel": "..." }]
+    stats_banner JSON,
+
+    -- Navbar buttons: [{ "name": "ABC College", "link": "https://..." }]
+    sister_organizations JSON,
+
+    -- Extra footer block: { "facultyTitle", "facultyDetails", "contactTitle", "contactInfo" }
+    footer_config JSON,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -70,7 +82,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
 
     -- Profile Photo
-    profile_photo_url VARCHAR(500),
+    profile_photo_url LONGTEXT,
 
     -- User Role
     role ENUM('SUPER_ADMIN', 'ORG_ADMIN') NOT NULL,
@@ -116,6 +128,47 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
 
 
 -- =========================================================
+-- 4b. PASSWORD RESET REQUESTS
+-- Super admin approval queue fed by POST /api/auth/forgot-password
+-- =========================================================
+CREATE TABLE IF NOT EXISTS password_reset_requests (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT UNSIGNED NULL,
+    organization_id INT UNSIGNED NULL,
+
+    -- Denormalized so the queue survives a deleted user/org
+    org_name VARCHAR(255),
+    admin_name VARCHAR(255),
+    admin_email VARCHAR(255) NOT NULL,
+
+    status ENUM('PENDING', 'ACCEPTED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
+
+    -- Reset token, created up-front and only revealed once approved
+    token VARCHAR(255),
+
+    handled_by INT UNSIGNED NULL,
+    handled_at DATETIME,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (organization_id)
+        REFERENCES organizations(id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (handled_by)
+        REFERENCES users(id)
+        ON DELETE SET NULL,
+
+    INDEX idx_reset_requests_status (status)
+);
+
+
+-- =========================================================
 -- 5. PAGES
 -- Home, About, Contact, Admission, etc.
 -- =========================================================
@@ -128,6 +181,9 @@ CREATE TABLE IF NOT EXISTS pages (
     slug VARCHAR(255) NOT NULL,
 
     sections JSON,
+
+    -- Navbar dropdown sub-items: ["Teachers", "Gallery"]
+    dropdown_items JSON,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -183,6 +239,8 @@ CREATE TABLE IF NOT EXISTS notices (
     title VARCHAR(255) NOT NULL,
     content TEXT,
 
+    image_url VARCHAR(500),
+
     published BOOLEAN DEFAULT FALSE,
     published_at DATETIME,
 
@@ -209,6 +267,8 @@ CREATE TABLE IF NOT EXISTS events (
 
     title VARCHAR(255) NOT NULL,
     description TEXT,
+
+    image_url VARCHAR(500),
 
     event_date DATETIME,
 
