@@ -12,7 +12,7 @@ const Organizations = () => {
 
   // New Org Form State
   const [newOrg, setNewOrg] = useState({
-    name: '', type: 'college', slug: '', email: '', phone: '', address: '',
+    name: '', type: 'school', slug: '', email: '', phone: '', address: '',
     branding: { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6', logo: '' },
     statsBanner: [],
     sisterOrganizations: [],
@@ -37,10 +37,15 @@ const Organizations = () => {
 
   const handleCreateOrg = async (e) => {
     e.preventDefault();
-    await createOrganization(newOrg);
-    await loadOrganizations();
-    setIsOrgModalOpen(false);
-    setNewOrg({ name: '', type: 'college', slug: '', email: '', phone: '', address: '', branding: { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6', logo: '' }, statsBanner: [], sisterOrganizations: [], footer: { logo: '', description: '', facultyTitle: 'Faculty', facultyDetails: '', contactTitle: 'Contact Us', contactInfo: '', mapUrl: '', copyrightText: '' } });
+    const res = await createOrganization(newOrg);
+    if (res) {
+      toast.success("Congratulations! New organization created successfully. Please assign an Org Admin so they can log in.", { autoClose: false });
+      await loadOrganizations();
+      setIsOrgModalOpen(false);
+      setNewOrg({ name: '', type: 'school', slug: '', email: '', phone: '', address: '', branding: { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6', logo: '' }, statsBanner: [], sisterOrganizations: [], footer: { logo: '', description: '', facultyTitle: 'Faculty', facultyDetails: '', contactTitle: 'Contact Us', contactInfo: '', mapUrl: '', copyrightText: '' } });
+    } else {
+      toast.error("Failed to create organization.");
+    }
   };
 
   const handleEditClick = (org) => {
@@ -51,14 +56,14 @@ const Organizations = () => {
       sisterOrganizations: org.sisterOrganizations || [],
       footer: {
         ...(org.footer || {}),
-        logo: org.footer?.logo || '', 
-        description: org.footer?.description || org.footer_description || '', 
-        facultyTitle: org.footer?.facultyTitle || 'Faculty', 
-        facultyDetails: org.footer?.facultyDetails || '', 
-        contactTitle: org.footer?.contactTitle || 'Contact Us', 
-        contactInfo: org.footer?.contactInfo || '', 
-        mapUrl: org.footer?.mapUrl || org.map_link || '', 
-        copyrightText: org.footer?.copyrightText || org.copyright_text || '' 
+        logo: org.footer?.logo || '',
+        description: org.footer?.description || org.footer_description || '',
+        facultyTitle: org.footer?.facultyTitle || 'Faculty',
+        facultyDetails: org.footer?.facultyDetails || '',
+        contactTitle: org.footer?.contactTitle || 'Contact Us',
+        contactInfo: org.footer?.contactInfo || '',
+        mapUrl: org.footer?.mapUrl || org.map_link || '',
+        copyrightText: org.footer?.copyrightText || org.copyright_text || ''
       }
     });
     setIsEditModalOpen(true);
@@ -82,44 +87,44 @@ const Organizations = () => {
 
   const handleAddStat = () => {
     const newStats = [...(editOrg.statsBanner || []), { value: '', label: '', subLabel: '' }];
-    setEditOrg({...editOrg, statsBanner: newStats});
+    setEditOrg({ ...editOrg, statsBanner: newStats });
   };
 
   const handleRemoveStat = (index) => {
     const newStats = editOrg.statsBanner.filter((_, i) => i !== index);
-    setEditOrg({...editOrg, statsBanner: newStats});
+    setEditOrg({ ...editOrg, statsBanner: newStats });
   };
 
   const handleStatChange = (index, field, value) => {
     const newStats = [...editOrg.statsBanner];
     newStats[index][field] = value;
-    setEditOrg({...editOrg, statsBanner: newStats});
+    setEditOrg({ ...editOrg, statsBanner: newStats });
   };
 
   // Sister Organizations Handlers (New Org)
   const handleAddNewSisterOrg = () => {
-    setNewOrg({...newOrg, sisterOrganizations: [...(newOrg.sisterOrganizations || []), { name: '', link: '' }]});
+    setNewOrg({ ...newOrg, sisterOrganizations: [...(newOrg.sisterOrganizations || []), { name: '', link: '' }] });
   };
   const handleRemoveNewSisterOrg = (index) => {
-    setNewOrg({...newOrg, sisterOrganizations: newOrg.sisterOrganizations.filter((_, i) => i !== index)});
+    setNewOrg({ ...newOrg, sisterOrganizations: newOrg.sisterOrganizations.filter((_, i) => i !== index) });
   };
   const handleNewSisterOrgChange = (index, field, value) => {
     const updated = [...newOrg.sisterOrganizations];
     updated[index][field] = value;
-    setNewOrg({...newOrg, sisterOrganizations: updated});
+    setNewOrg({ ...newOrg, sisterOrganizations: updated });
   };
 
   // Sister Organizations Handlers (Edit Org)
   const handleAddEditSisterOrg = () => {
-    setEditOrg({...editOrg, sisterOrganizations: [...(editOrg.sisterOrganizations || []), { name: '', link: '' }]});
+    setEditOrg({ ...editOrg, sisterOrganizations: [...(editOrg.sisterOrganizations || []), { name: '', link: '' }] });
   };
   const handleRemoveEditSisterOrg = (index) => {
-    setEditOrg({...editOrg, sisterOrganizations: editOrg.sisterOrganizations.filter((_, i) => i !== index)});
+    setEditOrg({ ...editOrg, sisterOrganizations: editOrg.sisterOrganizations.filter((_, i) => i !== index) });
   };
   const handleEditSisterOrgChange = (index, field, value) => {
     const updated = [...editOrg.sisterOrganizations];
     updated[index][field] = value;
-    setEditOrg({...editOrg, sisterOrganizations: updated});
+    setEditOrg({ ...editOrg, sisterOrganizations: updated });
   };
 
   const handleUpdateOrg = async (e) => {
@@ -129,10 +134,15 @@ const Organizations = () => {
       map_link: editOrg.footer?.mapUrl || editOrg.map_link,
       copyright_text: editOrg.footer?.copyrightText || editOrg.copyright_text
     };
-    await updateOrganization(editOrg.id, payload);
-    await loadOrganizations();
-    setIsEditModalOpen(false);
-    setEditOrg(null);
+    const res = await updateOrganization(editOrg.id, payload);
+    if (res) {
+      toast.success("Organization successfully updated!");
+      await loadOrganizations();
+      setIsEditModalOpen(false);
+      setEditOrg(null);
+    } else {
+      toast.error("Failed to update organization.");
+    }
   };
 
   const handleCreateAdmin = async (e) => {
@@ -142,12 +152,12 @@ const Organizations = () => {
       role: 'ORG_ADMIN',
       organization_id: selectedOrgId
     });
-    if (res) {
+    if (res && res.success) {
       setIsAdminModalOpen(false);
       setNewAdmin({ name: '', email: '', password: 'password123' });
       toast.success('Admin created successfully! They can log in with password: password123', { autoClose: false });
     } else {
-      toast.error('Failed to create Admin. Please try again.');
+      toast.error(res?.message || 'Failed to create Admin. Please try again.');
     }
   };
 
@@ -164,7 +174,7 @@ const Organizations = () => {
             placeholder="Search organizations..."
           />
         </div>
-        <button 
+        <button
           onClick={() => setIsOrgModalOpen(true)}
           className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
         >
@@ -212,22 +222,21 @@ const Organizations = () => {
                   <div className="text-sm text-gray-500">{org.phone || 'No phone'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    org.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${org.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
                     {org.status}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end space-x-3">
-                    <button 
+                    <button
                       onClick={() => handleEditClick(org)}
                       className="text-gray-600 hover:text-gray-900 flex items-center space-x-1"
                       title="Edit Organization"
                     >
                       <Edit size={16} /> <span>Edit</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => { setSelectedOrgId(org.id); setIsAdminModalOpen(true); }}
                       className="text-blue-600 hover:text-blue-900 flex items-center space-x-1"
                       title="Assign Admin"
@@ -235,7 +244,7 @@ const Organizations = () => {
                       <Shield size={16} /> <span>Assign Admin</span>
                     </button>
                     {org.slug !== 'main-portal' && (
-                      <button 
+                      <button
                         onClick={() => handleDeleteOrg(org.id, org.slug)}
                         className="text-red-600 hover:text-red-900 flex items-center space-x-1"
                         title="Delete Organization"
@@ -256,52 +265,53 @@ const Organizations = () => {
         <form onSubmit={handleCreateOrg} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Organization Name</label>
-            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                   value={newOrg.name} onChange={e => setNewOrg({...newOrg, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} />
+            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              value={newOrg.name} onChange={e => setNewOrg({ ...newOrg, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Type</label>
               <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                      value={newOrg.type} onChange={e => setNewOrg({...newOrg, type: e.target.value})}>
+                value={newOrg.type} onChange={e => setNewOrg({ ...newOrg, type: e.target.value })}>
                 <option value="school">School</option>
                 <option value="plus-two">PlusTwo</option>
                 <option value="bachelors">Bachelors</option>
+                <option value="institute">Institute</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">URL Slug</label>
-              <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={newOrg.slug} onChange={e => setNewOrg({...newOrg, slug: e.target.value})} />
+              <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                value={newOrg.slug} onChange={e => setNewOrg({ ...newOrg, slug: e.target.value })} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input required type="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={newOrg.email} onChange={e => setNewOrg({...newOrg, email: e.target.value})} />
+              <input required type="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                value={newOrg.email} onChange={e => setNewOrg({ ...newOrg, email: e.target.value })} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Phone</label>
-              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={newOrg.phone} onChange={e => setNewOrg({...newOrg, phone: e.target.value})} />
+              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                value={newOrg.phone} onChange={e => setNewOrg({ ...newOrg, phone: e.target.value })} />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Address</label>
-            <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                   value={newOrg.address} onChange={e => setNewOrg({...newOrg, address: e.target.value})} />
+            <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              value={newOrg.address} onChange={e => setNewOrg({ ...newOrg, address: e.target.value })} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Theme Color (Hex)</label>
             <div className="flex space-x-2 mt-1">
-               <input type="color" className="h-9 w-9 rounded border border-gray-300" 
-                      value={newOrg.branding.primaryColor} onChange={e => setNewOrg({...newOrg, branding: {...newOrg.branding, primaryColor: e.target.value}})} />
-               <input type="text" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                      value={newOrg.branding.primaryColor} onChange={e => setNewOrg({...newOrg, branding: {...newOrg.branding, primaryColor: e.target.value}})} />
+              <input type="color" className="h-9 w-9 rounded border border-gray-300"
+                value={newOrg.branding.primaryColor} onChange={e => setNewOrg({ ...newOrg, branding: { ...newOrg.branding, primaryColor: e.target.value } })} />
+              <input type="text" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                value={newOrg.branding.primaryColor} onChange={e => setNewOrg({ ...newOrg, branding: { ...newOrg.branding, primaryColor: e.target.value } })} />
             </div>
           </div>
-          
+
 
 
           <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
@@ -319,14 +329,14 @@ const Organizations = () => {
             <h4 className="font-medium text-gray-900 border-b pb-2">Basic Info</h4>
             <div>
               <label className="block text-sm font-medium text-gray-700">Organization Name</label>
-              <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={editOrg.name} onChange={e => setEditOrg({...editOrg, name: e.target.value})} />
+              <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                value={editOrg.name} onChange={e => setEditOrg({ ...editOrg, name: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Type</label>
                 <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                        value={editOrg.type} onChange={e => setEditOrg({...editOrg, type: e.target.value})}>
+                  value={editOrg.type} onChange={e => setEditOrg({ ...editOrg, type: e.target.value })}>
                   <option value="school">School</option>
                   <option value="plus-two">PlusTwo</option>
                   <option value="bachelors">Bachelors</option>
@@ -336,15 +346,15 @@ const Organizations = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">URL Slug</label>
-                <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                       value={editOrg.slug} onChange={e => setEditOrg({...editOrg, slug: e.target.value})} />
+                <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                  value={editOrg.slug} onChange={e => setEditOrg({ ...editOrg, slug: e.target.value })} />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Logo URL (Navbar & Footer)</label>
-              <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={editOrg.logo_url || ''} onChange={e => setEditOrg({...editOrg, logo_url: e.target.value})} 
-                     placeholder="https://example.com/logo.png" />
+              <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                value={editOrg.logo_url || ''} onChange={e => setEditOrg({ ...editOrg, logo_url: e.target.value })}
+                placeholder="https://example.com/logo.png" />
             </div>
 
             {/* Stats Banner */}
@@ -356,12 +366,12 @@ const Organizations = () => {
               {(editOrg.statsBanner || []).map((stat, index) => (
                 <div key={index} className="flex space-x-2 items-center bg-gray-50 p-2 rounded-md border border-gray-200">
                   <div className="flex-1 grid grid-cols-3 gap-2">
-                    <input type="text" placeholder="Value (e.g. 27)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border" 
-                           value={stat.value} onChange={e => handleStatChange(index, 'value', e.target.value)} />
-                    <input type="text" placeholder="Label (e.g. INSTITUTIONS)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border" 
-                           value={stat.label} onChange={e => handleStatChange(index, 'label', e.target.value)} />
-                    <input type="text" placeholder="Sub-Label (Nepali)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border" 
-                           value={stat.subLabel} onChange={e => handleStatChange(index, 'subLabel', e.target.value)} />
+                    <input type="text" placeholder="Value (e.g. 27)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                      value={stat.value} onChange={e => handleStatChange(index, 'value', e.target.value)} />
+                    <input type="text" placeholder="Label (e.g. INSTITUTIONS)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                      value={stat.label} onChange={e => handleStatChange(index, 'label', e.target.value)} />
+                    <input type="text" placeholder="Sub-Label (Nepali)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                      value={stat.subLabel} onChange={e => handleStatChange(index, 'subLabel', e.target.value)} />
                   </div>
                   <button type="button" onClick={() => handleRemoveStat(index)} className="text-red-500 hover:text-red-700 px-1 font-bold">✕</button>
                 </div>
@@ -370,7 +380,7 @@ const Organizations = () => {
                 <p className="text-xs text-gray-500 italic">No stats added. The banner will not be displayed.</p>
               )}
             </div>
-            
+
             {/* Sister Organizations (Edit Org - Main Portal Only) */}
             {editOrg.slug === 'main-portal' && (
               <>
@@ -382,10 +392,10 @@ const Organizations = () => {
                   {(editOrg.sisterOrganizations || []).map((sub, index) => (
                     <div key={index} className="flex space-x-2 items-center bg-gray-50 p-2 rounded-md border border-gray-200">
                       <div className="flex-1 grid grid-cols-2 gap-2">
-                        <input type="text" placeholder="Name (e.g. Sister org 1 +)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border" 
-                               value={sub.name} onChange={e => handleEditSisterOrgChange(index, 'name', e.target.value)} />
-                        <input type="url" placeholder="Link (e.g. https://...)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border" 
-                               value={sub.link} onChange={e => handleEditSisterOrgChange(index, 'link', e.target.value)} />
+                        <input type="text" placeholder="Name (e.g. Sister org 1 +)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                          value={sub.name} onChange={e => handleEditSisterOrgChange(index, 'name', e.target.value)} />
+                        <input type="url" placeholder="Link (e.g. https://...)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                          value={sub.link} onChange={e => handleEditSisterOrgChange(index, 'link', e.target.value)} />
                       </div>
                       <button type="button" onClick={() => handleRemoveEditSisterOrg(index)} className="text-red-500 hover:text-red-700 px-1 font-bold">✕</button>
                     </div>
@@ -398,55 +408,55 @@ const Organizations = () => {
             <h4 className="font-medium text-gray-900 border-b pb-2 mt-6">Footer Settings</h4>
             <div>
               <label className="block text-sm font-medium text-gray-700">Footer Description</label>
-              <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                        rows="2" value={editOrg.footer_description || ''} onChange={e => setEditOrg({...editOrg, footer_description: e.target.value})}></textarea>
+              <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                rows="2" value={editOrg.footer_description || ''} onChange={e => setEditOrg({ ...editOrg, footer_description: e.target.value })}></textarea>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4 mt-2">
-               <div>
-                  <label className="block text-sm font-medium text-gray-700">Faculty Section Title</label>
-                  <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                         value={editOrg.footer.facultyTitle} onChange={e => setEditOrg({...editOrg, footer: {...editOrg.footer, facultyTitle: e.target.value}})} />
-                  
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700">Faculty Details</label>
-                    <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                              rows="3" value={editOrg.footer.facultyDetails} onChange={e => setEditOrg({...editOrg, footer: {...editOrg.footer, facultyDetails: e.target.value}})}
-                              placeholder="Science&#10;IT&#10;Management"></textarea>
-                  </div>
-               </div>
-               <div>
-                  <label className="block text-sm font-medium text-gray-700">Contact Section Title</label>
-                  <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                         value={editOrg.footer.contactTitle} onChange={e => setEditOrg({...editOrg, footer: {...editOrg.footer, contactTitle: e.target.value}})} />
-                  
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700">Contact Details</label>
-                    <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                              rows="3" value={editOrg.footer.contactInfo} onChange={e => setEditOrg({...editOrg, footer: {...editOrg.footer, contactInfo: e.target.value}})}
-                              placeholder="contact@educms.com&#10;+1-800-EDUCMS"></textarea>
-                  </div>
-               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Faculty Section Title</label>
+                <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                  value={editOrg.footer.facultyTitle} onChange={e => setEditOrg({ ...editOrg, footer: { ...editOrg.footer, facultyTitle: e.target.value } })} />
+
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700">Faculty Details</label>
+                  <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                    rows="3" value={editOrg.footer.facultyDetails} onChange={e => setEditOrg({ ...editOrg, footer: { ...editOrg.footer, facultyDetails: e.target.value } })}
+                    placeholder="Science&#10;IT&#10;Management"></textarea>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Contact Section Title</label>
+                <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                  value={editOrg.footer.contactTitle} onChange={e => setEditOrg({ ...editOrg, footer: { ...editOrg.footer, contactTitle: e.target.value } })} />
+
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700">Contact Details</label>
+                  <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                    rows="3" value={editOrg.footer.contactInfo} onChange={e => setEditOrg({ ...editOrg, footer: { ...editOrg.footer, contactInfo: e.target.value } })}
+                    placeholder="contact@educms.com&#10;+1-800-EDUCMS"></textarea>
+                </div>
+              </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Map Embed URL</label>
-              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={editOrg.footer.mapUrl || ''} 
-                     onChange={e => {
-                       let val = e.target.value;
-                       const match = val.match(/src="([^"]+)"/);
-                       if (match) val = match[1];
-                       setEditOrg({...editOrg, footer: {...editOrg.footer, mapUrl: val}});
-                     }} 
-                     placeholder="Paste URL or <iframe> code..." />
+              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                value={editOrg.footer.mapUrl || ''}
+                onChange={e => {
+                  let val = e.target.value;
+                  const match = val.match(/src="([^"]+)"/);
+                  if (match) val = match[1];
+                  setEditOrg({ ...editOrg, footer: { ...editOrg.footer, mapUrl: val } });
+                }}
+                placeholder="Paste URL or <iframe> code..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Copyright Text</label>
-              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                     value={editOrg.footer.copyrightText} onChange={e => setEditOrg({...editOrg, footer: {...editOrg.footer, copyrightText: e.target.value}})} />
+              <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                value={editOrg.footer.copyrightText} onChange={e => setEditOrg({ ...editOrg, footer: { ...editOrg.footer, copyrightText: e.target.value } })} />
             </div>
-            
+
             <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
               <button type="submit" className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:col-start-2">Save Changes</button>
               <button type="button" onClick={() => setIsEditModalOpen(false)} className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">Cancel</button>
@@ -460,13 +470,13 @@ const Organizations = () => {
         <form onSubmit={handleCreateAdmin} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Admin Name</label>
-            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                   value={newAdmin.name} onChange={e => setNewAdmin({...newAdmin, name: e.target.value})} />
+            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              value={newAdmin.name} onChange={e => setNewAdmin({ ...newAdmin, name: e.target.value })} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Admin Email</label>
-            <input required type="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" 
-                   value={newAdmin.email} onChange={e => setNewAdmin({...newAdmin, email: e.target.value})} />
+            <input required type="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              value={newAdmin.email} onChange={e => setNewAdmin({ ...newAdmin, email: e.target.value })} />
           </div>
           <div>
             <p className="text-sm text-gray-500 mt-2">Default Password will be set to: <strong>password123</strong></p>

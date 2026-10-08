@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getNotices, getEvents } from '../../services/apiService';
+import { getNotices, getEvents, getStaff } from '../../services/apiService';
 import { FileText, Calendar, Users as UsersIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -8,13 +8,16 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [myNotices, setMyNotices] = useState([]);
   const [myEvents, setMyEvents] = useState([]);
+  const [myStaff, setMyStaff] = useState([]);
   
   useEffect(() => {
     const fetchData = async () => {
       const notices = await getNotices(user.organizationId);
       const events = await getEvents(user.organizationId);
+      const staff = await getStaff(user.organizationId);
       setMyNotices(notices);
       setMyEvents(events);
+      setMyStaff(staff);
     };
     fetchData();
   }, [user.organizationId]);
@@ -48,7 +51,7 @@ const Dashboard = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Staff Members</p>
-            <p className="text-2xl font-bold text-gray-900">24</p>
+            <p className="text-2xl font-bold text-gray-900">{myStaff.length}</p>
           </div>
         </div>
       </div>

@@ -33,25 +33,59 @@ const Settings = () => {
       if (user && user.organizationId) {
         try {
           const { default: apiClient } = await import('../../services/apiClient');
-          const res = await apiClient.get('/admin/dashboard');
-          if (res && res.data && res.data.organization) {
-            const org = res.data.organization;
-            
+          let org = null;
+          
+          try {
+            // First try the specific ID endpoint
+            const res = await apiClient.get('/admin/organizations/get-organization-by-id/' + user.organizationId);
+            org = res.organization || res.data?.organization || res.data || res;
+          } catch(e) {
+            // Fallback to dashboard endpoint
+            const res = await apiClient.get('/admin/dashboard');
+            org = res?.data?.organization || res?.organization || res?.data;
+          }
+
+          if (org && org.id) {
             // Merge with local mock data since backend update is restricted
             let localData = {};
             try {
                localData = JSON.parse(localStorage.getItem(`orgSettings_${org.id}`) || '{}');
             } catch(e) {}
             
+            // Format branding and footer carefully
+            const brandingObj = typeof org.branding === 'string' ? JSON.parse(org.branding) : (org.branding || {});
+            const footerObj = typeof org.footer_config === 'string' ? JSON.parse(org.footer_config) : (org.footer_config || org.footer || {});
+
             setOrganization({
               ...org,
               ...localData,
-              branding: localData.branding || org.branding || { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6', logo: org.logo_url || '' },
-              footer: localData.footer || org.footer || { logo: '', description: org.footer_description || '', facultyTitle: 'Faculty', facultyDetails: '', contactTitle: 'Contact Us', contactInfo: '', mapUrl: org.map_link || '', copyrightText: org.copyright_text || '' }
+              branding: {
+                ...brandingObj,
+                ...localData.branding,
+                primaryColor: brandingObj.primaryColor || '#4f46e5',
+                secondaryColor: brandingObj.secondaryColor || '#f3f4f6',
+                logo: brandingObj.logo || org.logo_url || ''
+              },
+              footer: {
+                ...footerObj,
+                ...localData.footer,
+                logo: footerObj.logo || '',
+                description: footerObj.description || org.footer_description || '',
+                facultyTitle: footerObj.facultyTitle || 'Faculty',
+                facultyDetails: footerObj.facultyDetails || '',
+                contactTitle: footerObj.contactTitle || 'Contact Us',
+                contactInfo: footerObj.contactInfo || '',
+                mapUrl: footerObj.mapUrl || org.map_link || '',
+                copyrightText: footerObj.copyrightText || org.copyright_text || ''
+              }
             });
+          } else {
+             // If we couldn't fetch, set an empty mock organization to prevent endless loading
+             setOrganization({ id: user.organizationId, name: 'Organization', branding: {}, footer: {} });
           }
         } catch (e) {
           console.error("Failed to fetch organization for org admin", e);
+          setOrganization({ id: user.organizationId, name: 'Organization', branding: {}, footer: {} });
         }
       }
     };
