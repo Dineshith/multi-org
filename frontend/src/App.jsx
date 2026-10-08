@@ -27,6 +27,7 @@ import OAEvents from './pages/OrgAdmin/Events';
 import OAPages from './pages/OrgAdmin/Pages';
 import OAPageBuilder from './pages/OrgAdmin/PageBuilder';
 import OASettings from './pages/OrgAdmin/Settings';
+import OAStaff from './pages/OrgAdmin/Staff';
 
 // Public Pages
 import DynamicPage from './pages/Public/DynamicPage';
@@ -60,7 +61,7 @@ function App() {
             <Route path="events" element={<OAEvents />} />
             <Route path="pages" element={<OAPages />} />
             <Route path="pages/:pageId" element={<OAPageBuilder />} />
-            <Route path="staff" element={<div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200">Staff Management coming soon</div>} />
+            <Route path="staff" element={<OAStaff />} />
             <Route path="settings" element={<OASettings />} />
           </Route>
 

@@ -160,10 +160,10 @@ export const getUserByEmail = async (email) => {
 export const createUser = async (data) => {
     try {
         const res = await apiClient.post('/users', data);
-        return res.user;
+        return res.success ? res : null;
     } catch (e) {
         console.error(e);
-        return null;
+        return { success: false, message: e.response?.data?.message || 'Failed to create Admin. Please try again.' };
     }
 };
 

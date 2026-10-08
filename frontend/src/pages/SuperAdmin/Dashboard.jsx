@@ -96,10 +96,10 @@ const Dashboard = () => {
                 )}
                 <div>
                   <h4 className="font-medium text-gray-900">{org.name}</h4>
-                  <p className="text-sm text-gray-500">{org.type} • {org.slug}</p>
+                  <p className="text-sm text-gray-500">ID: {org.id} • Type: {org.type} • Slug: {org.slug}</p>
                 </div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${org.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${org.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                 {org.status}
               </span>
             </div>
