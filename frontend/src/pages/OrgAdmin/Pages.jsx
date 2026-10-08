@@ -4,6 +4,7 @@ import { getPages, createPage, updatePage, deletePage, getOrganizationBySlug } f
 import { Plus, Search, Edit2, Trash2, LayoutTemplate, List } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../../components/shared/Modal';
+import { toast } from 'react-toastify';
 
 const Pages = () => {
   const { user } = useAuth();
@@ -37,23 +38,33 @@ const Pages = () => {
   const handleCreatePage = async (e) => {
     e.preventDefault();
     const targetOrgId = user.organizationId || platformOrgId || "0";
+    
+    let success = false;
     if (editingId) {
-      await updatePage(editingId, {
+      const res = await updatePage(editingId, {
         title: newPage.title,
         slug: newPage.slug,
         dropdown_items: newPage.dropdown_items.filter(g => g.trim() !== '')
       });
+      success = !!res;
     } else {
-      await createPage(targetOrgId, {
+      const res = await createPage(targetOrgId, {
         ...newPage,
         dropdown_items: newPage.dropdown_items.filter(g => g.trim() !== ''),
         sections: []
       });
+      success = !!res;
     }
-    await loadPages(targetOrgId);
-    setIsModalOpen(false);
-    setNewPage({ title: '', slug: '', dropdown_items: [] });
-    setEditingId(null);
+
+    if (success) {
+      toast.success(editingId ? "Page updated successfully!" : "Page added successfully!");
+      await loadPages(targetOrgId);
+      setIsModalOpen(false);
+      setNewPage({ title: '', slug: '', dropdown_items: [] });
+      setEditingId(null);
+    } else {
+      toast.error("Something went wrong!");
+    }
   };
 
   const handleEditMeta = (page) => {
@@ -72,8 +83,13 @@ const Pages = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this page? This cannot be undone.')) {
-      await deletePage(id);
-      await loadPages(user.organizationId || platformOrgId || "0");
+      const res = await deletePage(id);
+      if (res) {
+        toast.success("Page deleted successfully!");
+        await loadPages(user.organizationId || platformOrgId || "0");
+      } else {
+        toast.error("Something went wrong while deleting!");
+      }
     }
   };
 
