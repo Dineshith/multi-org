@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { getOrganizations, createOrganization, createUser, updateOrganization, deleteOrganization } from '../../services/apiService';
-import { Plus, Search, MoreVertical, Shield, Edit, Trash2 } from 'lucide-react';
+import { getOrganizations, createOrganization, updateOrganization, deleteOrganization } from '../../services/apiService';
+import { Plus, Search, MoreVertical, Shield, Edit, Trash2, Eye, Minimize2 } from 'lucide-react';
 import Modal from '../../components/shared/Modal';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const Organizations = () => {
+  const navigate = useNavigate();
   const [organizations, setOrganizations] = useState([]);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [selectedOrgId, setSelectedOrgId] = useState(null);
 
   // New Org Form State
@@ -22,6 +23,7 @@ const Organizations = () => {
   // Edit Org Form State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editOrg, setEditOrg] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
 
   // New Admin Form State
   const [newAdmin, setNewAdmin] = useState({ name: '', email: '', password: 'password123' });
@@ -237,7 +239,7 @@ const Organizations = () => {
                       <Edit size={16} /> <span>Edit</span>
                     </button>
                     <button
-                      onClick={() => { setSelectedOrgId(org.id); setIsAdminModalOpen(true); }}
+                      onClick={() => navigate('/platform-admin/assign-admin', { state: { orgId: org.id, orgName: org.name } })}
                       className="text-blue-600 hover:text-blue-900 flex items-center space-x-1"
                       title="Assign Admin"
                     >
@@ -351,10 +353,51 @@ const Organizations = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Logo URL (Navbar & Footer)</label>
-              <input type="url" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                value={editOrg.logo_url || ''} onChange={e => setEditOrg({ ...editOrg, logo_url: e.target.value })}
-                placeholder="https://example.com/logo.png" />
+              <label className="block text-sm font-medium text-gray-700">Logo (Navbar & Footer)</label>
+              {!editOrg.logo_url && (
+                <input type="file" accept="image/*" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-1.5 border"
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setEditOrg({ 
+                          ...editOrg, 
+                          logo_url: reader.result,
+                          branding: { ...editOrg.branding, logo: reader.result },
+                          footer: { ...editOrg.footer, logo: reader.result }
+                        });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }} />
+              )}
+              {editOrg.logo_url && (
+                 <div className="mt-3 relative inline-block">
+                   <img src={editOrg.logo_url} alt="Logo Preview" className="h-12 object-contain bg-gray-50 border rounded p-1" />
+                   <button 
+                     type="button"
+                     onClick={() => setPreviewImage(editOrg.logo_url)}
+                     className="absolute -top-2 -left-2 bg-white text-blue-500 border border-gray-200 rounded-full w-5 h-5 flex items-center justify-center hover:text-blue-700 hover:bg-gray-50 shadow-sm"
+                     title="View image"
+                   >
+                     <Eye size={12} />
+                   </button>
+                   <button 
+                     type="button" 
+                     onClick={() => setEditOrg({ 
+                       ...editOrg, 
+                       logo_url: '',
+                       branding: { ...editOrg.branding, logo: '' },
+                       footer: { ...editOrg.footer, logo: '' }
+                     })} 
+                     className="absolute -top-2 -right-2 bg-white text-red-500 border border-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs hover:text-red-700 hover:bg-gray-50 shadow-sm font-bold"
+                     title="Remove image"
+                   >
+                     ✕
+                   </button>
+                 </div>
+              )}
             </div>
 
             {/* Stats Banner */}
@@ -465,28 +508,27 @@ const Organizations = () => {
         </Modal>
       )}
 
-      {/* Assign Admin Modal */}
-      <Modal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} title="Assign Organization Admin">
-        <form onSubmit={handleCreateAdmin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Admin Name</label>
-            <input required type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-              value={newAdmin.name} onChange={e => setNewAdmin({ ...newAdmin, name: e.target.value })} />
+
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 p-4">
+          <div className="relative max-w-5xl max-h-full flex flex-col items-center">
+            <button 
+              onClick={() => setPreviewImage(null)}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 bg-gray-800 bg-opacity-50 hover:bg-opacity-100 rounded-full p-2 transition-all"
+              title="Minimize"
+            >
+              <Minimize2 size={24} />
+            </button>
+            <img 
+              src={previewImage} 
+              alt="Full Preview" 
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl bg-white" 
+            />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Admin Email</label>
-            <input required type="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-              value={newAdmin.email} onChange={e => setNewAdmin({ ...newAdmin, email: e.target.value })} />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 mt-2">Default Password will be set to: <strong>password123</strong></p>
-          </div>
-          <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-            <button type="submit" className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:col-start-2">Assign Admin</button>
-            <button type="button" onClick={() => setIsAdminModalOpen(false)} className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">Cancel</button>
-          </div>
-        </form>
-      </Modal>
+        </div>
+      )}
     </div>
   );
 };
