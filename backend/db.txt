@@ -4,7 +4,6 @@ COLLATE utf8mb4_unicode_ci;
 
 USE multiorg;
 
-
 -- =========================================================
 -- 1. ORGANIZATIONS
 -- =========================================================
@@ -19,11 +18,11 @@ CREATE TABLE IF NOT EXISTS organizations (
     phone VARCHAR(50),
 
     -- Organization Logo
-    logo_url VARCHAR(500),
+    logo_url LONGTEXT,
 
     -- Organization Location
     address VARCHAR(255),
-    map_link VARCHAR(500),
+    map_link LONGTEXT,
 
     -- Organization Status
     status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
@@ -32,24 +31,22 @@ CREATE TABLE IF NOT EXISTS organizations (
     footer_description TEXT,
     copyright_text VARCHAR(500),
 
-    -- Theme: { "primaryColor": "#4f46e5", "secondaryColor": "#f8fafc" }
+    -- Theme
     branding JSON,
 
-    -- Hero stats: [{ "value": "27", "label": "INSTITUTIONS", "subLabel": "..." }]
+    -- Hero Stats
     stats_banner JSON,
 
-    -- Navbar buttons: [{ "name": "ABC College", "link": "https://..." }]
+    -- Sister Organizations
     sister_organizations JSON,
 
-    -- Extra footer block: { "facultyTitle", "facultyDetails", "contactTitle", "contactInfo" }
+    -- Footer Configuration
     footer_config JSON,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP
 );
-
 
 -- =========================================================
 -- 2. SYSTEM SETTINGS
@@ -58,16 +55,14 @@ CREATE TABLE IF NOT EXISTS settings (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
     system_name VARCHAR(255) NOT NULL,
-    system_logo_url VARCHAR(500),
+    system_logo_url LONGTEXT,
     system_email VARCHAR(255),
     system_phone VARCHAR(50),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP
 );
-
 
 -- =========================================================
 -- 3. USERS
@@ -87,12 +82,10 @@ CREATE TABLE IF NOT EXISTS users (
     -- User Role
     role ENUM('SUPER_ADMIN', 'ORG_ADMIN') NOT NULL,
 
-    -- Increase when password changes/resets
-    -- Used to invalidate old JWT sessions
+    -- JWT Session Invalidation
     token_version INT NOT NULL DEFAULT 0,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
@@ -101,7 +94,6 @@ CREATE TABLE IF NOT EXISTS users (
         ON DELETE CASCADE
 );
 
-
 -- =========================================================
 -- 4. PASSWORD RESET TOKENS
 -- =========================================================
@@ -109,14 +101,8 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
     user_id INT UNSIGNED NOT NULL,
-
-    -- Temporary reset token
     token VARCHAR(255) NOT NULL UNIQUE,
-
-    -- Token expiration time
     expires_at DATETIME NOT NULL,
-
-    -- Prevent token from being reused
     used BOOLEAN NOT NULL DEFAULT FALSE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -126,10 +112,8 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
         ON DELETE CASCADE
 );
 
-
 -- =========================================================
--- 4b. PASSWORD RESET REQUESTS
--- Super admin approval queue fed by POST /api/auth/forgot-password
+-- 4B. PASSWORD RESET REQUESTS
 -- =========================================================
 CREATE TABLE IF NOT EXISTS password_reset_requests (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -137,14 +121,13 @@ CREATE TABLE IF NOT EXISTS password_reset_requests (
     user_id INT UNSIGNED NULL,
     organization_id INT UNSIGNED NULL,
 
-    -- Denormalized so the queue survives a deleted user/org
     org_name VARCHAR(255),
     admin_name VARCHAR(255),
     admin_email VARCHAR(255) NOT NULL,
 
-    status ENUM('PENDING', 'ACCEPTED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
+    status ENUM('PENDING', 'ACCEPTED', 'REJECTED')
+        NOT NULL DEFAULT 'PENDING',
 
-    -- Reset token, created up-front and only revealed once approved
     token VARCHAR(255),
 
     handled_by INT UNSIGNED NULL,
@@ -167,10 +150,8 @@ CREATE TABLE IF NOT EXISTS password_reset_requests (
     INDEX idx_reset_requests_status (status)
 );
 
-
 -- =========================================================
 -- 5. PAGES
--- Home, About, Contact, Admission, etc.
 -- =========================================================
 CREATE TABLE IF NOT EXISTS pages (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -181,12 +162,9 @@ CREATE TABLE IF NOT EXISTS pages (
     slug VARCHAR(255) NOT NULL,
 
     sections JSON,
-
-    -- Navbar dropdown sub-items: ["Teachers", "Gallery"]
     dropdown_items JSON,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
@@ -196,7 +174,6 @@ CREATE TABLE IF NOT EXISTS pages (
 
     UNIQUE KEY org_page_slug (organization_id, slug)
 );
-
 
 -- =========================================================
 -- 6. STAFF
@@ -214,11 +191,10 @@ CREATE TABLE IF NOT EXISTS staff (
     phone VARCHAR(50),
 
     qualification VARCHAR(500),
-    photo_url VARCHAR(500),
+    photo_url LONGTEXT,
     bio TEXT,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
@@ -226,7 +202,6 @@ CREATE TABLE IF NOT EXISTS staff (
         REFERENCES organizations(id)
         ON DELETE CASCADE
 );
-
 
 -- =========================================================
 -- 7. NOTICES
@@ -239,7 +214,7 @@ CREATE TABLE IF NOT EXISTS notices (
     title VARCHAR(255) NOT NULL,
     content TEXT,
 
-    image_url VARCHAR(500),
+    image_url LONGTEXT,
 
     published BOOLEAN DEFAULT FALSE,
     published_at DATETIME,
@@ -247,7 +222,6 @@ CREATE TABLE IF NOT EXISTS notices (
     publish_on_main_portal BOOLEAN DEFAULT FALSE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
@@ -255,7 +229,6 @@ CREATE TABLE IF NOT EXISTS notices (
         REFERENCES organizations(id)
         ON DELETE CASCADE
 );
-
 
 -- =========================================================
 -- 8. EVENTS
@@ -268,14 +241,13 @@ CREATE TABLE IF NOT EXISTS events (
     title VARCHAR(255) NOT NULL,
     description TEXT,
 
-    image_url VARCHAR(500),
+    image_url LONGTEXT,
 
     event_date DATETIME,
 
     publish_on_main_portal BOOLEAN DEFAULT FALSE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
@@ -283,7 +255,6 @@ CREATE TABLE IF NOT EXISTS events (
         REFERENCES organizations(id)
         ON DELETE CASCADE
 );
-
 
 -- =========================================================
 -- 9. NEWS
@@ -299,7 +270,7 @@ CREATE TABLE IF NOT EXISTS news (
     excerpt TEXT,
     content LONGTEXT,
 
-    featured_image VARCHAR(500),
+    featured_image LONGTEXT,
 
     published BOOLEAN DEFAULT FALSE,
     published_at DATETIME,
@@ -307,7 +278,6 @@ CREATE TABLE IF NOT EXISTS news (
     publish_on_main_portal BOOLEAN DEFAULT FALSE,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
@@ -318,9 +288,8 @@ CREATE TABLE IF NOT EXISTS news (
     UNIQUE KEY org_news_slug (organization_id, slug)
 );
 
-
 -- =========================================================
--- 10. COURSES (DISCIPLINES / PROGRAMS)
+-- 10. COURSES
 -- =========================================================
 CREATE TABLE IF NOT EXISTS courses (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -333,10 +302,10 @@ CREATE TABLE IF NOT EXISTS courses (
     description TEXT,
     duration VARCHAR(100),
 
-    status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+    status ENUM('ACTIVE', 'INACTIVE')
+        NOT NULL DEFAULT 'ACTIVE',
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
@@ -344,7 +313,6 @@ CREATE TABLE IF NOT EXISTS courses (
         REFERENCES organizations(id)
         ON DELETE CASCADE
 );
-
 
 -- =========================================================
 -- 11. STUDENTS
@@ -360,10 +328,10 @@ CREATE TABLE IF NOT EXISTS students (
     phone VARCHAR(50),
     roll_number VARCHAR(100),
 
-    status ENUM('ACTIVE', 'INACTIVE', 'GRADUATED') NOT NULL DEFAULT 'ACTIVE',
+    status ENUM('ACTIVE', 'INACTIVE', 'GRADUATED')
+        NOT NULL DEFAULT 'ACTIVE',
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
@@ -375,7 +343,6 @@ CREATE TABLE IF NOT EXISTS students (
         REFERENCES courses(id)
         ON DELETE SET NULL
 );
-
 
 -- =========================================================
 -- 12. CONTACTS
@@ -391,7 +358,6 @@ CREATE TABLE IF NOT EXISTS contacts (
     message TEXT NOT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
 
