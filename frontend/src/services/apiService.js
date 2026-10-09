@@ -6,18 +6,7 @@ export const getOrganizations = async () => {
         const res = await apiClient.get('/admin/organizations/get-all-organization');
         const orgs = res.data || [];
 
-        // Merge localStorage data for main-portal
-        try {
-            const storedMainPortal = JSON.parse(localStorage.getItem('mainPortalData') || '{}');
-            const mainPortalIndex = orgs.findIndex(o => o.slug === 'main-portal');
-            if (mainPortalIndex !== -1) {
-                orgs[mainPortalIndex] = {
-                    ...orgs[mainPortalIndex],
-                    sisterOrganizations: storedMainPortal.sisterOrganizations || [],
-                    statsBanner: storedMainPortal.statsBanner || []
-                };
-            }
-        } catch (e) { }
+
 
         return orgs;
     } catch (e) {
@@ -35,55 +24,9 @@ export const getOrganization = async (id) => {
 
 export const getOrganizationBySlug = async (slug) => {
     try {
-        let orgData = null;
-        if (slug === 'main-portal') {
-            // Check if we have a mocked main-portal in localStorage
-            try {
-                const storedMainPortal = JSON.parse(localStorage.getItem('mainPortalData') || '{}');
-                orgData = {
-                    id: 0,
-                    name: storedMainPortal.name || 'EduCMS Platform',
-                    type: 'platform',
-                    slug: 'main-portal',
-                    logo_url: storedMainPortal.logo_url || '',
-                    footer_description: storedMainPortal.footer_description || 'Welcome to EduCMS',
-                    branding: storedMainPortal.branding || { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6' },
-                    sisterOrganizations: storedMainPortal.sisterOrganizations || [],
-                    statsBanner: storedMainPortal.statsBanner || []
-                };
-            } catch (e) { }
-        }
-
         const res = await apiClient.get(`/admin/organizations/get-organization-by-slug/${slug}`);
-
-        let mergedData = res.data;
-        if (slug === 'main-portal' && orgData) {
-            mergedData = { ...orgData, ...res.data };
-            // Explicitly add sisterOrganizations back since backend drops it
-            try {
-                const storedMainPortal = JSON.parse(localStorage.getItem('mainPortalData') || '{}');
-                mergedData.sisterOrganizations = storedMainPortal.sisterOrganizations || [];
-                mergedData.statsBanner = storedMainPortal.statsBanner || [];
-            } catch (e) { }
-        }
-        return mergedData;
+        return res.data;
     } catch (e) {
-        if (slug === 'main-portal') {
-            try {
-                const storedMainPortal = JSON.parse(localStorage.getItem('mainPortalData') || '{}');
-                return {
-                    id: 0,
-                    name: storedMainPortal.name || 'EduCMS Platform',
-                    type: 'platform',
-                    slug: 'main-portal',
-                    logo_url: storedMainPortal.logo_url || '',
-                    footer_description: storedMainPortal.footer_description || 'Welcome to EduCMS',
-                    branding: storedMainPortal.branding || { primaryColor: '#4f46e5', secondaryColor: '#f3f4f6' },
-                    sisterOrganizations: storedMainPortal.sisterOrganizations || [],
-                    statsBanner: storedMainPortal.statsBanner || []
-                };
-            } catch (err) { }
-        }
         console.error(e);
         return null;
     }
@@ -106,17 +49,7 @@ export const updateOrganization = async (id, data) => {
     if (!org) return null;
 
     try {
-        // Since backend doesn't support sisterOrganizations and statsBanner, 
-        // we'll save them in localStorage specifically for main-portal.
-        if (org.slug === 'main-portal') {
-            localStorage.setItem('mainPortalData', JSON.stringify({
-                name: data.name,
-                logo_url: data.logo_url,
-                footer_description: data.footer_description,
-                sisterOrganizations: data.sisterOrganizations,
-                statsBanner: data.statsBanner
-            }));
-        }
+
 
         const res = await apiClient.put(`/admin/organizations/update-organization/${org.slug}`, data);
         return res.slug ? res : null;
