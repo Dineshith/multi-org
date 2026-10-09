@@ -250,8 +250,22 @@ const PageBuilder = () => {
                         <input type="text" className="w-full text-lg border-0 border-b border-gray-200 focus:ring-0 focus:border-indigo-600 px-0 py-2 text-gray-600" value={section.data.subtitle} onChange={e => updateSection(index, 'subtitle', e.target.value)} />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Background Image URL</label>
-                        <input type="text" className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" value={section.data.image} onChange={e => updateSection(index, 'image', e.target.value)} />
+                        <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Background Image</label>
+                        <div className="flex items-center space-x-3">
+                          <input type="file" accept="image/*" className="w-full text-sm border border-gray-300 rounded p-1.5 focus:ring-indigo-500 focus:border-indigo-500" onChange={e => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                updateSection(index, 'image', reader.result);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }} />
+                          {section.data.image && (
+                            <img src={section.data.image} alt="Preview" className="h-10 w-16 object-cover rounded shadow-sm border border-gray-200" />
+                          )}
+                        </div>
                       </div>
                     </>
                   )}
@@ -286,8 +300,22 @@ const PageBuilder = () => {
                   {section.type === 'image' && (
                     <>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Image URL</label>
-                        <input type="text" className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500" value={section.data.url} onChange={e => updateSection(index, 'url', e.target.value)} />
+                        <label className="block text-xs font-medium text-gray-700 uppercase mb-1">Image Upload</label>
+                        <div className="flex items-center space-x-3">
+                          <input type="file" accept="image/*" className="w-full text-sm border border-gray-300 rounded p-1.5 focus:ring-indigo-500 focus:border-indigo-500" onChange={e => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                updateSection(index, 'url', reader.result);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }} />
+                          {section.data.url && (
+                            <img src={section.data.url} alt="Preview" className="h-10 w-16 object-cover rounded shadow-sm border border-gray-200" />
+                          )}
+                        </div>
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-700 uppercase mb-1 mt-2">Caption (Optional)</label>
@@ -554,16 +582,25 @@ const PageBuilder = () => {
                             {images.map((img, imgIndex) => (
                               <div key={imgIndex} className="flex items-center space-x-2 mb-2">
                                 <input
-                                  type="text"
-                                  className="w-full text-sm border border-gray-300 rounded p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                  value={img}
+                                  type="file"
+                                  accept="image/*"
+                                  className="w-full text-sm border border-gray-300 rounded p-1.5 focus:ring-indigo-500 focus:border-indigo-500"
                                   onChange={e => {
-                                    const newImages = [...images];
-                                    newImages[imgIndex] = e.target.value;
-                                    updateSection(index, 'images', newImages);
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onloadend = () => {
+                                        const newImages = [...images];
+                                        newImages[imgIndex] = reader.result;
+                                        updateSection(index, 'images', newImages);
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
                                   }}
-                                  placeholder="Image URL"
                                 />
+                                {img && (
+                                  <img src={img} alt="Preview" className="h-8 w-12 object-cover rounded shadow-sm border border-gray-200" />
+                                )}
                                 <button
                                   type="button"
                                   className="p-2 text-red-500 hover:bg-red-50 rounded"

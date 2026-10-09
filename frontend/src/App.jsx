@@ -19,6 +19,7 @@ import SADashboard from './pages/SuperAdmin/Dashboard';
 import SAOrganizations from './pages/SuperAdmin/Organizations';
 import SASettings from './pages/SuperAdmin/Setting';
 import SAPasswordRequests from './pages/SuperAdmin/PasswordRequests';
+import SAAssignAdmin from './pages/SuperAdmin/AssignAdmin';
 
 import OADashboard from './pages/OrgAdmin/Dashboard';
 import OANews from './pages/OrgAdmin/News';
@@ -51,6 +52,8 @@ function App() {
             <Route path="organizations" element={<SAOrganizations />} />
             <Route path="password-requests" element={<SAPasswordRequests />} />
             <Route path="settings" element={<SASettings />} />
+            <Route path="assign-admin" element={<SAAssignAdmin />} />
+
           </Route>
 
           {/* Organization Admin Routes */}

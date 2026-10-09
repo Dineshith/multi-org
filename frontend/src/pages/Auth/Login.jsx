@@ -67,6 +67,8 @@ const Login = () => {
     
     const res = await updateUser(userToUpdate.id, { password: newPassword });
     if (res && res.success) {
+      // Re-login to get a fresh token with the updated token_version
+      await login(email, newPassword);
       navigate('/admin/dashboard');
     } else {
       setError(res?.message || "Failed to update password");

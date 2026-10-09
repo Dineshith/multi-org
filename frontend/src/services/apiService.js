@@ -177,6 +177,16 @@ export const updateUser = async (id, data) => {
     }
 };
 
+export const deleteUser = async (id) => {
+    try {
+        const res = await apiClient.delete(`/users/${id}`);
+        return res;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+};
+
 // --- Notices ---
 export const getAllNotices = async () => {
     try {
