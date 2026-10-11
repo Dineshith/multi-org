@@ -22,6 +22,10 @@ const hasFlag = (name) => args.includes(`--${name}`);
 const EMAIL = flag("email", "super@admin.com").trim();
 const PASSWORD = flag("password", "password123");
 const NAME = flag("name", "Super Admin");
+const MAIN_PORTAL_EMAIL = flag(
+  "portalEmail",
+  process.env.MAIN_PORTAL_EMAIL || "portal@portal.com"
+).trim();
 const WITH_DEMO = hasFlag("demo");
 
 const DB_NAME = process.env.DB_NAME || "multiorg";
@@ -106,7 +110,23 @@ const run = async () => {
   );
   log(`[seed] SUPER_ADMIN ready -> ${EMAIL}`);
 
-  // 4. optional demo organization + org admin
+  // 4. Ensure the platform landing portal exists on every setup.
+  const [[mainPortal]] = await db.query(
+    `SELECT id FROM organizations WHERE slug = 'main-portal' LIMIT 1`
+  );
+
+  if (!mainPortal) {
+    await db.query(
+      `INSERT INTO organizations (name, type, slug, email, status, sister_organizations)
+       VALUES ('Main Portal', 'PLATFORM', 'main-portal', ?, 'ACTIVE', JSON_ARRAY())`,
+      [MAIN_PORTAL_EMAIL]
+    );
+    log(`[seed] Main Portal ready -> main-portal`);
+  } else {
+    log(`[seed] Main Portal already exists -> main-portal`);
+  }
+
+  // 5. optional demo organization + org admin
   if (WITH_DEMO) {
     const orgName = flag("org", "Kathmandu Model College");
     const orgEmail = flag("orgEmail", "info@ktmcollege.edu.np");
