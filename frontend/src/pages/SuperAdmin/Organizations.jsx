@@ -84,7 +84,7 @@ const Organizations = () => {
       return;
     }
     if (window.confirm("Are you sure you want to delete this organization? All its pages, events, and notices will be permanently deleted. This action cannot be undone.")) {
-      const success = await deleteOrganization(id);
+      const success = await deleteOrganization(id, slug);
       if (success) {
         toast.success("Organization deleted successfully!");
         await loadOrganizations();
