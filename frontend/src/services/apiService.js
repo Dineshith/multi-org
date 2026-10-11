@@ -35,39 +35,31 @@ export const getOrganizationBySlug = async (slug) => {
 export const createOrganization = async (data) => {
     try {
         const res = await apiClient.post('/admin/organizations/create-organization', data);
-        return res.organizationId || res.slug ? res : null;
+        return res;
     } catch (e) {
-        console.error(e);
+        console.error("Create organization error:", e);
         return null;
     }
 };
 
 export const updateOrganization = async (id, data) => {
-    // Note: mockDbService uses id, backend update uses slug. We may need to adjust frontend to pass slug.
-    // For now we'll fetch org to get slug
-    const org = await getOrganization(id);
-    if (!org) return null;
-
     try {
-
-
-        const res = await apiClient.put(`/admin/organizations/update-organization/${org.slug}`, data);
-        return res.slug ? res : null;
+        const target = data?.slug || id;
+        const res = await apiClient.put(`/admin/organizations/update-organization/${target}`, data);
+        return res;
     } catch (e) {
-        console.error(e);
+        console.error("Update organization error:", e);
         return null;
     }
 };
 
-export const deleteOrganization = async (id) => {
-    const org = await getOrganization(id);
-    if (!org) return false;
-
+export const deleteOrganization = async (id, slug) => {
     try {
-        await apiClient.delete(`/admin/organizations/delete-organization/${org.slug}`);
-        return true;
+        const target = slug || id;
+        const res = await apiClient.delete(`/admin/organizations/delete-organization/${target}`);
+        return res || true;
     } catch (e) {
-        console.error(e);
+        console.error("Delete organization error:", e);
         return false;
     }
 };
