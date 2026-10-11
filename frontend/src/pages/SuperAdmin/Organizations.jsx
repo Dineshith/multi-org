@@ -39,7 +39,14 @@ const Organizations = () => {
 
   const handleCreateOrg = async (e) => {
     e.preventDefault();
-    const res = await createOrganization(newOrg);
+    const cleanedSisterOrgs = (newOrg.sisterOrganizations || []).filter(
+      item => (item.name && item.name.trim()) || (item.link && item.link.trim())
+    );
+    const res = await createOrganization({
+      ...newOrg,
+      sisterOrganizations: cleanedSisterOrgs,
+      sister_organizations: cleanedSisterOrgs,
+    });
     if (res) {
       toast.success("Congratulations! New organization created successfully. Please assign an Org Admin so they can log in.", { autoClose: false });
       await loadOrganizations();
@@ -131,8 +138,25 @@ const Organizations = () => {
 
   const handleUpdateOrg = async (e) => {
     e.preventDefault();
+    const cleanedSisterOrgs = (editOrg.sisterOrganizations || []).filter(
+      item => (item.name && item.name.trim()) || (item.link && item.link.trim())
+    );
+    const cleanedStats = (editOrg.statsBanner || []).filter(
+      stat => (stat.value && String(stat.value).trim()) || (stat.label && String(stat.label).trim())
+    );
+
     const payload = {
       ...editOrg,
+      sisterOrganizations: cleanedSisterOrgs,
+      sister_organizations: cleanedSisterOrgs,
+      statsBanner: cleanedStats,
+      stats_banner: cleanedStats,
+      footer_config: {
+        facultyTitle: editOrg.footer?.facultyTitle || 'Faculty',
+        facultyDetails: editOrg.footer?.facultyDetails || '',
+        contactTitle: editOrg.footer?.contactTitle || 'Contact Us',
+        contactInfo: editOrg.footer?.contactInfo || '',
+      },
       map_link: editOrg.footer?.mapUrl || editOrg.map_link,
       copyright_text: editOrg.footer?.copyrightText || editOrg.copyright_text
     };
@@ -314,6 +338,30 @@ const Organizations = () => {
             </div>
           </div>
 
+          {/* Sister Organizations (New Org) */}
+          <div className="border-t pt-4 mt-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-700">Sister Organizations (Navbar Buttons)</span>
+              <button type="button" onClick={handleAddNewSisterOrg} className="text-xs text-white bg-red-600 hover:bg-red-700 font-bold px-3 py-1 rounded">+ Add Sister Org</button>
+            </div>
+            <div className="space-y-3">
+              {(newOrg.sisterOrganizations || []).map((sub, index) => (
+                <div key={index} className="flex space-x-2 items-center bg-gray-50 p-2 rounded-md border border-gray-200">
+                  <div className="flex-1 grid grid-cols-2 gap-2">
+                    <input type="text" placeholder="Name (e.g. Sister org 1)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                      value={sub.name || ''} onChange={e => handleNewSisterOrgChange(index, 'name', e.target.value)} />
+                    <input type="text" placeholder="Link (e.g. https://... or /org/...)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                      value={sub.link || ''} onChange={e => handleNewSisterOrgChange(index, 'link', e.target.value)} />
+                  </div>
+                  <button type="button" onClick={() => handleRemoveNewSisterOrg(index)} className="text-red-500 hover:text-red-700 px-1 font-bold">✕</button>
+                </div>
+              ))}
+              {(!newOrg.sisterOrganizations || newOrg.sisterOrganizations.length === 0) && (
+                <p className="text-xs text-gray-500 italic">No sister organizations added.</p>
+              )}
+            </div>
+          </div>
+
 
 
           <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
@@ -424,28 +472,29 @@ const Organizations = () => {
               )}
             </div>
 
-            {/* Sister Organizations (Edit Org - Main Portal Only) */}
-            {editOrg.slug === 'main-portal' && (
-              <>
-                <h4 className="font-medium text-gray-900 border-b pb-2 mt-6 flex justify-between items-center">
-                  <span>Sister Organizations (Navbar Buttons)</span>
-                  <button type="button" onClick={handleAddEditSisterOrg} className="text-xs text-white bg-red-600 hover:bg-red-700 font-bold px-3 py-1 rounded">+ Add Sister Org</button>
-                </h4>
-                <div className="space-y-3">
-                  {(editOrg.sisterOrganizations || []).map((sub, index) => (
-                    <div key={index} className="flex space-x-2 items-center bg-gray-50 p-2 rounded-md border border-gray-200">
-                      <div className="flex-1 grid grid-cols-2 gap-2">
-                        <input type="text" placeholder="Name (e.g. Sister org 1 +)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
-                          value={sub.name} onChange={e => handleEditSisterOrgChange(index, 'name', e.target.value)} />
-                        <input type="url" placeholder="Link (e.g. https://...)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
-                          value={sub.link} onChange={e => handleEditSisterOrgChange(index, 'link', e.target.value)} />
-                      </div>
-                      <button type="button" onClick={() => handleRemoveEditSisterOrg(index)} className="text-red-500 hover:text-red-700 px-1 font-bold">✕</button>
+            {/* Sister Organizations */}
+            <div>
+              <h4 className="font-medium text-gray-900 border-b pb-2 mt-6 flex justify-between items-center">
+                <span>Sister Organizations (Navbar Buttons)</span>
+                <button type="button" onClick={handleAddEditSisterOrg} className="text-xs text-white bg-red-600 hover:bg-red-700 font-bold px-3 py-1 rounded">+ Add Sister Org</button>
+              </h4>
+              <div className="space-y-3 mt-3">
+                {(editOrg.sisterOrganizations || []).map((sub, index) => (
+                  <div key={index} className="flex space-x-2 items-center bg-gray-50 p-2 rounded-md border border-gray-200">
+                    <div className="flex-1 grid grid-cols-2 gap-2">
+                      <input type="text" placeholder="Name (e.g. Sister org 1)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                        value={sub.name || ''} onChange={e => handleEditSisterOrgChange(index, 'name', e.target.value)} />
+                      <input type="text" placeholder="Link (e.g. https://... or /org/...)" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-xs p-1.5 border"
+                        value={sub.link || ''} onChange={e => handleEditSisterOrgChange(index, 'link', e.target.value)} />
                     </div>
-                  ))}
-                </div>
-              </>
-            )}
+                    <button type="button" onClick={() => handleRemoveEditSisterOrg(index)} className="text-red-500 hover:text-red-700 px-1 font-bold">✕</button>
+                  </div>
+                ))}
+                {(!editOrg.sisterOrganizations || editOrg.sisterOrganizations.length === 0) && (
+                  <p className="text-xs text-gray-500 italic">No sister organizations added.</p>
+                )}
+              </div>
+            </div>
 
             {/* Footer Settings */}
             <h4 className="font-medium text-gray-900 border-b pb-2 mt-6">Footer Settings</h4>

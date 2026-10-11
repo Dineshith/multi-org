@@ -96,9 +96,11 @@ const PublicLayout = () => {
   });
 
   const standaloneSisterOrgs = [];
-  if (tenant?.slug === 'main-portal' && tenant?.sisterOrganizations) {
+  if (tenant?.sisterOrganizations && Array.isArray(tenant.sisterOrganizations)) {
     tenant.sisterOrganizations.forEach((s, idx) => {
-      standaloneSisterOrgs.push({ id: `sister-${idx}`, label: s.name, link: s.link || '#', isExternal: true });
+      if (s.name && s.name.trim()) {
+        standaloneSisterOrgs.push({ id: `sister-${idx}`, label: s.name, link: s.link || '#', isExternal: true });
+      }
     });
   }
 
